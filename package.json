@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "deploy": "astro build && rm -rf deploy/public && cp -R dist deploy/public && npm --prefix deploy ci --no-audit --no-fund && cd deploy && npx cf deploy"
   },
   "dependencies": {
     "@astrojs/react": "7.1.2",
