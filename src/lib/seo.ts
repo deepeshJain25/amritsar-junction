@@ -20,7 +20,7 @@ const to24 = (t: string) => {
   return `${String(h).padStart(2, '0')}:${m[2] ?? '00'}`;
 };
 
-export function restaurantSchema(siteUrl: URL, image?: string) {
+export function restaurantSchema(siteUrl: URL, image?: string, logo?: string) {
   const hours = site.hours
     .filter((h) => confirmed(h.time))
     .map((h) => {
@@ -35,6 +35,7 @@ export function restaurantSchema(siteUrl: URL, image?: string) {
     description: `${site.name} is an Indian restaurant serving ${site.description}.`,
     url: siteUrl.href,
     image,
+    logo,
     servesCuisine: ['Indian', 'Punjabi', 'North Indian', 'Indo-Chinese'],
     telephone: confirmed(site.phone),
     email: confirmed(site.email),

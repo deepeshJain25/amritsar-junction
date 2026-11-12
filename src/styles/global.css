@@ -151,6 +151,8 @@ p { margin: 0 0 var(--space-3); }
 .aj-name { display: block; text-align: center; color: var(--ink); text-decoration: none; margin: var(--space-3) 0; }
 .aj-name--inner { font-family: var(--font-display); font-size: clamp(32px, 4vw, 44px); line-height: 1; }
 .aj-name--home { font-family: var(--font-display); }
+.aj-logo { margin: var(--space-2) 0 var(--space-3); }
+.aj-logo img { width: 200px; height: 200px; margin: 0 auto; border-radius: var(--radius-arch); }
 .aj-double { border-top: 3px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); height: var(--space-1); }
 .aj-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--space-2) var(--space-5); padding: var(--space-3) 0; margin: 0; list-style: none; }
 .aj-nav a { color: var(--ink); text-decoration: none; padding: var(--space-1) 0; }
@@ -213,7 +215,7 @@ textarea.aj-input { resize: vertical; min-height: 120px; }
 
 /* Phones: most visitors read the site here. Tap targets are at least 44px tall, and inputs are 16px so iOS does not zoom. */
 @media (max-width: 720px) {
-  .aj-name--home { font-size: 44px; margin: var(--space-2) 0; }
+  .aj-logo img { width: 140px; height: 140px; }
   .aj-name--inner { padding: 6px 0; margin: var(--space-1) 0; }
   .aj-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: var(--space-1) 0; }
   .aj-nav.aj-kicker { font-size: 13px; letter-spacing: .12em; }

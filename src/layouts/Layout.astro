@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import site from '../content/site.json';
 import { breadcrumbSchema, restaurantSchema } from '../lib/seo';
 import defaultShare from '../assets/photos/tandoor-skewers.jpg';
+import logo from '../assets/logo-roundel-circle.png';
 import '../styles/global.css';
 
 interface Props {
@@ -25,10 +26,12 @@ const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, siteUrl).href;
 const og = await getImage({ src: share, width: 1200, format: 'jpg' });
 const ogUrl = new URL(og.src, siteUrl).href;
+const logoImg = await getImage({ src: logo, width: 512, format: 'png' });
+const logoUrl = new URL(logoImg.src, siteUrl).href;
 const fullTitle = home ? title : `${title} | ${site.name}`;
 
 const graph = [
-  restaurantSchema(siteUrl, ogUrl),
+  restaurantSchema(siteUrl, ogUrl, logoUrl),
   ...(crumb ? [breadcrumbSchema(siteUrl, [{ name: crumb, path: Astro.url.pathname }])] : []),
   ...schema,
 ];
@@ -44,7 +47,11 @@ const graph = [
     <link rel="canonical" href={canonical} />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#0f3b2e" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="restaurant" />
