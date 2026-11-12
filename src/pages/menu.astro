@@ -1,0 +1,113 @@
+---
+import MenuItem from '../components/MenuItem.astro';
+import MenuTools from '../components/MenuTools.tsx';
+import menu from '../content/menu.json';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import kulcha from '../assets/photos/kulcha-thali.jpg';
+
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const count = menu.chapters.reduce((n, c) => n + c.items.length, 0);
+
+// The whole menu as schema.org Menu, so Google can read every dish and its dietary note.
+const menuSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Menu',
+  name: `${site.name} menu`,
+  url: new URL('/menu', siteUrl).href,
+  inLanguage: 'en-AU',
+  hasMenuSection: menu.chapters.map((c) => ({
+    '@type': 'MenuSection',
+    name: c.title,
+    description: c.deck,
+    hasMenuItem: c.items.map((d) => ({
+      '@type': 'MenuItem',
+      name: d.name,
+      description: d.desc,
+      ...(d.veg ? { suitableForDiet: 'https://schema.org/VegetarianDiet' } : {}),
+    })),
+  })),
+};
+---
+
+<Layout
+  title="Menu: Kulcha, Tandoori, Curries & Chaat"
+  description={`Our full menu of ${count} Punjabi dishes: Amritsari kulcha, chole bhature, tandoori, dal makhani, butter chicken, momo, biryani and lassi. Veg dishes marked.`}
+  crumb="Menu"
+  share={kulcha}
+  schema={[menuSchema]}
+>
+  <section class="aj-wrap aj-menu-head">
+    <span class="aj-kicker">The menu · {menu.chapters.length} chapters, {count} dishes</span>
+    <h1 class="aj-headline">Contents</h1>
+    <p class="aj-deck">Read it like a magazine: street chaat to begin, the tandoor in the middle, lassi and something sweet to close. Dishes marked <span class="aj-tag">Veg</span> are vegetarian.</p>
+  </section>
+
+  <nav class="aj-wrap aj-toc" aria-label="Menu chapters">
+    <ol>
+      {menu.chapters.map((c, i) => (
+        <li><a href={`#${c.id}`}><span class="aj-toc__num">{String(i + 1).padStart(2, '0')}</span>{c.title}</a></li>
+      ))}
+    </ol>
+  </nav>
+
+  <div class="aj-tools-wrap">
+    <div class="aj-wrap">
+      <MenuTools client:load chapters={menu.chapters.map(({ id, title }) => ({ id, title }))} />
+    </div>
+  </div>
+
+  <div class="aj-wrap">
+    {menu.chapters.map((c) => (
+      <section class="aj-chapter" id={c.id} aria-labelledby={`${c.id}-title`} data-all-meat={c.items.every((d) => !d.veg) ? '' : undefined}>
+        <div class="aj-chapter__head">
+          <span class="aj-kicker">{c.kicker}</span>
+          <h2 id={`${c.id}-title`} class="aj-section">{c.title}</h2>
+          <p class="aj-caption">{c.deck}</p>
+        </div>
+        <ul class="aj-menu-list aj-chapter__list">
+          {c.items.map((dish) => <MenuItem dish={dish} />)}
+        </ul>
+      </section>
+    ))}
+
+    <p class="aj-form-note aj-menu-note">Please tell us about any allergies when you order. Our kitchen handles nuts, dairy and gluten. Dishes and availability may change.</p>
+  </div>
+</Layout>
+
+<style>
+  .aj-menu-head { padding-top: var(--space-6); padding-bottom: var(--space-4); }
+  .aj-menu-head .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  .aj-menu-head .aj-deck { margin-top: var(--space-3); }
+  .aj-toc ol { list-style: none; padding: var(--space-4) 0; margin: 0; columns: 4 200px; column-gap: var(--space-5); border-top: 3px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); }
+  .aj-toc li { break-inside: avoid; padding: var(--space-1) 0; }
+  .aj-toc a { color: var(--ink); text-decoration: none; font-size: 17px; }
+  .aj-toc a:hover { color: var(--accent); text-decoration: underline; }
+  .aj-toc__num { font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--gold-ink); margin-right: var(--space-2); font-variant-numeric: lining-nums tabular-nums; }
+  .aj-tools-wrap { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--rule); margin-top: var(--space-4); }
+  :global(.aj-tools) { display: flex; gap: var(--space-4); align-items: center; padding: var(--space-2) 0; flex-wrap: wrap; }
+  :global(.aj-tools__jump) { flex: 0 1 320px; }
+  :global(.aj-tools__jump .aj-input) { padding: 8px var(--space-3); font-family: var(--font-label); font-size: 16px; min-height: 44px; }
+  :global(.aj-tools__veg) { min-height: 44px; display: flex; gap: var(--space-2); align-items: center; font-family: var(--font-label); font-size: 15px; font-weight: 600; letter-spacing: .04em; cursor: pointer; }
+  :global(.aj-tools__veg input) { width: 20px; height: 20px; accent-color: var(--emerald); }
+  .aj-chapter { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-5); padding: var(--space-6) 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 72px; }
+  .aj-chapter__head { position: sticky; top: 80px; align-self: start; }
+  .aj-chapter__head .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  .aj-chapter__head .aj-caption { margin-top: var(--space-2); font-size: 16px; line-height: 24px; }
+  .aj-chapter__list { columns: 2 300px; column-gap: var(--space-5); }
+  .aj-menu-note { padding: var(--space-5) 0 var(--space-6); text-align: center; }
+  @media (max-width: 720px) {
+    .aj-toc { display: none; }
+    :global(.aj-tools) { flex-wrap: nowrap; gap: var(--space-3); }
+    :global(.aj-tools__jump) { flex: 1 1 auto; }
+    :global(.aj-tools__long) { display: none; }
+    :global(.aj-tools__veg) { white-space: nowrap; }
+    .aj-chapter { scroll-margin-top: 64px; }
+  }
+  @media (max-width: 860px) {
+    .aj-chapter { grid-template-columns: 1fr; gap: var(--space-3); padding: var(--space-5) 0; }
+    .aj-chapter__head { position: static; }
+  }
+  :global(html[data-veg-only] [data-nonveg]) { display: none; }
+  :global(html[data-veg-only] [data-all-meat]) { display: none; }
+</style>

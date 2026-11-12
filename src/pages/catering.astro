@@ -1,0 +1,228 @@
+---
+import Photo from '../components/Photo.astro';
+import Todo from '../components/Todo.astro';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import { confirmed } from '../lib/seo';
+import kulchaChole from '../assets/photos/kulcha-chole.jpg';
+import jalebi from '../assets/photos/jalebi-street.jpg';
+import bhurji from '../assets/photos/paneer-bhurji.jpg';
+import skewers from '../assets/photos/tandoor-skewers.jpg';
+
+const packages = [
+  {
+    name: 'Party Trays',
+    kicker: 'Pick up or delivered',
+    min: '[10]',
+    price: '[$00 per head]',
+    for: 'Birthdays, house parties, kitty parties and family get-togethers.',
+    includes: ['Choice of 2 curries from the menu', 'Dal makhani or dal tadka', 'Jeera rice or pulao', 'Naan, roti or lachha paratha', 'Raita, salad and pickle'],
+  },
+  {
+    name: 'Office Lunch',
+    kicker: 'Delivered, ready to serve',
+    min: '[15]',
+    price: '[$00 per head]',
+    for: 'Team lunches, client meetings and Friday treats.',
+    includes: ['A tandoori starter: paneer tikka or chicken tikka', '2 curries, one vegetarian', 'Rice and breads', 'Salad and raita', 'Gulab jamun to finish'],
+  },
+  {
+    name: 'Punjabi Feast',
+    kicker: 'Weddings and functions',
+    min: '[50]',
+    price: '[$00 per head]',
+    for: 'Weddings, engagements, kirtans, akhand path bhog, Diwali and Lohri.',
+    includes: ['Chaat counter: pani puri, papdi chaat, aloo tikki', '3 tandoori starters', 'Amritsari chole, dal makhani and 3 more curries', 'Biryani, rice and a bread basket with kulchas', 'Gulab jamun, rasmalai and masala chai'],
+  },
+];
+
+const faqs = [
+  { q: 'How many guests is the minimum for catering?', a: 'Party Trays start at [10] guests, Office Lunch at [15] and the Punjabi Feast at [50]. For smaller groups, our regular menu is available for takeaway.' },
+  { q: 'How much notice do you need?', a: 'We ask for at least [3 days] for party trays and office lunches, and [3 to 4 weeks] for weddings and large functions.' },
+  { q: 'Can you cater for vegetarian, Jain or gluten-free guests?', a: 'Yes. More than half of our menu is vegetarian, and we can plan a fully vegetarian menu [and no onion or garlic (Jain) dishes on request]. Tell us about allergies when you enquire and we will advise on each dish.' },
+  { q: 'Do you deliver and set up?', a: 'We deliver across [areas you deliver to]. For functions we can provide [chafing dishes, serving staff and setup] on request.' },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs
+    .filter((f) => confirmed(f.a))
+    .map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<Layout
+  title="Indian & Punjabi Catering, Sydney"
+  description="Punjabi catering for weddings, parties and offices: party trays, office lunches and function menus with tandoori, chaat, curries and sweets. Enquire today."
+  crumb="Catering & Events"
+  share={kulchaChole}
+  schema={faqSchema.mainEntity.length ? [faqSchema] : []}
+>
+  <section class="aj-wrap aj-cat-head">
+    <div class="aj-spread">
+      <div>
+        <span class="aj-kicker">Catering &amp; Events</span>
+        <h1 class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">A Punjabi feast for every crowd</h1>
+        <p class="aj-deck">From a tray of butter chicken for the office to a full wedding spread with a chaat counter, we cook Amritsari food for a family of ten or a full wedding hall.</p>
+        <div class="aj-btn-row" style="margin-top: var(--space-4)">
+          <a class="aj-btn aj-btn--primary" href="#enquire">Send an enquiry</a>
+          <a class="aj-btn aj-btn--secondary" href={site.phoneHref}>Call <Todo text={site.phone} /></a>
+        </div>
+      </div>
+      <Photo
+        src={kulchaChole}
+        alt="A stack of tandoor-baked kulchas on a plate with a bowl of chole behind"
+        caption="Kulchas and chole, a favourite for morning functions."
+        shape="wide"
+        sizes="(max-width: 860px) 100vw, 45vw"
+        eager
+      />
+    </div>
+  </section>
+
+  <section class="aj-deep aj-story-gap" aria-labelledby="packages-title">
+    <div class="aj-wrap">
+      <div class="aj-head">
+        <span class="aj-kicker">Packages</span>
+        <h2 id="packages-title" class="aj-headline" style="margin-top: var(--space-2)">Choose your spread</h2>
+        <p class="aj-deck">Every package can be changed to suit your guests. Swap dishes, add a sweet, or go fully vegetarian.</p>
+      </div>
+      <div class="aj-packages">
+        {packages.map((p) => (
+          <article class="aj-package">
+            <span class="aj-kicker">{p.kicker}</span>
+            <h3 class="aj-section">{p.name}</h3>
+            <p class="aj-caption">{p.for}</p>
+            <dl class="aj-package__facts">
+              <div><dt>Minimum</dt><dd><Todo text={p.min} /> guests</dd></div>
+              <div><dt>From</dt><dd><Todo text={p.price} /></dd></div>
+            </dl>
+            <ul>
+              {p.includes.map((line) => <li>{line}</li>)}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="aj-wrap aj-story-gap" aria-labelledby="occasions-title">
+    <div class="aj-spread aj-spread--flip">
+      <Photo
+        src={skewers}
+        alt="Paneer, chicken and seekh kebab skewers over hot coals"
+        caption="Tandoori starters, cooked fresh for your guests."
+        shape="wide"
+        sizes="(max-width: 860px) 100vw, 55vw"
+      />
+      <div>
+        <span class="aj-kicker">Occasions</span>
+        <h2 id="occasions-title" class="aj-section" style="margin: var(--space-2) 0 var(--space-3)">We cook for</h2>
+        <p>Weddings, engagements and sangeet nights. Kirtans, akhand path bhog and gurpurab celebrations. Diwali, Lohri, Vaisakhi and Karva Chauth. Birthdays, kitty parties, baby showers and housewarmings. Office lunches, launches and end-of-year parties.</p>
+        <p>Whatever the occasion, the food is the same food we serve in the restaurant, made in the same kitchen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="aj-wrap aj-gallery-row" aria-label="Catering photographs">
+    <Photo src={bhurji} alt="Paneer bhurji in a silver serving dish with red onion, tomato and lime" caption="Paneer bhurji, served family-style." shape="wide" sizes="(max-width: 860px) 100vw, 50vw" />
+    <Photo src={jalebi} alt="A tall pile of bright orange jalebi on a wide iron pan" caption="Hot jalebi, a sweet finish for any function." shape="wide" sizes="(max-width: 860px) 100vw, 50vw" />
+  </section>
+
+  <section class="aj-band aj-story-gap" id="enquire" data-theme="marble" aria-labelledby="enquire-title">
+    <div class="aj-wrap aj-enquire">
+      <div>
+        <span class="aj-kicker">Enquire</span>
+        <h2 id="enquire-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Tell us about your event</h2>
+        <p class="aj-deck">We reply within <Todo text="[one business day]" /> with a menu suggestion and a quote.</p>
+        <p style="margin-top: var(--space-4)">Prefer to talk? Call <a href={site.phoneHref}><Todo text={site.phone} /></a>.</p>
+      </div>
+      <form class="aj-form aj-form--dark" method="post" action="#enquire" data-form="catering">
+        <div class="aj-field"><label for="c-name">Your name</label><input class="aj-input" id="c-name" name="name" autocomplete="name" required /></div>
+        <div class="aj-field"><label for="c-phone">Phone</label><input class="aj-input" id="c-phone" name="phone" type="tel" autocomplete="tel" required /></div>
+        <div class="aj-field aj-full"><label for="c-email">Email</label><input class="aj-input" id="c-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="aj-field">
+          <label for="c-type">Type of event</label>
+          <select class="aj-input" id="c-type" name="event_type" required>
+            <option value="">Choose one</option>
+            <option>Wedding or engagement</option>
+            <option>Religious function or kirtan</option>
+            <option>Birthday or family party</option>
+            <option>Office or corporate</option>
+            <option>Festival celebration</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="aj-field"><label for="c-date">Event date</label><input class="aj-input" id="c-date" name="date" type="date" required /></div>
+        <div class="aj-field"><label for="c-guests">Number of guests</label><input class="aj-input" id="c-guests" name="guests" type="number" min="10" inputmode="numeric" required /></div>
+        <div class="aj-field">
+          <label for="c-split">Vegetarian and non-vegetarian</label>
+          <select class="aj-input" id="c-split" name="veg_split">
+            <option>Mixed</option>
+            <option>All vegetarian</option>
+            <option>No onion or garlic (Jain)</option>
+            <option>Mostly non-vegetarian</option>
+          </select>
+        </div>
+        <div class="aj-field">
+          <label for="c-service">Service</label>
+          <select class="aj-input" id="c-service" name="service">
+            <option>Delivery</option>
+            <option>Pick up</option>
+            <option>Delivery, setup and serving staff</option>
+          </select>
+        </div>
+        <div class="aj-field"><label for="c-budget">Budget per head <span class="aj-opt">(optional)</span></label><input class="aj-input" id="c-budget" name="budget" inputmode="decimal" /></div>
+        <div class="aj-field aj-full"><label for="c-venue">Venue or suburb</label><input class="aj-input" id="c-venue" name="venue" required /></div>
+        <div class="aj-field aj-full"><label for="c-notes">Anything else? <span class="aj-opt">(optional)</span></label><textarea class="aj-input" id="c-notes" name="notes" rows="4" placeholder="Favourite dishes, allergies, timing"></textarea></div>
+        <div class="aj-full"><button class="aj-btn aj-btn--primary" type="submit">Send enquiry</button></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="aj-wrap aj-story-gap" aria-labelledby="faq-title">
+    <div class="aj-faq">
+      <div>
+        <span class="aj-kicker">Questions</span>
+        <h2 id="faq-title" class="aj-section" style="margin-top: var(--space-2)">Catering, answered</h2>
+      </div>
+      <div>
+        {faqs.map((f) => (
+          <details class="aj-faq__item">
+            <summary>{f.q}</summary>
+            <p><Todo text={f.a} /></p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .aj-cat-head { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+  .aj-cat-head .aj-kicker { display: block; }
+  .aj-packages { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 3px solid var(--rule-strong); }
+  @media (max-width: 960px) { .aj-packages { grid-template-columns: 1fr; } }
+  .aj-package { padding: var(--space-4) var(--space-4) var(--space-4) 0; }
+  .aj-package + .aj-package { border-left: 1px solid var(--rule); padding-left: var(--space-4); }
+  @media (max-width: 960px) { .aj-package + .aj-package { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; } }
+  .aj-package .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  .aj-package .aj-caption { margin-top: var(--space-2); font-size: 16px; line-height: 24px; }
+  .aj-package__facts { display: flex; gap: var(--space-5); margin: var(--space-3) 0; padding: var(--space-2) 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .aj-package__facts dt { font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-ink); }
+  .aj-package__facts dd { margin: 0; font-weight: 600; }
+  .aj-package ul { margin: 0; padding-left: 1.1em; }
+  .aj-package li { margin-bottom: var(--space-1); }
+  .aj-package li::marker { color: var(--gold-ink); }
+  .aj-gallery-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); padding-bottom: var(--space-7); }
+  @media (max-width: 860px) { .aj-gallery-row { grid-template-columns: 1fr; } }
+  .aj-enquire { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; }
+  @media (max-width: 960px) { .aj-enquire { grid-template-columns: 1fr; gap: var(--space-4); } }
+  .aj-faq { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-5); }
+  @media (max-width: 860px) { .aj-faq { grid-template-columns: 1fr; } }
+  .aj-faq__item { border-bottom: 1px solid var(--rule); padding: var(--space-3) 0; }
+  .aj-faq__item:first-child { border-top: 1px solid var(--rule); }
+  .aj-faq__item summary { font-weight: 600; font-size: 20px; cursor: pointer; padding: var(--space-1) 0; min-height: 44px; }
+  .aj-faq__item p { margin: var(--space-2) 0 0; }
+</style>

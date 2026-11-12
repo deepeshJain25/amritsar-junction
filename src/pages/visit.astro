@@ -1,0 +1,135 @@
+---
+import Hours from '../components/Hours.astro';
+import Todo from '../components/Todo.astro';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import { confirmed } from '../lib/seo';
+import saag from '../assets/photos/sarson-ka-saag.jpg';
+
+// The map searches by the full address once it is confirmed, and by the restaurant's name until then.
+const mapSearch = confirmed(site.address) ? `${site.name}, ${site.address}` : site.mapQuery;
+const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(mapSearch)}&output=embed`;
+const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapSearch)}`;
+---
+
+<Layout
+  title="Visit & Reserve a Table"
+  description={`Find Amritsar Junction: address, opening hours, phone, parking and directions, and book a table online at our Punjabi restaurant in ${confirmed(site.suburb) ?? 'Sydney'}.`}
+  crumb="Visit & Reserve"
+  share={saag}
+>
+  <section class="aj-wrap aj-visit-head">
+    <span class="aj-kicker">Visit &amp; Reserve</span>
+    <h1 class="aj-headline">Find your way to the table</h1>
+    <p class="aj-deck">Walk in, call ahead or book online. Either way, there will be hot kulchas waiting.</p>
+  </section>
+
+  <section class="aj-wrap aj-visit" aria-label="Address, hours and directions">
+    <div class="aj-visit__facts">
+      <div class="aj-fact">
+        <h2 class="aj-kicker">Address</h2>
+        <address><Todo text={site.address} /></address>
+        <a class="aj-link" href={directions} target="_blank" rel="noopener">Get directions</a>
+      </div>
+      <div class="aj-fact">
+        <h2 class="aj-kicker">Phone and email</h2>
+        <p><a href={site.phoneHref}><Todo text={site.phone} /></a><br /><a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a></p>
+      </div>
+      <div class="aj-fact">
+        <h2 class="aj-kicker">Opening hours</h2>
+        <Hours />
+        <p class="aj-caption" style="margin-top: var(--space-2)"><Todo text="[Public holiday hours may differ. Call ahead.]" /></p>
+      </div>
+      <div class="aj-fact">
+        <h2 class="aj-kicker">Parking</h2>
+        <p><Todo text={site.parking} /></p>
+      </div>
+      <div class="aj-fact">
+        <h2 class="aj-kicker">Public transport</h2>
+        <p><Todo text={site.transport} /></p>
+      </div>
+    </div>
+    <div class="aj-map">
+      <iframe
+        title={`Map showing ${site.name}`}
+        src={mapEmbed}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </section>
+
+  <section class="aj-band aj-story-gap" id="reserve" data-theme="marble" aria-labelledby="reserve-title">
+    <div class="aj-wrap aj-reserve">
+      <div>
+        <span class="aj-kicker">Reserve a table</span>
+        <h2 id="reserve-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Book your table</h2>
+        <p class="aj-deck">Tell us when you are coming and how many of you there are. We will confirm by phone or email.</p>
+        <p style="margin-top: var(--space-4)">For groups of more than <Todo text="[12]" />, or to book the whole room, please call <a href={site.phoneHref}><Todo text={site.phone} /></a>.</p>
+        <p><a class="aj-link" href="/catering">Catering and events</a></p>
+      </div>
+      <form class="aj-form" method="post" action="#reserve" data-form="reservation">
+        <div class="aj-field"><label for="r-name">Your name</label><input class="aj-input" id="r-name" name="name" autocomplete="name" required /></div>
+        <div class="aj-field"><label for="r-phone">Phone</label><input class="aj-input" id="r-phone" name="phone" type="tel" autocomplete="tel" required /></div>
+        <div class="aj-field aj-full"><label for="r-email">Email</label><input class="aj-input" id="r-email" name="email" type="email" autocomplete="email" required /></div>
+        <div class="aj-field"><label for="r-date">Date</label><input class="aj-input" id="r-date" name="date" type="date" required /></div>
+        <div class="aj-field">
+          <label for="r-time">Time</label>
+          <select class="aj-input" id="r-time" name="time" required>
+            <option value="">Choose a time</option>
+            {['12:00', '12:30', '13:00', '13:30', '14:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'].map((t) => {
+              const [h, m] = t.split(':').map(Number);
+              return <option value={t}>{`${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`}</option>;
+            })}
+          </select>
+        </div>
+        <div class="aj-field">
+          <label for="r-guests">Guests</label>
+          <select class="aj-input" id="r-guests" name="guests" required>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => <option value={n} selected={n === 2}>{n} {n === 1 ? 'guest' : 'guests'}</option>)}
+          </select>
+        </div>
+        <div class="aj-field">
+          <label for="r-occasion">Occasion <span class="aj-opt">(optional)</span></label>
+          <select class="aj-input" id="r-occasion" name="occasion">
+            <option value="">None</option>
+            <option>Birthday</option>
+            <option>Anniversary</option>
+            <option>Family dinner</option>
+            <option>Business</option>
+          </select>
+        </div>
+        <div class="aj-field aj-full"><label for="r-notes">Requests or allergies <span class="aj-opt">(optional)</span></label><textarea class="aj-input" id="r-notes" name="notes" rows="3" placeholder="High chair, a quiet table, allergies"></textarea></div>
+        <div class="aj-full"><button class="aj-btn aj-btn--primary" type="submit">Request booking</button></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="aj-wrap aj-story-gap aj-order" id="order" aria-labelledby="order-title">
+    <span class="aj-kicker">Takeaway &amp; delivery</span>
+    <h2 id="order-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Order online</h2>
+    <p class="aj-deck" style="margin: 0 auto var(--space-4)">Pick up from the restaurant, or have it delivered. <Todo text="[Online ordering link, and Uber Eats or DoorDash links, to come.]" /></p>
+    <a class="aj-btn aj-btn--secondary" href={site.phoneHref}>Call to order</a>
+  </section>
+</Layout>
+
+<style>
+  .aj-visit-head { padding-top: var(--space-6); padding-bottom: var(--space-5); }
+  .aj-visit-head .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  .aj-visit-head .aj-deck { margin-top: var(--space-3); }
+  .aj-visit { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-5); padding-bottom: var(--space-7); }
+  @media (max-width: 860px) { .aj-visit { grid-template-columns: 1fr; padding-bottom: var(--space-6); } }
+  .aj-visit__facts { border-top: 3px solid var(--rule-strong); }
+  .aj-fact { padding: var(--space-3) 0; border-bottom: 1px solid var(--rule); }
+  .aj-fact h2 { margin-bottom: var(--space-1); }
+  .aj-fact address { font-style: normal; margin-bottom: var(--space-1); }
+  .aj-fact p { margin: 0; }
+  .aj-fact .aj-hours { max-width: 340px; }
+  .aj-map { min-height: 420px; background: var(--paper-deep); }
+  .aj-map iframe { width: 100%; height: 100%; min-height: 420px; border: 0; display: block; }
+  .aj-reserve { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; }
+  @media (max-width: 960px) { .aj-reserve { grid-template-columns: 1fr; gap: var(--space-4); } }
+  .aj-order { text-align: center; }
+  .aj-order { scroll-margin-top: var(--space-3); }
+</style>

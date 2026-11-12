@@ -1,0 +1,13 @@
+---
+import site from '../content/site.json';
+import Todo from './Todo.astro';
+---
+
+<dl class="aj-hours">
+  {site.hours.map((h) => (
+    <>
+      <dt>{h.days}</dt>
+      <dd><Todo text={h.time} /></dd>
+    </>
+  ))}
+</dl>

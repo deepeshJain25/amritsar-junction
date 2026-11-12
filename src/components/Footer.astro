@@ -1,0 +1,43 @@
+---
+import site from '../content/site.json';
+import Hours from './Hours.astro';
+import Todo from './Todo.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="aj-footer aj-band" data-theme="marble">
+  <div class="aj-wrap">
+    <div class="aj-footer__grid">
+      <div>
+        <h2>{site.name}</h2>
+        <p class="aj-caption" style="color: var(--on-dark)">Amritsari kulcha, tandoor kebabs and slow-cooked Punjabi curries.</p>
+        <div class="aj-btn-row">
+          <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
+        </div>
+      </div>
+      <div>
+        <span class="aj-kicker">Find us</span>
+        <address style="font-style: normal">
+          <Todo text={site.address} /><br />
+          <a href={site.phoneHref}><Todo text={site.phone} /></a><br />
+          <a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a>
+        </address>
+      </div>
+      <div>
+        <span class="aj-kicker">Opening hours</span>
+        <Hours />
+      </div>
+      <div>
+        <span class="aj-kicker">Read on</span>
+        <ul>
+          {site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+    <div class="aj-footer__base">
+      <span>© {year} {site.name}. Indian restaurant, <Todo text={site.suburb} />, Sydney.</span>
+      <span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ · Welcome</span>
+    </div>
+  </div>
+</footer>

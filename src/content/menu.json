@@ -1,0 +1,289 @@
+{
+  "note": "Dishes and chapters come from Menu sheet.xlsx. The sheet has no prices yet, so no prices are shown. Spelling is corrected (Nann to Naan, Mashroom to Mushroom); duplicate rows are merged.",
+  "chapters": [
+    {
+      "id": "chaat",
+      "kicker": "Chapter one",
+      "title": "Chaat",
+      "deck": "Street food from the lanes around the Golden Temple: crisp, tangy, sweet and cold all in one bite.",
+      "items": [
+        { "name": "Pani Puri", "veg": true, "desc": "Hollow, paper-thin puris you fill with spiced potato and tangy mint-tamarind water, then eat in one cold, crackling burst." },
+        { "name": "Papdi Chaat", "veg": true, "desc": "Crisp wheat wafers under chilled yoghurt, sweet tamarind and green chutney, scattered with sev and a pinch of chaat masala." },
+        { "name": "Sweet Potato Chaat", "veg": true, "desc": "Roasted sweet potato tossed with lime, black salt and roasted cumin. Smoky, sweet and sharp at the same time." },
+        { "name": "Dahi Puri", "veg": true, "desc": "Little puris brimming with potato and chickpeas, drowned in cool sweet yoghurt and drizzled with both chutneys." },
+        { "name": "Samosa Chaat", "veg": true, "desc": "A crushed hot samosa smothered in chole, yoghurt and chutneys. Crunchy, saucy, and gone too fast." },
+        { "name": "Dahi Bhalla", "veg": true, "desc": "Soft lentil dumplings soaked until they melt, served in cold whipped yoghurt with tamarind and roasted cumin." },
+        { "name": "Bhalla Papdi Chaat", "veg": true, "desc": "The best of both: pillowy bhallas and crisp papdi together under yoghurt, chutney and sev." },
+        { "name": "Samosa", "veg": true, "desc": "Golden, flaky pastry folded around potato and peas warmed with cumin and green chilli. Served with tamarind chutney." },
+        { "name": "Aloo Tikki Chaat", "veg": true, "desc": "Crisp-edged potato patties griddled golden, then topped with chole, yoghurt, chutneys and a snap of raw onion." }
+      ]
+    },
+    {
+      "id": "vegetarian-entree",
+      "kicker": "Chapter two",
+      "title": "Vegetarian Entrée",
+      "deck": "Paneer and soya chap, marinated and kissed by the tandoor's fire.",
+      "items": [
+        { "name": "Tandoori Paneer Tikka", "veg": true, "desc": "Thick cubes of paneer in a red yoghurt marinade, charred at the edges with peppers and onion. Smoky outside, soft within." },
+        { "name": "Malai Paneer Tikka", "veg": true, "desc": "Paneer folded into cream, cheese and cardamom, then roasted until just golden. Mild, rich and melting." },
+        { "name": "Achari Paneer Tikka", "veg": true, "desc": "Paneer in a tangy pickle marinade of mustard, fennel and nigella seeds. A bright, punchy kick from the tandoor." },
+        { "name": "Mushroom Tikka", "veg": true, "desc": "Plump mushrooms soaked in spiced yoghurt and roasted until juicy, with a smoky char on every cap." },
+        { "name": "Tandoori Soya Chap Tikka", "veg": true, "desc": "Meaty soya chap in a fiery tandoori marinade, blistered over the coals. A Punjabi street favourite." },
+        { "name": "Malai Soya Chap", "veg": true, "options": "Dry or gravy", "desc": "Soya chap bathed in cream, cashew and white pepper. Have it dry off the skewer or in a silky gravy." },
+        { "name": "Achari Soya Chap", "veg": true, "desc": "Soya chap tossed in tangy pickling spices and roasted until the edges crisp and caramelise." },
+        { "name": "Anjeer Paneer Tikka", "veg": true, "desc": "Paneer filled with sweet fig and nuts, gently spiced and roasted. A soft sweetness meets the smoke." }
+      ]
+    },
+    {
+      "id": "momo",
+      "kicker": "Chapter three",
+      "title": "Momo",
+      "deck": "Hand-folded dumplings, five ways.",
+      "items": [
+        { "name": "Veg Momo", "veg": true, "options": "Steamed, fried, chilli, jhol or tandoori", "desc": "Delicate dumplings packed with finely chopped vegetables and ginger, served with a fiery tomato-chilli chutney." },
+        { "name": "Chicken Momo", "veg": false, "options": "Steamed, fried, chilli, jhol or tandoori", "desc": "Juicy minced chicken with garlic and spring onion inside a soft, pleated wrapper. Try them jhol, in a warm sesame-tomato broth." }
+      ]
+    },
+    {
+      "id": "indo-chinese-veg",
+      "kicker": "Chapter four",
+      "title": "Indo-Chinese, Vegetarian",
+      "deck": "The wok-tossed food every Punjabi grows up craving: hot, glossy and loud with garlic.",
+      "items": [
+        { "name": "Veg Noodles", "veg": true, "options": "Plain, chilli garlic or Schezwan", "desc": "Noodles flash-tossed in a smoking wok with crunchy vegetables and soy. Go chilli garlic or Schezwan for more fire." },
+        { "name": "Chilli Paneer", "veg": true, "desc": "Crisp paneer tossed with capsicum, onion and green chilli in a glossy, sticky soy-chilli sauce." },
+        { "name": "Chilli Mushroom", "veg": true, "desc": "Battered mushrooms fried crisp, then thrown in the wok with garlic, chilli and spring onion." },
+        { "name": "Chilli Gobhi", "veg": true, "desc": "Crunchy cauliflower florets coated in a sweet, hot and tangy chilli glaze." },
+        { "name": "Paneer 65", "veg": true, "desc": "Bite-sized paneer in a fiery red batter, fried crisp and tossed with curry leaves and green chilli." },
+        { "name": "Soya Chap 65", "veg": true, "options": "Classic or Schezwan", "desc": "Soya chap pieces in a spicy, crackling coating, finished with curry leaves, or in Schezwan sauce." },
+        { "name": "Veg Manchurian", "veg": true, "desc": "Soft vegetable dumplings in a dark, garlicky soy gravy with ginger and spring onion." },
+        { "name": "Gobhi Manchurian", "veg": true, "desc": "Crisp cauliflower in a tangy Manchurian sauce that clings to every floret." },
+        { "name": "Honey Chilli Potato", "veg": true, "desc": "Crackling potato fingers glazed in honey and chilli, finished with toasted sesame. Sweet heat you cannot stop eating." }
+      ]
+    },
+    {
+      "id": "indo-chinese-non-veg",
+      "kicker": "Chapter five",
+      "title": "Indo-Chinese, Non-Vegetarian",
+      "deck": "Chicken from the wok, with all the fire.",
+      "items": [
+        { "name": "Chilli Chicken", "veg": false, "desc": "Crisp chicken tossed with capsicum, onion and green chilli in a hot, glossy soy-garlic sauce." },
+        { "name": "Chicken Noodles", "veg": false, "options": "Plain, egg or Schezwan", "desc": "Wok-tossed noodles with tender chicken and crunchy vegetables. Add egg, or turn up the heat with Schezwan." }
+      ]
+    },
+    {
+      "id": "non-veg-entree",
+      "kicker": "Chapter six",
+      "title": "Non-Vegetarian Entrée",
+      "deck": "Kebabs and tikkas straight off the skewer, smoky and still sizzling.",
+      "items": [
+        { "name": "Tandoori Chicken Tikka", "veg": false, "desc": "Boneless chicken in yoghurt, Kashmiri chilli and garam masala, charred in the tandoor until smoky and juicy." },
+        { "name": "Malai Chicken Tikka", "veg": false, "desc": "Chicken in a mild marinade of cream, cheese and cardamom. Tender, buttery and gently smoked." },
+        { "name": "Tandoori Chicken", "veg": false, "options": "Full or half", "desc": "The classic: chicken on the bone, deep red with spice, roasted until the skin blisters. Served with mint chutney and lemon." },
+        { "name": "Tandoori Lamb Cutlets", "veg": false, "options": "4 pieces", "desc": "Lamb cutlets marinated in ginger, garlic and warm spice, seared over the coals and pink at the bone." },
+        { "name": "Seekh Kebab", "veg": false, "options": "Lamb or chicken", "desc": "Minced meat with fresh coriander, ginger and green chilli, pressed onto skewers and roasted until it drips." },
+        { "name": "Chapli Kebab", "veg": false, "desc": "Flat, crisp-edged minced patties studded with coriander seed, pomegranate and chilli, from the North-West Frontier." },
+        { "name": "Tangri Kebab", "veg": false, "desc": "Chicken drumsticks in a rich spiced yoghurt, roasted until the meat falls from the bone." },
+        { "name": "Blanket Kebab", "veg": false, "options": "Lamb or chicken", "desc": "Seekh kebab wrapped in a thin blanket of egg and finished on the grill. Soft, smoky and generous." }
+      ]
+    },
+    {
+      "id": "seafood-entree",
+      "kicker": "Chapter seven",
+      "title": "Seafood Entrée",
+      "deck": "Fish and prawns, Amritsar's other great love.",
+      "items": [
+        { "name": "Tandoori Fish", "veg": false, "desc": "A whole fillet in ajwain and chilli marinade, roasted in the tandoor until flaky, with a lemony char." },
+        { "name": "Tandoori Fish Tikka", "veg": false, "desc": "Chunks of firm fish in mustard oil and spice, skewered and smoked over the coals." },
+        { "name": "Tandoori Prawn", "veg": false, "desc": "Juicy prawns in a garlicky red marinade, charred quickly so they stay sweet and tender." },
+        { "name": "Amritsari Fish", "veg": false, "native": "ਅੰਮ੍ਰਿਤਸਰੀ ਮੱਛੀ", "desc": "Amritsar's famous fry: fish in a crisp gram-flour and ajwain batter, sprinkled with chaat masala and lemon." },
+        { "name": "Butter Garlic Prawn", "veg": false, "desc": "Prawns tossed in foaming butter, plenty of garlic and a little chilli. Mop it up with naan." }
+      ]
+    },
+    {
+      "id": "veg-mains",
+      "kicker": "Chapter eight",
+      "title": "Vegetarian Mains",
+      "deck": "Slow pots, butter and lentils: the heart of a Punjabi table.",
+      "items": [
+        { "name": "Dal Makhani", "veg": true, "native": "ਦਾਲ ਮੱਖਣੀ", "desc": "Black lentils and kidney beans simmered low and slow, finished with butter and cream. Velvety, smoky and deeply comforting." },
+        { "name": "Dal Tadka", "veg": true, "desc": "Yellow lentils finished with a sizzling tadka of ghee, cumin, garlic and red chilli." },
+        { "name": "Paneer Tikka Butter Masala", "veg": true, "desc": "Smoky tandoor-roasted paneer in a silky tomato and butter gravy, finished with fenugreek and cream." },
+        { "name": "Kadai Paneer", "veg": true, "desc": "Paneer, capsicum and onion tossed in an iron kadai with freshly pounded coriander seed and chilli." },
+        { "name": "Shahi Paneer", "veg": true, "desc": "A royal, gently sweet gravy of cashew, cream and cardamom, holding soft cubes of paneer." },
+        { "name": "Paneer Bhurji", "veg": true, "desc": "Fresh paneer crumbled into onion, tomato and green chilli, cooked until soft and fragrant. Best with hot paratha." },
+        { "name": "Malai Kofta", "veg": true, "desc": "Melt-in-the-mouth paneer and potato dumplings in a creamy, mildly spiced cashew gravy." },
+        { "name": "Palak Paneer", "veg": true, "desc": "Paneer in a smooth, bright spinach purée with garlic and a swirl of cream." },
+        { "name": "Sarson Ka Saag", "veg": true, "native": "ਸਰ੍ਹੋਂ ਦਾ ਸਾਗ", "options": "Amritsari special", "desc": "Mustard greens and spinach slow-cooked until silky, finished with white butter. The taste of a Punjabi winter." },
+        { "name": "Amritsari Chole", "veg": true, "desc": "Dark, tangy chickpeas cooked with tea leaves, dried pomegranate and a deep blend of roasted spices." },
+        { "name": "Soya Chap Masala", "veg": true, "desc": "Soya chap in a robust onion-tomato masala, rich enough to stand up to any naan." }
+      ]
+    },
+    {
+      "id": "non-veg-mains",
+      "kicker": "Chapter nine",
+      "title": "Non-Vegetarian Mains",
+      "deck": "The curries people cross the city for.",
+      "items": [
+        { "name": "Butter Chicken", "veg": false, "options": "On the bone or boneless", "desc": "Tandoor-smoked chicken in a velvety tomato, butter and cream gravy, with a whisper of fenugreek." },
+        { "name": "Chicken Tikka Masala", "veg": false, "desc": "Charred chicken tikka in a bold, spiced onion-tomato masala with peppers." },
+        { "name": "Kadai Chicken", "veg": false, "desc": "Chicken cooked hard and fast in an iron kadai with capsicum, crushed coriander seed and dried red chilli." },
+        { "name": "Rara Chicken", "veg": false, "desc": "A Punjabi double-chicken curry: tender pieces in a thick gravy of spiced minced chicken. Rich and hearty." },
+        { "name": "Goat Masala", "veg": false, "desc": "Goat on the bone, cooked slowly in onion, ginger and whole spices until it falls apart." }
+      ]
+    },
+    {
+      "id": "amritsari-special",
+      "kicker": "Chapter ten",
+      "title": "Amritsari Special",
+      "deck": "The dishes our name was made for.",
+      "items": [
+        { "name": "Amritsari Special Chole Bhature", "veg": true, "native": "ਛੋਲੇ ਭਟੂਰੇ", "desc": "Puffed, golden bhature torn open over dark, tangy Amritsari chole, with pickled onion and green chilli." },
+        { "name": "Haddi Wala Murga", "veg": false, "desc": "Chicken on the bone, dhaba-style, cooked in a rustic, peppery onion gravy until the meat slips free." },
+        { "name": "Kali Mirch Chicken", "veg": false, "desc": "Chicken in a creamy gravy built on freshly cracked black pepper. Warm, aromatic and quietly fiery." },
+        { "name": "Egg Bhurji", "veg": false, "desc": "Soft-scrambled eggs with onion, tomato, green chilli and coriander, the way Amritsar's night stalls make it." }
+      ]
+    },
+    {
+      "id": "breads",
+      "kicker": "Chapter eleven",
+      "title": "Breads",
+      "deck": "Slapped against the clay wall of the tandoor and brought to the table blistered and hot.",
+      "items": [
+        { "name": "Plain Roti", "veg": true, "desc": "Whole-wheat bread baked in the tandoor, lightly charred and soft." },
+        { "name": "Plain Naan", "veg": true, "desc": "Soft, pillowy leavened bread with a blistered, golden crust." },
+        { "name": "Butter Naan", "veg": true, "desc": "Hot naan brushed generously with melting butter." },
+        { "name": "Garlic Naan", "veg": true, "desc": "Naan scattered with chopped garlic and coriander, buttered straight from the tandoor." },
+        { "name": "Cheese Naan", "veg": true, "desc": "Naan filled with molten cheese that stretches with every tear." },
+        { "name": "Cheese Garlic Naan", "veg": true, "desc": "Molten cheese inside, garlic and butter on top." },
+        { "name": "Cheese Chilli Naan", "veg": true, "desc": "Cheese naan with a kick of green chilli folded through." },
+        { "name": "Plain Lachha Paratha", "veg": true, "desc": "Flaky, layered whole-wheat paratha that pulls apart in buttery rings." },
+        { "name": "Methi Lachha Paratha", "veg": true, "desc": "Layered paratha with dried fenugreek leaves, earthy and fragrant." },
+        { "name": "Pudina Lachha Paratha", "veg": true, "desc": "Layered paratha finished with crushed dried mint. Cool and aromatic." },
+        { "name": "Green Chilli Lachha Paratha", "veg": true, "desc": "Flaky layers laced with fresh green chilli for a clean, sharp heat." },
+        { "name": "Red Chilli Lachha Paratha", "veg": true, "desc": "Layered paratha dusted with red chilli flakes. Warm, smoky heat." },
+        { "name": "Masala Lachha Paratha", "veg": true, "desc": "Flaky paratha sprinkled with our house spice mix and butter." },
+        { "name": "Makki di Roti", "veg": true, "desc": "Rustic cornmeal flatbread, crisp at the edges. Made to be eaten with sarson ka saag and white butter." },
+        { "name": "Missi Roti", "veg": true, "desc": "Gram-flour and wheat bread with onion, ajwain and chilli. Nutty and full of flavour." },
+        { "name": "Nutella Naan", "veg": true, "desc": "Hot naan filled with warm, melting Nutella. Dessert disguised as bread." }
+      ]
+    },
+    {
+      "id": "kulcha",
+      "kicker": "Chapter twelve",
+      "title": "Kulchas & Stuffed Naans",
+      "deck": "Amritsar's pride: crisp, layered bread stuffed and baked against the tandoor wall.",
+      "items": [
+        { "name": "Amritsari Special Kulcha", "veg": true, "native": "ਅੰਮ੍ਰਿਤਸਰੀ ਕੁਲਚਾ", "desc": "Crisp, flaky layers stuffed with spiced potato and onion, crowned with butter. Served with chole, chutney and onion." },
+        { "name": "Aloo Kulcha", "veg": true, "desc": "Kulcha filled with potato, green chilli, pomegranate seed and coriander." },
+        { "name": "Paneer Kulcha", "veg": true, "desc": "Kulcha stuffed with crumbled, lightly spiced paneer. Soft inside, crackling outside." },
+        { "name": "Gobhi Kulcha", "veg": true, "desc": "Kulcha filled with grated cauliflower, ginger and warm spice." },
+        { "name": "Mix Kulcha", "veg": true, "desc": "Potato, paneer, cauliflower and onion together in one generous, buttery kulcha." },
+        { "name": "Chicken Tikka Kulcha", "veg": false, "desc": "Smoky chopped chicken tikka baked inside a crisp kulcha." },
+        { "name": "Lamb Keema Naan", "veg": false, "desc": "Naan stuffed with spiced minced lamb, baked until the edges crisp and the filling is juicy." },
+        { "name": "Chicken Keema Naan", "veg": false, "desc": "Naan filled with spiced minced chicken, ginger and coriander." }
+      ]
+    },
+    {
+      "id": "biryani",
+      "kicker": "Chapter thirteen",
+      "title": "Biryani",
+      "deck": "Long-grain basmati layered with spice and sealed until fragrant.",
+      "items": [
+        { "name": "Veg Biryani", "veg": true, "desc": "Basmati layered with vegetables, saffron, fried onion and whole spices. Served with raita." },
+        { "name": "Chicken Biryani", "veg": false, "desc": "Spiced chicken and saffron basmati cooked together, so every grain carries the flavour. Served with raita." },
+        { "name": "Paneer Biryani", "veg": true, "desc": "Paneer in a spiced masala layered with fragrant basmati and mint. Served with raita." },
+        { "name": "Goat Biryani", "veg": false, "desc": "Tender goat on the bone layered with basmati, browned onion and warm spice. Served with raita." },
+        { "name": "Soya Chap Biryani", "veg": true, "desc": "Spiced soya chap layered through aromatic basmati. Served with raita." }
+      ]
+    },
+    {
+      "id": "rice",
+      "kicker": "Chapter fourteen",
+      "title": "Rice",
+      "deck": "To soak up every last spoon of gravy.",
+      "items": [
+        { "name": "Plain Rice", "veg": true, "desc": "Steamed long-grain basmati, light and fluffy." },
+        { "name": "Jeera Rice", "veg": true, "desc": "Basmati tossed with cumin seeds toasted in ghee." },
+        { "name": "Peas Pulao", "veg": true, "desc": "Basmati cooked with green peas and whole spices." },
+        { "name": "Lemon Rice", "veg": true, "desc": "Bright, tangy rice with lemon, mustard seed and curry leaves." },
+        { "name": "Veg Fried Rice", "veg": true, "desc": "Wok-fried rice with crunchy vegetables and soy." },
+        { "name": "Egg Fried Rice", "veg": false, "desc": "Wok-fried rice with scrambled egg and spring onion." },
+        { "name": "Chicken Fried Rice", "veg": false, "desc": "Wok-fried rice with tender chicken, egg and vegetables." },
+        { "name": "Paneer Fried Rice", "veg": true, "desc": "Wok-fried rice with paneer and crisp vegetables." }
+      ]
+    },
+    {
+      "id": "sides",
+      "kicker": "Chapter fifteen",
+      "title": "Sides",
+      "deck": "Cool yoghurt to calm the fire.",
+      "items": [
+        { "name": "Raita", "veg": true, "desc": "Whipped yoghurt with roasted cumin and a pinch of salt." },
+        { "name": "Boondi Raita", "veg": true, "desc": "Cool yoghurt with tiny crisp gram-flour pearls that soften as you eat." },
+        { "name": "Cucumber Raita", "veg": true, "desc": "Yoghurt with grated cucumber and mint. Cooling and fresh." }
+      ]
+    },
+    {
+      "id": "salad",
+      "kicker": "Chapter sixteen",
+      "title": "Salad",
+      "deck": "A crunch of something raw.",
+      "items": [
+        { "name": "Onion Salad", "veg": true, "desc": "Sliced red onion with lemon, green chilli and chaat masala, as every Punjabi table has it." },
+        { "name": "Mix Salad", "veg": true, "desc": "Cucumber, tomato, onion and carrot with lemon and a pinch of salt." }
+      ]
+    },
+    {
+      "id": "combo",
+      "kicker": "Chapter seventeen",
+      "title": "Combos",
+      "deck": "A full Punjabi plate, put together for you.",
+      "items": [
+        { "name": "Kulcha Combo", "veg": true, "desc": "One Amritsari kulcha with chole, chutney, raita, pickle and salad." },
+        { "name": "Saag Combo", "veg": true, "desc": "Sarson ka saag with two makki di roti, raita, pickle and salad." },
+        { "name": "Paneer Combo", "veg": true, "desc": "Paneer tikka butter masala with two naan, raita and salad." },
+        { "name": "Dal Combo", "veg": true, "desc": "Dal tadka with rice, two roti, raita and salad." },
+        { "name": "Goat Curry Combo", "veg": false, "desc": "Goat curry with two naan and salad." }
+      ]
+    },
+    {
+      "id": "kids",
+      "kicker": "Chapter eighteen",
+      "title": "Kids Special",
+      "deck": "For the little ones at the table.",
+      "items": [
+        { "name": "Potato Fries", "veg": true, "desc": "Golden, crisp fries, lightly salted." },
+        { "name": "Nuggets and Chips", "veg": false, "desc": "Crumbed chicken nuggets with crisp chips." }
+      ]
+    },
+    {
+      "id": "dessert",
+      "kicker": "Chapter nineteen",
+      "title": "Dessert",
+      "deck": "Something sweet to close the evening.",
+      "items": [
+        { "name": "Gulab Jamun", "veg": true, "desc": "Soft milk dumplings fried golden and soaked in warm rose and cardamom syrup." },
+        { "name": "Rasmalai", "veg": true, "desc": "Delicate cheese patties in chilled saffron milk with pistachio. Cool, creamy and fragrant." },
+        { "name": "Ice Cream", "veg": true, "desc": "A scoop of something cold to finish." }
+      ]
+    },
+    {
+      "id": "drinks",
+      "kicker": "Chapter twenty",
+      "title": "Drinks",
+      "deck": "Lassi in tall glasses, and chai the way it should be.",
+      "items": [
+        { "name": "Mango Lassi", "veg": true, "desc": "Thick, chilled yoghurt blended with ripe mango. Sweet, cool and golden." },
+        { "name": "Sweet Lassi", "veg": true, "native": "ਲੱਸੀ", "options": "With or without makhan", "desc": "Frothy chilled yoghurt, sweetened. Ask for a spoon of white butter on top, Amritsar-style." },
+        { "name": "Salted Lassi", "veg": true, "desc": "Chilled yoghurt with salt and roasted cumin. The perfect partner to spice." },
+        { "name": "Masala Chai", "veg": true, "desc": "Strong tea brewed with milk, ginger and cardamom, poured steaming." },
+        { "name": "Fresh Lime Soda", "veg": true, "desc": "Fresh lime and fizzing soda. Sharp and thirst-quenching." },
+        { "name": "Indian Coffee", "veg": true, "desc": "Frothy, milky coffee, whipped until it foams." },
+        { "name": "Black Coffee", "veg": true, "desc": "Hot black coffee." },
+        { "name": "Soft Drink", "veg": true, "desc": "Ask for today's selection." },
+        { "name": "Bottled Water", "veg": true, "desc": "Still bottled water." }
+      ]
+    }
+  ]
+}

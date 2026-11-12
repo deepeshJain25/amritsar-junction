@@ -1,0 +1,33 @@
+{
+  "_note": "Text in [square brackets] is a fact the restaurant still has to confirm. It shows highlighted on the site until it is replaced.",
+  "name": "Amritsar Junction",
+  "tagline": "Indian Restaurant",
+  "description": "Amritsari kulcha, tandoor kebabs, dal makhani and Punjabi street food",
+  "suburb": "[Suburb]",
+  "address": "[Street address], [Suburb] NSW [Postcode]",
+  "streetAddress": "[Street address]",
+  "locality": "[Suburb]",
+  "postcode": "[Postcode]",
+  "phone": "[(02) 0000 0000]",
+  "phoneHref": "tel:+610000000000",
+  "email": "[bookings@amritsarjunction.com.au]",
+  "hours": [
+    { "days": "Monday to Thursday", "time": "[11am to 10pm]" },
+    { "days": "Friday and Saturday", "time": "[11am to 11pm]" },
+    { "days": "Sunday", "time": "[11am to 10pm]" }
+  ],
+  "shortHours": "Open daily, lunch and dinner",
+  "parking": "[Street parking on the surrounding streets, and a public car park a short walk away.]",
+  "transport": "[Nearest train station and bus stop.]",
+  "mapQuery": "Amritsar Junction Indian Restaurant",
+  "orderUrl": "/visit#order",
+  "bookingUrl": "/visit#reserve",
+  "nav": [
+    { "label": "The Table", "href": "/" },
+    { "label": "Menu", "href": "/menu" },
+    { "label": "Our Story", "href": "/our-story" },
+    { "label": "Catering", "href": "/catering" },
+    { "label": "Gallery", "href": "/gallery" },
+    { "label": "Visit", "href": "/visit" }
+  ]
+}

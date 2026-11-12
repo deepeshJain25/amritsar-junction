@@ -1,0 +1,31 @@
+---
+import site from '../content/site.json';
+import Todo from './Todo.astro';
+
+interface Props {
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
+---
+
+<header class="aj-header">
+  <div class="aj-wrap">
+    <div class="aj-issue aj-kicker">
+      <span>{site.tagline} · <Todo text={site.suburb} /></span>
+      <span>{site.shortHours} · <a href={site.phoneHref}><Todo text={site.phone} /></a></span>
+    </div>
+    {home
+      ? <p class="aj-name aj-name--home aj-masthead">{site.name}</p>
+      : <a class="aj-name aj-name--inner" href="/">{site.name}</a>}
+    <div class="aj-double" role="presentation"></div>
+    <nav aria-label="Main">
+      <ul class="aj-nav aj-kicker">
+        {site.nav.map((item) => (
+          <li><a href={item.href} aria-current={item.href === path ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

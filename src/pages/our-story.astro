@@ -1,0 +1,134 @@
+---
+import Photo from '../components/Photo.astro';
+import Todo from '../components/Todo.astro';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import dal from '../assets/photos/dal-makhani.jpg';
+import kulchaPair from '../assets/photos/kulcha-pair.jpg';
+import skewers from '../assets/photos/tandoor-skewers.jpg';
+
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'From the lanes of Amritsar to a table in Sydney',
+  about: { '@id': new URL('/#restaurant', siteUrl).href },
+  publisher: { '@type': 'Organization', name: site.name },
+  inLanguage: 'en-AU',
+};
+---
+
+<Layout
+  title="Our Story: Amritsari Cooking in Sydney"
+  description="Who cooks at Amritsar Junction, our link to Amritsar and the Golden Temple's langar, and how we cook with the tandoor, white butter and slow-simmered dal."
+  crumb="Our Story"
+  share={skewers}
+  schema={[article]}
+>
+  <article>
+    <header class="aj-wrap aj-story-head">
+      <span class="aj-kicker">Our Story · The long read</span>
+      <h1 class="aj-headline">From the lanes of Amritsar to a table in Sydney</h1>
+      <p class="aj-deck">A city that feeds everyone who walks through its gates, a clay oven that never cools, and the people who brought both here.</p>
+      <p class="aj-caption aj-byline">Words by the Amritsar Junction family · <Todo text="[Photographs to come from our kitchen]" /></p>
+    </header>
+
+    <div class="aj-story-hero">
+      <Photo
+        src={skewers}
+        alt="Paneer and chicken tikka skewers smoking over the coals of a tandoor grill"
+        caption="The tandoor at full heat. Everything that comes off it carries a little smoke."
+        sizes="100vw"
+        eager
+      />
+    </div>
+
+    <section class="aj-wrap aj-story-gap aj-story-body" aria-labelledby="people">
+      <div class="aj-story-side">
+        <span class="aj-kicker">Part one</span>
+        <h2 id="people" class="aj-section">The people in the kitchen</h2>
+      </div>
+      <div class="aj-columns">
+        <p class="aj-dropcap">Every restaurant begins with someone who could not find the food they grew up with. For us that someone is <Todo text="[owner's name]" />, who grew up <Todo text="[in or near Amritsar, and the family's story]" />. Sydney gave them a home, but the kulcha was never right, the chole never dark enough, the lassi never thick enough to stand a spoon in.</p>
+        <p>So they built the kitchen they missed. At the tandoor is <Todo text="[head chef's name]" />, who learned to cook <Todo text="[where and how the chef trained]" />. In the kitchen, the rules are simple: the dal is never hurried, the bread is baked to order, and nobody leaves hungry.</p>
+        <p>We opened Amritsar Junction in <Todo text="[year]" /> in <Todo text={site.suburb} />, and we have been feeding families, students, office crowds and wedding parties ever since. Many of our regulars came for one dish and now order without opening the menu.</p>
+      </div>
+    </section>
+
+    <aside class="aj-wrap aj-pull" aria-label="Pull quote">
+      <blockquote>“Nobody leaves an Amritsari table hungry. That is not a slogan. It is how the city was built.”</blockquote>
+    </aside>
+
+    <section class="aj-wrap aj-story-gap" aria-labelledby="amritsar">
+      <div class="aj-spread aj-spread--portrait">
+        <Photo
+          src={kulchaPair}
+          alt="Two golden Amritsari kulchas sprinkled with coriander seed and chilli on a hessian cloth"
+          caption="Kulchas, the breakfast of Amritsar's old city."
+          shape="arch"
+          sizes="(max-width: 860px) 100vw, 40vw"
+        />
+        <div>
+          <span class="aj-kicker">Part two</span>
+          <h2 id="amritsar" class="aj-section" style="margin: var(--space-2) 0 var(--space-4)">Why Amritsar?</h2>
+          <p>Amritsar is a city that cooks for strangers. At its heart stands the Harmandir Sahib, the Golden Temple, whose community kitchen, the langar, serves a free meal to tens of thousands of people every day. Anyone may sit on the floor in a row and be fed dal and roti, whatever their faith, their wealth or where they have come from. That spirit of feeding everyone generously runs through every dhaba in the city.</p>
+          <p>Amritsar also sits on the Grand Trunk Road, one of Asia's oldest highways, and centuries of travellers, traders and soldiers have passed through it. The city learned to feed people quickly and well: kulchas from clay ovens at dawn, batter-fried fish by the river in winter, chole simmering in huge brass pots and lassi in glasses so tall they come with a spoon.</p>
+          <p>Our name is a nod to all of that. A junction is where roads meet. Ours is where Amritsar's food meets Sydney.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="aj-rule aj-wrap-rule" />
+
+    <section class="aj-wrap aj-story-gap" aria-labelledby="cooking">
+      <div class="aj-spread aj-spread--portrait aj-spread--flip">
+        <Photo
+          src={dal}
+          alt="A ladle lifting creamy dal makhani from a black bowl, swirled with cream and coriander"
+          caption="Dal makhani: black lentils, butter and patience."
+          shape="arch"
+          sizes="(max-width: 860px) 100vw, 40vw"
+        />
+        <div>
+          <span class="aj-kicker">Part three</span>
+          <h2 id="cooking" class="aj-section" style="margin: var(--space-2) 0 var(--space-4)">How we cook</h2>
+          <h3 class="aj-sub">The tandoor</h3>
+          <p>The clay oven is the centre of our kitchen. Breads are slapped against its walls and peeled off blistered and smoky. Paneer, chicken, lamb and fish go in on long iron skewers and come out charred at the edges and juicy within. No grill or pan gives the same flavour.</p>
+          <h3 class="aj-sub">Slow pots</h3>
+          <p>Some dishes cannot be rushed. Our dal makhani simmers low for hours until the black lentils turn to velvet. Sarson ka saag cooks down slowly until the mustard greens are silky. Amritsari chole get their deep colour and tang from tea leaves and dried pomegranate, the old way.</p>
+          <h3 class="aj-sub">Butter, ghee and fresh spice</h3>
+          <p>We finish our dishes the way Punjabi homes do: a spoon of white butter on the saag, a sizzle of ghee over the dal, and spices roasted and ground in our own kitchen. It is not light food. It is generous food.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="aj-band aj-story-gap" data-theme="marble" aria-labelledby="invite">
+      <div class="aj-wrap aj-invite">
+        <span class="aj-kicker">Pull up a chair</span>
+        <h2 id="invite" class="aj-headline" style="margin: var(--space-2) 0 var(--space-4)">Come and taste it for yourself</h2>
+        <div class="aj-btn-row" style="justify-content: center">
+          <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
+          <a class="aj-btn aj-btn--gilt" href="/menu">Read the menu</a>
+        </div>
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<style>
+  .aj-story-head { padding-top: var(--space-6); padding-bottom: var(--space-5); text-align: center; }
+  .aj-story-head .aj-kicker { display: block; margin-bottom: var(--space-3); }
+  .aj-story-head .aj-headline { max-width: 16em; margin: 0 auto; }
+  .aj-story-head .aj-deck { margin: var(--space-4) auto 0; }
+  .aj-byline { margin-top: var(--space-4); }
+  .aj-story-hero :global(img) { width: 100%; height: min(60vh, 560px); object-fit: cover; }
+  @media (max-width: 720px) { .aj-story-hero :global(img) { height: auto; aspect-ratio: 4 / 3; } .aj-story-hero :global(figcaption) { padding-left: var(--space-4); padding-right: var(--space-4); } }
+  .aj-story-hero :global(figcaption) { max-width: var(--page); margin-left: auto; margin-right: auto; padding-left: var(--space-6); padding-right: var(--space-6); border: 0; }
+  .aj-story-body { display: grid; grid-template-columns: 3fr 9fr; gap: var(--space-5); }
+  .aj-story-side .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  @media (max-width: 860px) { .aj-story-body { grid-template-columns: 1fr; } }
+  .aj-pull blockquote { margin: 0 auto; max-width: 30em; padding: var(--space-4) 0; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); font-style: italic; font-size: clamp(22px, 3vw, 30px); line-height: 1.35; text-align: center; }
+  .aj-sub { font-family: var(--font-label); font-size: 15px; font-weight: 600; letter-spacing: .04em; color: var(--gold-ink); margin: var(--space-4) 0 var(--space-1); }
+  .aj-wrap-rule { max-width: calc(var(--page) - 2 * var(--space-6)); margin: 0 auto; }
+  .aj-invite { text-align: center; }
+</style>

@@ -1,0 +1,143 @@
+---
+import Hours from '../components/Hours.astro';
+import MenuItem from '../components/MenuItem.astro';
+import Photo from '../components/Photo.astro';
+import Todo from '../components/Todo.astro';
+import menu from '../content/menu.json';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import kulcha from '../assets/photos/kulcha-plate.jpg';
+import hero from '../assets/photos/tandoor-skewers.jpg';
+import saag from '../assets/photos/sarson-ka-saag.jpg';
+
+const all = menu.chapters.flatMap((c) => c.items);
+const teaser = [
+  'Amritsari Special Kulcha',
+  'Amritsari Fish',
+  'Dal Makhani',
+  'Butter Chicken',
+  'Sarson Ka Saag',
+  'Tandoori Chicken',
+].map((name) => all.find((d) => d.name === name)!);
+---
+
+<Layout
+  home
+  title="Amritsar Junction | Punjabi Restaurant & Amritsari Kulcha"
+  description="Punjabi restaurant in Sydney serving Amritsari kulcha, tandoori kebabs, dal makhani, butter chicken and chaat. Book a table, order online or plan catering."
+  share={hero}
+>
+  <section aria-labelledby="cover-title">
+    <div class="aj-hero">
+      <Photo
+        src={hero}
+        alt="Paneer, chicken and seekh kebab skewers smoking over hot coals"
+        sizes="100vw"
+        eager
+      />
+    </div>
+    <div class="aj-wrap aj-cover">
+      <p class="aj-caption aj-hero-cap">Skewers of paneer, chicken tikka and seekh kebab, straight off the coals.</p>
+      <div class="aj-cover__grid">
+        <div>
+          <span class="aj-kicker">The Table · This week</span>
+          <h1 id="cover-title" class="aj-headline">Amritsar's food, brought to your table in Sydney</h1>
+        </div>
+        <div>
+          <p class="aj-deck">Kulchas baked in the tandoor, black dal cooked slow, and the chaat of the Golden Temple's lanes. Pull up a chair.</p>
+          <div class="aj-btn-row">
+            <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
+            <a class="aj-btn aj-btn--secondary" href={site.orderUrl}>Order online</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="aj-rule aj-wrap-rule" />
+
+  <article class="aj-story-gap" aria-labelledby="feature-title">
+    <div class="aj-wrap aj-spread aj-spread--portrait">
+      <Photo
+        src={kulcha}
+        alt="A charred Amritsari kulcha topped with white butter, beside a tray of dark chole"
+        caption="Amritsari kulcha, with a knob of white butter melting in."
+        shape="arch"
+        sizes="(max-width: 860px) 100vw, 40vw"
+      />
+      <div>
+        <span class="aj-kicker">Feature · The signature</span>
+        <h2 id="feature-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">The bread a whole city is named for</h2>
+        <p class="aj-deck">In Amritsar, breakfast is a kulcha, crackling from the tandoor, with a bowl of dark chole and an onion on the side.</p>
+        <hr class="aj-short" />
+        <p class="aj-dropcap">Ask anyone from Amritsar what they miss and the answer comes fast: a proper kulcha. Not a soft naan, but a layered, stuffed bread pressed against the hot clay wall of the tandoor until the outside shatters and the inside steams. Ours is filled with spiced potato and onion, brushed with butter and finished with a knob of white makhan that melts into every crease.</p>
+        <p>It comes the way it does at home, with tangy Amritsari chole, a sharp tamarind chutney and a pile of pickled onion. Tear, scoop, repeat.</p>
+        <a class="aj-link" href="/gallery#kulcha">Read the story of the kulcha</a>
+      </div>
+    </div>
+  </article>
+
+  <section class="aj-deep aj-story-gap" aria-labelledby="teaser-title">
+    <div class="aj-wrap">
+      <div class="aj-teaser">
+        <div class="aj-head">
+          <span class="aj-kicker">Contents · From the menu</span>
+          <h2 id="teaser-title" class="aj-headline" style="margin-top: var(--space-2)">Six dishes to begin with</h2>
+          <p class="aj-deck">A short taste of the {all.length} dishes on our menu, from street chaat to the tandoor.</p>
+          <p style="margin-top: var(--space-4)"><a class="aj-btn aj-btn--secondary" href="/menu">See the full menu</a></p>
+        </div>
+        <ul class="aj-menu-list aj-columns-2">
+          {teaser.map((dish) => <MenuItem dish={dish} />)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="aj-band aj-story-gap" data-theme="marble" aria-labelledby="visit-title">
+    <div class="aj-wrap aj-spread aj-spread--flip">
+      <Photo
+        src={saag}
+        alt="Sarson ka saag topped with white butter, with yellow makki di roti and radish"
+        caption="Sarson ka saag and makki di roti, a Punjabi winter on a plate."
+        sizes="(max-width: 860px) 100vw, 40vw"
+      />
+      <div>
+        <span class="aj-kicker">Visit · Open daily</span>
+        <h2 id="visit-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-4)">Come hungry</h2>
+        <Hours />
+        <p style="margin-top: var(--space-4)"><Todo text={site.address} /><br /><a href={site.phoneHref}><Todo text={site.phone} /></a></p>
+        <div class="aj-btn-row">
+          <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
+          <a class="aj-btn aj-btn--gilt" href={site.orderUrl}>Order online</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="aj-story-gap" aria-labelledby="catering-title">
+    <div class="aj-wrap aj-catering-teaser">
+      <span class="aj-kicker">Catering &amp; events</span>
+      <h2 id="catering-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Feeding a wedding, a kirtan or the whole office?</h2>
+      <p class="aj-deck" style="margin: 0 auto var(--space-4)">From party trays to full functions, we cook Punjabi food for a crowd.</p>
+      <a class="aj-btn aj-btn--primary" href="/catering">Plan your catering</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .aj-hero :global(img) { width: 100%; height: min(72vh, 640px); object-fit: cover; }
+  @media (max-width: 720px) { .aj-hero :global(img) { height: auto; aspect-ratio: 4 / 3; } .aj-hero-cap { margin-bottom: var(--space-4); } }
+  .aj-hero :global(figure) { margin: 0; }
+  .aj-hero-cap { margin: var(--space-2) 0 var(--space-5); }
+  .aj-cover { padding-bottom: var(--space-6); }
+  .aj-cover__grid { display: grid; grid-template-columns: 7fr 5fr; gap: var(--space-5); align-items: end; }
+  .aj-cover__grid .aj-kicker { display: block; margin-bottom: var(--space-2); }
+  .aj-cover__grid .aj-deck { margin-bottom: var(--space-4); }
+  @media (max-width: 860px) { .aj-cover__grid { grid-template-columns: 1fr; gap: var(--space-4); } }
+  .aj-wrap-rule { max-width: calc(var(--page) - 2 * var(--space-6)); margin: 0 auto; }
+  .aj-teaser { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-6); align-items: start; }
+  @media (max-width: 960px) { .aj-teaser { grid-template-columns: 1fr; gap: 0; } }
+  .aj-columns-2 { columns: 2 280px; column-gap: var(--space-5); }
+  .aj-catering-teaser { text-align: center; }
+  .aj-catering-teaser .aj-headline { max-width: 18em; margin-left: auto !important; margin-right: auto !important; }
+</style>

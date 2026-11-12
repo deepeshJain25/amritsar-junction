@@ -1,0 +1,21 @@
+{
+  "name": "amritsar-junction",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "7.1.2",
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}
