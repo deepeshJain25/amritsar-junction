@@ -17,9 +17,10 @@ const { dish } = Astro.props;
     {dish.price && <span class="aj-item__price">{dish.price}</span>}
   </h3>
   {dish.desc && <p class="aj-item__desc">{dish.desc}</p>}
-  {(dish.veg || dish.options) && (
+  {(dish.veg || dish.options || dish.sizes) && (
     <div class="aj-item__meta">
       {dish.veg && <span class="aj-tag">Veg</span>}
+      {dish.sizes && <span class="aj-tag aj-tag--opt">{dish.sizes.map((s) => `${s.name} $${s.price}`).join(' · ')}</span>}
       {dish.options && <span class="aj-tag aj-tag--opt">{dish.options}</span>}
     </div>
   )}

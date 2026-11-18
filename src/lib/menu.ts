@@ -11,10 +11,15 @@ export interface Dish {
   price?: string;
   /** Plain number for structured data, e.g. "18.99". */
   amount?: string;
+  /** Size choices from the POS, cheapest first. When present, `price` reads "From $x". */
+  sizes?: { name: string; price: string }[];
+  /** Whether the POS allows this item to be ordered online. */
+  purchasable: boolean;
 }
 
 export interface Chapter {
   id: string;
+  categoryId: number;
   kicker: string;
   title: string;
   deck?: string;
@@ -33,20 +38,29 @@ const NON_VEG_WORDS = /\b(chicken|murg|lamb|goat|mutton|keema|fish|prawns?|egg|n
 const isVeg = (item: ApiMenuItem, category: string) => !NON_VEG_CATEGORY.test(category) && !NON_VEG_WORDS.test(item.name);
 
 // The POS puts choices in the name ("Butter Chicken - Bone/Boneless"). Show them as an options tag instead.
+// Names listing what comes together ("Naan Basket - Roti + Naan + …") are left whole.
 function splitName(name: string): { name: string; options?: string } {
-  const m = name.match(/^(.+?)\s+-\s+(.+\/.+)$/);
+  const m = name.match(/^(.+?)\s+-\s+([^+]+\/[^+]+)$/);
   return m ? { name: m[1], options: m[2].split('/').map((s) => s.trim()).join(' · ') } : { name };
 }
 
+const money = (n: number) => `$${n.toFixed(2)}`;
+
 function toDish(item: ApiMenuItem, category: string): Dish {
-  const n = Number(item.price);
+  const sizes = item.size_options
+    .map((s) => ({ name: s.size_tier_name, n: Number(s.price) }))
+    .filter((s) => s.n > 0)
+    .sort((a, b) => a.n - b.n);
+  const n = sizes.length ? sizes[0].n : Number(item.price);
   return {
     id: item.id,
     ...splitName(item.name.trim()),
     desc: item.description.trim(),
     veg: isVeg(item, category),
-    price: n > 0 ? `$${n.toFixed(2)}` : undefined,
+    price: n > 0 ? (sizes.length > 1 ? `From ${money(n)}` : money(n)) : undefined,
     amount: n > 0 ? n.toFixed(2) : undefined,
+    sizes: sizes.length ? sizes.map((s) => ({ name: s.name, price: s.n.toFixed(2) })) : undefined,
+    purchasable: item.is_purchasable,
   };
 }
 
@@ -63,6 +77,7 @@ export async function getMenu(): Promise<Chapter[]> {
     .sort((a, b) => rank(a.c.name) - rank(b.c.name))
     .map(({ c, dishes }, i) => ({
       id: slug(c.name),
+      categoryId: c.id,
       kicker: `Chapter ${ORDINALS[i] ?? i + 1}`,
       title: c.name,
       deck: sectionCopy[c.name],

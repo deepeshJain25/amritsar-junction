@@ -26,7 +26,11 @@ const menuSchema = {
       '@type': 'MenuItem',
       name: d.name,
       ...(d.desc ? { description: d.desc } : {}),
-      ...(d.amount ? { offers: { '@type': 'Offer', price: d.amount, priceCurrency: 'AUD' } } : {}),
+      ...(d.sizes && d.sizes.length > 1
+        ? { offers: d.sizes.map((s) => ({ '@type': 'Offer', name: s.name, price: s.price, priceCurrency: 'AUD' })) }
+        : d.amount
+          ? { offers: { '@type': 'Offer', price: d.amount, priceCurrency: 'AUD' } }
+          : {}),
       ...(d.veg ? { suitableForDiet: 'https://schema.org/VegetarianDiet' } : {}),
     })),
   })),
