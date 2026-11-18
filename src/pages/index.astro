@@ -3,22 +3,25 @@ import Hours from '../components/Hours.astro';
 import MenuItem from '../components/MenuItem.astro';
 import Photo from '../components/Photo.astro';
 import Todo from '../components/Todo.astro';
-import menu from '../content/menu.json';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
+import { getMenu } from '../lib/menu';
 import kulcha from '../assets/photos/kulcha-plate.jpg';
 import hero from '../assets/photos/tandoor-skewers.jpg';
 import saag from '../assets/photos/sarson-ka-saag.jpg';
 
-const all = menu.chapters.flatMap((c) => c.items);
+const all = (await getMenu()).flatMap((c) => c.items);
+// Featured dishes, matched by their POS name. One that is renamed or removed in the POS is simply left out.
 const teaser = [
-  'Amritsari Special Kulcha',
+  'Aloo Kulcha',
   'Amritsari Fish',
-  'Dal Makhani',
+  'Dal Makhni',
   'Butter Chicken',
-  'Sarson Ka Saag',
-  'Tandoori Chicken',
-].map((name) => all.find((d) => d.name === name)!);
+  'Sarson Ka Saag - Amritsari Special',
+  'Tandoori Chicken Tikka',
+]
+  .map((name) => all.find((d) => d.name === name))
+  .filter((d) => d !== undefined);
 ---
 
 <Layout

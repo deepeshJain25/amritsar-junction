@@ -1,29 +1,32 @@
 ---
 import MenuItem from '../components/MenuItem.astro';
 import MenuTools from '../components/MenuTools.tsx';
-import menu from '../content/menu.json';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
+import { getMenu } from '../lib/menu';
 import kulcha from '../assets/photos/kulcha-thali.jpg';
 
+// Dishes, prices and descriptions come from the POS storefront API at build time.
+const chapters = await getMenu();
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
-const count = menu.chapters.reduce((n, c) => n + c.items.length, 0);
+const count = chapters.reduce((n, c) => n + c.items.length, 0);
 
-// The whole menu as schema.org Menu, so Google can read every dish and its dietary note.
+// The whole menu as schema.org Menu, so Google can read every dish, its price and dietary note.
 const menuSchema = {
   '@context': 'https://schema.org',
   '@type': 'Menu',
   name: `${site.name} menu`,
   url: new URL('/menu', siteUrl).href,
   inLanguage: 'en-AU',
-  hasMenuSection: menu.chapters.map((c) => ({
+  hasMenuSection: chapters.map((c) => ({
     '@type': 'MenuSection',
     name: c.title,
-    description: c.deck,
+    ...(c.deck ? { description: c.deck } : {}),
     hasMenuItem: c.items.map((d) => ({
       '@type': 'MenuItem',
       name: d.name,
-      description: d.desc,
+      ...(d.desc ? { description: d.desc } : {}),
+      ...(d.amount ? { offers: { '@type': 'Offer', price: d.amount, priceCurrency: 'AUD' } } : {}),
       ...(d.veg ? { suitableForDiet: 'https://schema.org/VegetarianDiet' } : {}),
     })),
   })),
@@ -32,20 +35,20 @@ const menuSchema = {
 
 <Layout
   title="Menu: Kulcha, Tandoori, Curries & Chaat"
-  description={`Our full menu of ${count} Punjabi dishes: Amritsari kulcha, chole bhature, tandoori, dal makhani, butter chicken, momo, biryani and lassi. Veg dishes marked.`}
+  description={`Our full menu of ${count} Punjabi dishes with prices: Amritsari kulcha, tandoori, dal makhni, butter chicken, momo, biryani and lassi. Veg dishes marked.`}
   crumb="Menu"
   share={kulcha}
   schema={[menuSchema]}
 >
   <section class="aj-wrap aj-menu-head">
-    <span class="aj-kicker">The menu · {menu.chapters.length} chapters, {count} dishes</span>
+    <span class="aj-kicker">The menu · {chapters.length} chapters, {count} dishes</span>
     <h1 class="aj-headline">Contents</h1>
     <p class="aj-deck">Read it like a magazine: street chaat to begin, the tandoor in the middle, lassi and something sweet to close. Dishes marked <span class="aj-tag">Veg</span> are vegetarian.</p>
   </section>
 
   <nav class="aj-wrap aj-toc" aria-label="Menu chapters">
     <ol>
-      {menu.chapters.map((c, i) => (
+      {chapters.map((c, i) => (
         <li><a href={`#${c.id}`}><span class="aj-toc__num">{String(i + 1).padStart(2, '0')}</span>{c.title}</a></li>
       ))}
     </ol>
@@ -53,17 +56,17 @@ const menuSchema = {
 
   <div class="aj-tools-wrap">
     <div class="aj-wrap">
-      <MenuTools client:load chapters={menu.chapters.map(({ id, title }) => ({ id, title }))} />
+      <MenuTools client:load chapters={chapters.map(({ id, title }) => ({ id, title }))} />
     </div>
   </div>
 
   <div class="aj-wrap">
-    {menu.chapters.map((c) => (
+    {chapters.map((c) => (
       <section class="aj-chapter" id={c.id} aria-labelledby={`${c.id}-title`} data-all-meat={c.items.every((d) => !d.veg) ? '' : undefined}>
         <div class="aj-chapter__head">
           <span class="aj-kicker">{c.kicker}</span>
           <h2 id={`${c.id}-title`} class="aj-section">{c.title}</h2>
-          <p class="aj-caption">{c.deck}</p>
+          {c.deck && <p class="aj-caption">{c.deck}</p>}
         </div>
         <ul class="aj-menu-list aj-chapter__list">
           {c.items.map((dish) => <MenuItem dish={dish} />)}
