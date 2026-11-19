@@ -19,9 +19,11 @@ interface Props {
   share?: ImageMetadata;
   home?: boolean;
   theme?: 'paper' | 'marble';
+  /** Keep the page out of search engines (test and internal pages). */
+  noindex?: boolean;
 }
 
-const { title, description, crumb, schema = [], share = defaultShare, home = false, theme = 'paper' } = Astro.props;
+const { title, description, crumb, schema = [], share = defaultShare, home = false, theme = 'paper', noindex = false } = Astro.props;
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, siteUrl).href;
 const og = await getImage({ src: share, width: 1200, format: 'jpg' });
@@ -45,7 +47,7 @@ const graph = [
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#0f3b2e" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
