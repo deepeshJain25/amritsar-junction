@@ -1,15 +1,37 @@
 ---
-import MenuItem from '../components/MenuItem.astro';
-import MenuTools from '../components/MenuTools.tsx';
+import Hero from '../components/sections/Hero.astro';
+import IngredientStrip from '../components/sections/IngredientStrip.astro';
+import MenuCard from '../components/sections/MenuCard.astro';
+import MenuGrid from '../components/sections/MenuGrid.astro';
+import SectionOpener from '../components/sections/SectionOpener.astro';
+import VisitBlock from '../components/sections/VisitBlock.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { getMenu } from '../lib/menu';
-import kulcha from '../assets/photos/kulcha-thali.jpg';
+import jalebi from '../assets/photos/jalebi-street.jpg';
+import kulcha from '../assets/photos/kulcha-plate.jpg';
+import saag from '../assets/photos/sarson-ka-saag.jpg';
+import skewers from '../assets/photos/tandoor-skewers.jpg';
 
 // Dishes, prices and descriptions come from the POS storefront API at build time.
 const chapters = await getMenu();
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const count = chapters.reduce((n, c) => n + c.items.length, 0);
+
+// The sub-nav names eight courses; each jumps to the first POS chapter of that course. A course whose chapter is missing is left out.
+const courses = [
+  ['Chaat', 'chaats'],
+  ['Kulcha', 'amritsari-special-kulcha'],
+  ['Tandoor', 'entree-vegetarian'],
+  ['Curries', 'veg-mains'],
+  ['Breads', 'breads'],
+  ['Rice', 'tandoori-dum-biryani'],
+  ['Sweets', 'dessert'],
+  ['Drinks', 'drinks'],
+].filter(([, id]) => chapters.some((c) => c.id === id));
+
+// Ingredient strips open these chapters, breaking the long read into courses.
+const strips: Record<string, ImageMetadata> = { 'non-veg-entree': skewers, 'veg-mains': saag, dessert: jalebi };
 
 // The whole menu as schema.org Menu, so Google can read every dish, its price and dietary note.
 const menuSchema = {
@@ -38,83 +60,82 @@ const menuSchema = {
 ---
 
 <Layout
+  nav="overlay"
   title="Menu: Kulcha, Tandoori, Curries & Chaat"
   description={`Our full menu of ${count} Punjabi dishes with prices: Amritsari kulcha, tandoori, dal makhni, butter chicken, momo, biryani and lassi. Veg dishes marked.`}
   crumb="Menu"
   share={kulcha}
   schema={[menuSchema]}
 >
-  <section class="aj-wrap aj-menu-head">
-    <span class="aj-kicker">The menu · {chapters.length} chapters, {count} dishes</span>
-    <h1 class="aj-headline">Contents</h1>
-    <p class="aj-deck">Read it like a magazine: street chaat to begin, the tandoor in the middle, lassi and something sweet to close. Dishes marked <span class="aj-tag">Veg</span> are vegetarian.</p>
-  </section>
+  <Hero
+    image={kulcha}
+    alt="A charred Amritsari kulcha topped with white butter, beside a tray of dark chole"
+    welcome
+    eyebrow={`${chapters.length} chapters · ${count} dishes`}
+    title="The Menu"
+    standfirst="Read it like a magazine: street chaat to begin, the tandoor in the middle, lassi and something sweet to close."
+  />
 
-  <nav class="aj-wrap aj-toc" aria-label="Menu chapters">
-    <ol>
-      {chapters.map((c, i) => (
-        <li><a href={`#${c.id}`}><span class="aj-toc__num">{String(i + 1).padStart(2, '0')}</span>{c.title}</a></li>
-      ))}
-    </ol>
+  <nav class="courses surface-primary" aria-label="Menu courses">
+    <div class="container courses__bar">
+      <ul class="courses__list" role="list">
+        {courses.map(([label, id]) => <li><a class="text-body-sm" href={`#${id}`}>{label}</a></li>)}
+      </ul>
+      <label class="courses__veg text-body-sm">
+        <input type="checkbox" data-veg-toggle />
+        <span>Veg only</span>
+      </label>
+    </div>
   </nav>
 
-  <div class="aj-tools-wrap">
-    <div class="aj-wrap">
-      <MenuTools client:load chapters={chapters.map(({ id, title }) => ({ id, title }))} />
-    </div>
-  </div>
-
-  <div class="aj-wrap">
-    {chapters.map((c) => (
-      <section class="aj-chapter" id={c.id} aria-labelledby={`${c.id}-title`} data-all-meat={c.items.every((d) => !d.veg) ? '' : undefined}>
-        <div class="aj-chapter__head">
-          <span class="aj-kicker">{c.kicker}</span>
-          <h2 id={`${c.id}-title`} class="aj-section">{c.title}</h2>
-          {c.deck && <p class="aj-caption">{c.deck}</p>}
+  {chapters.map((c) => (
+    <>
+      {strips[c.id] && <IngredientStrip image={strips[c.id]} />}
+      <section class="section chapter" id={c.id} aria-labelledby={`${c.id}-title`} data-all-meat={c.items.every((d) => !d.veg) ? '' : undefined}>
+        <div class="container">
+          <SectionOpener eyebrow={c.kicker} title={c.title} standfirst={c.deck} size="md" id={`${c.id}-title`} />
+          <MenuGrid>
+            {c.items.map((dish) => <MenuCard dish={dish} />)}
+          </MenuGrid>
         </div>
-        <ul class="aj-menu-list aj-chapter__list">
-          {c.items.map((dish) => <MenuItem dish={dish} />)}
-        </ul>
       </section>
-    ))}
+    </>
+  ))}
 
-    <p class="aj-form-note aj-menu-note">Please tell us about any allergies when you order. Our kitchen handles nuts, dairy and gluten. Dishes and availability may change.</p>
-  </div>
+  <section class="allergens surface-sunken" aria-labelledby="allergens-title">
+    <div class="container allergens__inner">
+      <h2 id="allergens-title" class="text-heading-sm">Allergens &amp; dietary notes</h2>
+      <p class="text-body-sm">Please tell us about any allergies when you order. Our kitchen handles nuts, dairy and gluten, so we cannot promise any dish is free of them. Dishes marked <span class="text-meta allergens__veg">Veg</span> are vegetarian. Dishes and availability may change.</p>
+    </div>
+  </section>
+
+  <VisitBlock />
 </Layout>
 
+<script>
+  const toggle = document.querySelector<HTMLInputElement>('[data-veg-toggle]');
+  toggle?.addEventListener('change', () => document.documentElement.toggleAttribute('data-veg-only', toggle.checked));
+</script>
+
 <style>
-  .aj-menu-head { padding-top: var(--space-6); padding-bottom: var(--space-4); }
-  .aj-menu-head .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  .aj-menu-head .aj-deck { margin-top: var(--space-3); }
-  .aj-toc ol { list-style: none; padding: var(--space-4) 0; margin: 0; columns: 4 200px; column-gap: var(--space-5); border-top: 3px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); }
-  .aj-toc li { break-inside: avoid; padding: var(--space-1) 0; }
-  .aj-toc a { color: var(--ink); text-decoration: none; font-size: 17px; }
-  .aj-toc a:hover { color: var(--accent); text-decoration: underline; }
-  .aj-toc__num { font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--gold-ink); margin-right: var(--space-2); font-variant-numeric: lining-nums tabular-nums; }
-  .aj-tools-wrap { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--rule); margin-top: var(--space-4); }
-  :global(.aj-tools) { display: flex; gap: var(--space-4); align-items: center; padding: var(--space-2) 0; flex-wrap: wrap; }
-  :global(.aj-tools__jump) { flex: 0 1 320px; }
-  :global(.aj-tools__jump .aj-input) { padding: 8px var(--space-3); font-family: var(--font-label); font-size: 16px; min-height: 44px; }
-  :global(.aj-tools__veg) { min-height: 44px; display: flex; gap: var(--space-2); align-items: center; font-family: var(--font-label); font-size: 15px; font-weight: 600; letter-spacing: .04em; cursor: pointer; }
-  :global(.aj-tools__veg input) { width: 20px; height: 20px; accent-color: var(--emerald); }
-  .aj-chapter { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-5); padding: var(--space-6) 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 72px; }
-  .aj-chapter__head { position: sticky; top: 80px; align-self: start; }
-  .aj-chapter__head .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  .aj-chapter__head .aj-caption { margin-top: var(--space-2); font-size: 16px; line-height: 24px; }
-  .aj-chapter__list { columns: 2 300px; column-gap: var(--space-5); }
-  .aj-menu-note { padding: var(--space-5) 0 var(--space-6); text-align: center; }
-  @media (max-width: 720px) {
-    .aj-toc { display: none; }
-    :global(.aj-tools) { flex-wrap: nowrap; gap: var(--space-3); }
-    :global(.aj-tools__jump) { flex: 1 1 auto; }
-    :global(.aj-tools__long) { display: none; }
-    :global(.aj-tools__veg) { white-space: nowrap; }
-    .aj-chapter { scroll-margin-top: 64px; }
-  }
-  @media (max-width: 860px) {
-    .aj-chapter { grid-template-columns: 1fr; gap: var(--space-3); padding: var(--space-5) 0; }
-    .aj-chapter__head { position: static; }
-  }
-  :global(html[data-veg-only] [data-nonveg]) { display: none; }
+  /* The course bar sticks under the solid nav. */
+  .courses { position: sticky; top: var(--nav-height); z-index: 30; border-bottom: 1px solid var(--line-primary); }
+  .courses__bar { display: flex; align-items: center; gap: var(--space-5); }
+  .courses__list { display: flex; gap: var(--space-5); overflow-x: auto; scrollbar-width: none; flex: 1; mask-image: linear-gradient(to right, var(--ink-primary) 90%, transparent); }
+  .courses__list::-webkit-scrollbar { display: none; }
+  .courses__list a { display: inline-flex; align-items: center; min-height: 52px; color: var(--ctx-ink); font-weight: var(--weight-medium); white-space: nowrap; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.5em; transition: text-decoration-color var(--duration-fast) var(--ease-out); }
+  .courses__list a:hover { text-decoration-color: var(--ctx-ornament); }
+  @media (min-width: 1024px) { .courses__list { mask-image: none; } }
+  /* The filter needs JavaScript, so it only shows when JavaScript runs. */
+  .courses__veg { display: none; flex: none; align-items: center; gap: var(--space-2); min-height: var(--touch-target); font-weight: var(--weight-medium); cursor: pointer; }
+  :global(.js) .courses__veg { display: inline-flex; }
+  .courses__veg input { width: 20px; height: 20px; margin: 0; accent-color: var(--brand-emerald); }
+  /* html already pads anchor jumps by the nav's height; this adds the course bar's. */
+  .chapter { scroll-margin-top: 52px; }
+  .chapter + .chapter { padding-top: 0; }
+  .allergens { padding-block: var(--space-8); }
+  .allergens__inner { display: grid; gap: var(--space-3); max-width: 760px; text-align: center; justify-items: center; }
+  .allergens__veg { color: var(--brand-emerald); }
+  :global(html[data-veg-only] [data-nonveg]),
   :global(html[data-veg-only] [data-all-meat]) { display: none; }
 </style>
