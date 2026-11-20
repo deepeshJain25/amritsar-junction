@@ -82,7 +82,7 @@ export default function OrderTest({ apiUrl, restaurantId }: Props) {
   }, [base, restaurantId]);
 
   if (loadError) return <p className="ot-error">Could not load the menu from the API: {loadError}</p>;
-  if (!items || !stripeConfig) return <p className="aj-caption">Loading menu and payment settings…</p>;
+  if (!items || !stripeConfig) return <p className="text-caption">Loading menu and payment settings…</p>;
 
   return (
     <Elements
@@ -267,26 +267,27 @@ function OrderForm({ base, restaurantId, items, stripeEnabled }: { base: string;
     }
   }
 
-  const ink = typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#1d1a14' : '#1d1a14';
+  // Stripe's card field lives in an iframe, so it gets the design tokens' resolved values; it keeps its own defaults if one is missing.
+  const token = (name: string) => (typeof window !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue(name).trim() || undefined : undefined);
 
   return (
     <div className="ot">
       <section className="ot-dishes" aria-labelledby="ot-dishes-title">
-        <h2 id="ot-dishes-title" className="aj-section">Dishes</h2>
+        <h2 id="ot-dishes-title" className="text-heading-lg">Dishes</h2>
         <ul className="ot-list">
           {items.map((i) => (
             <li key={i.id} className="ot-row">
               <div>
                 <p className="ot-name">{i.name}</p>
-                <p className="aj-caption">
+                <p className="text-caption">
                   {money(Number(i.price))} · POS id {i.id}
                   {!i.is_purchasable && <span className="ot-flag"> · not purchasable in POS</span>}
                 </p>
               </div>
               <div className="ot-qty" role="group" aria-label={`Quantity of ${i.name}`}>
-                <button type="button" className="aj-btn aj-btn--secondary" onClick={() => setQty((q) => ({ ...q, [i.id]: Math.max(0, (q[i.id] ?? 0) - 1) }))} aria-label={`Remove one ${i.name}`} disabled={busy}>−</button>
+                <button type="button" className="btn btn--secondary" onClick={() => setQty((q) => ({ ...q, [i.id]: Math.max(0, (q[i.id] ?? 0) - 1) }))} aria-label={`Remove one ${i.name}`} disabled={busy}>−</button>
                 <output aria-live="polite">{qty[i.id] ?? 0}</output>
-                <button type="button" className="aj-btn aj-btn--secondary" onClick={() => setQty((q) => ({ ...q, [i.id]: Math.min(20, (q[i.id] ?? 0) + 1) }))} aria-label={`Add one ${i.name}`} disabled={busy}>+</button>
+                <button type="button" className="btn btn--secondary" onClick={() => setQty((q) => ({ ...q, [i.id]: Math.min(20, (q[i.id] ?? 0) + 1) }))} aria-label={`Add one ${i.name}`} disabled={busy}>+</button>
               </div>
             </li>
           ))}
@@ -299,31 +300,31 @@ function OrderForm({ base, restaurantId, items, stripeEnabled }: { base: string;
       </section>
 
       <section className="ot-pay" aria-labelledby="ot-pay-title">
-        <h2 id="ot-pay-title" className="aj-section">Your details</h2>
-        <div className="aj-form">
-          <div className="aj-field"><label htmlFor="ot-first">First name</label><input className="aj-input" id="ot-first" autoComplete="given-name" value={form.first_name} onChange={set('first_name')} /></div>
-          <div className="aj-field"><label htmlFor="ot-last">Last name <span className="aj-opt">(optional)</span></label><input className="aj-input" id="ot-last" autoComplete="family-name" value={form.last_name} onChange={set('last_name')} /></div>
-          <div className="aj-field"><label htmlFor="ot-phone">Phone</label><input className="aj-input" id="ot-phone" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} /></div>
-          <div className="aj-field"><label htmlFor="ot-email">Email <span className="aj-opt">(optional)</span></label><input className="aj-input" id="ot-email" type="email" autoComplete="email" value={form.email} onChange={set('email')} /></div>
-          <div className="aj-field aj-full">
-            <label htmlFor="ot-type">Pickup or delivery</label>
-            <select className="aj-input" id="ot-type" value={form.order_type} onChange={set('order_type')}>
+        <h2 id="ot-pay-title" className="text-heading-lg">Your details</h2>
+        <div className="form-grid">
+          <div className="field"><label className="field__label text-meta" htmlFor="ot-first">First name</label><input className="input" id="ot-first" autoComplete="given-name" value={form.first_name} onChange={set('first_name')} /></div>
+          <div className="field"><label className="field__label text-meta" htmlFor="ot-last">Last name <span className="field__optional">(optional)</span></label><input className="input" id="ot-last" autoComplete="family-name" value={form.last_name} onChange={set('last_name')} /></div>
+          <div className="field"><label className="field__label text-meta" htmlFor="ot-phone">Phone</label><input className="input" id="ot-phone" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} /></div>
+          <div className="field"><label className="field__label text-meta" htmlFor="ot-email">Email <span className="field__optional">(optional)</span></label><input className="input" id="ot-email" type="email" autoComplete="email" value={form.email} onChange={set('email')} /></div>
+          <div className="field field--full">
+            <label className="field__label text-meta" htmlFor="ot-type">Pickup or delivery</label>
+            <select className="input" id="ot-type" value={form.order_type} onChange={set('order_type')}>
               <option value="pickup">Pickup</option>
               <option value="delivery">Delivery (+{money(DELIVERY_FEE)})</option>
             </select>
           </div>
           {form.order_type === 'delivery' && (
-            <div className="aj-field aj-full"><label htmlFor="ot-address">Delivery address</label><input className="aj-input" id="ot-address" autoComplete="street-address" value={form.delivery_address} onChange={set('delivery_address')} /></div>
+            <div className="field field--full"><label className="field__label text-meta" htmlFor="ot-address">Delivery address</label><input className="input" id="ot-address" autoComplete="street-address" value={form.delivery_address} onChange={set('delivery_address')} /></div>
           )}
-          <div className="aj-field aj-full"><label htmlFor="ot-notes">Notes <span className="aj-opt">(optional)</span></label><input className="aj-input" id="ot-notes" value={form.notes} onChange={set('notes')} /></div>
+          <div className="field field--full"><label className="field__label text-meta" htmlFor="ot-notes">Notes <span className="field__optional">(optional)</span></label><input className="input" id="ot-notes" value={form.notes} onChange={set('notes')} /></div>
 
-          <div className="aj-field aj-full">
-            <label htmlFor="ot-card">Card</label>
+          <div className="field field--full">
+            <label className="field__label text-meta" htmlFor="ot-card">Card</label>
             {stripeEnabled ? (
               <>
-                <div className="aj-input ot-card" id="ot-card">
+                <div className="input ot-card" id="ot-card">
                   <CardElement
-                    options={{ hidePostalCode: true, style: { base: { fontFamily: 'Vollkorn, Georgia, serif', fontSize: '17px', color: ink }, invalid: { color: '#b3261e' } } }}
+                    options={{ hidePostalCode: true, style: { base: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', color: token('--ink-primary') }, invalid: { color: token('--brand-maroon') } } }}
                     onChange={(e: StripeCardElementChangeEvent) => {
                       setCardComplete(e.complete);
                       setCardError(e.error?.message ?? '');
@@ -337,27 +338,27 @@ function OrderForm({ base, restaurantId, items, stripeEnabled }: { base: string;
             )}
           </div>
 
-          <div className="aj-full aj-btn-row">
-            <button type="button" className="aj-btn aj-btn--primary" onClick={payByCard} disabled={busy || !stripeEnabled || !lines.length}>
+          <div className="field--full btn-row">
+            <button type="button" className="btn btn--primary" onClick={payByCard} disabled={busy || !stripeEnabled || !lines.length}>
               {busy ? 'Working…' : `Pay ${money(total)} by card`}
             </button>
-            <button type="button" className="aj-btn aj-btn--secondary" onClick={payCash} disabled={busy || !lines.length}>
+            <button type="button" className="btn btn--secondary" onClick={payCash} disabled={busy || !lines.length}>
               Test order, pay at pickup
             </button>
           </div>
-          <p className="aj-full aj-form-note">Both buttons create a real order in the POS and can print a kitchen docket.</p>
+          <p className="field--full field__help">Both buttons create a real order in the POS and can print a kitchen docket.</p>
         </div>
 
         {error && <p className="ot-error" role="alert">{error}</p>}
         {paid && !order && (
           <p className="ot-notice">
             The card was charged (PaymentIntent {paid.paymentIntentId}) but the order was not created.{' '}
-            <button type="button" className="aj-btn aj-btn--secondary" onClick={retryCheckout} disabled={busy}>Retry creating the order</button>
+            <button type="button" className="btn btn--secondary" onClick={retryCheckout} disabled={busy}>Retry creating the order</button>
           </p>
         )}
         {order && (
           <div className="ot-done" role="status">
-            <p className="aj-kicker">Order placed</p>
+            <p className="eyebrow text-meta">Order placed</p>
             <p>
               Order #{String(order.id)} · {String(order.status)} · total ${String(order.total)} · {order.is_paid ? 'paid' : 'not paid'} ({String(order.payment_method)})
             </p>
@@ -367,7 +368,7 @@ function OrderForm({ base, restaurantId, items, stripeEnabled }: { base: string;
 
       {log.length > 0 && (
         <section className="ot-log" aria-labelledby="ot-log-title">
-          <h2 id="ot-log-title" className="aj-section">API calls</h2>
+          <h2 id="ot-log-title" className="text-heading-lg">API calls</h2>
           <ol>
             {log.map((e, i) => (
               <li key={i} className={`ot-log__item is-${e.status}`}>

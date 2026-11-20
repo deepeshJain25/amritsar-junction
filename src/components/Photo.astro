@@ -9,19 +9,17 @@ interface Props {
   caption?: string;
   aspect?: string;
   radius?: 'none' | 'md' | 'lg' | 'lg-top';
-  /** Pre-redesign shapes, used only by pages not yet rebuilt. */
-  shape?: 'arch' | 'wide' | 'natural';
   sizes?: string;
   eager?: boolean;
   class?: string;
 }
 
-const { src, alt, caption, aspect, radius = 'none', shape, sizes = '(min-width: 1024px) 50vw, 100vw', eager = false, class: extra } = Astro.props;
+const { src, alt, caption, aspect, radius = 'none', sizes = '(min-width: 1024px) 50vw, 100vw', eager = false, class: extra } = Astro.props;
 const widths = [360, 540, 720, 960, 1200, 1600].filter((w) => w <= src.width).concat(src.width > 1600 ? [] : [src.width]);
 ---
 
 <figure
-  class:list={['photo', `photo--${radius}`, aspect && 'photo--cropped', shape === 'arch' && 'aj-arch', shape === 'wide' && 'aj-wide', extra]}
+  class:list={['photo', `photo--${radius}`, aspect && 'photo--cropped', extra]}
   style={aspect ? `--photo-aspect: ${aspect}` : undefined}
 >
   <div class="photo__frame">
