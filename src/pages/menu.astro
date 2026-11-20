@@ -123,7 +123,7 @@ const menuSchema = {
   .courses__bar { display: flex; align-items: center; gap: var(--space-5); }
   .courses__list { display: flex; gap: var(--space-5); overflow-x: auto; scrollbar-width: none; flex: 1; mask-image: linear-gradient(to right, var(--ink-primary) 90%, transparent); }
   .courses__list::-webkit-scrollbar { display: none; }
-  .courses__list a { display: inline-flex; align-items: center; min-height: 52px; color: var(--ctx-ink); font-weight: var(--weight-medium); white-space: nowrap; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.5em; transition: text-decoration-color var(--duration-fast) var(--ease-out); }
+  .courses__list a { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; min-width: var(--touch-target); color: var(--ctx-ink); font-weight: var(--weight-medium); white-space: nowrap; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.5em; transition: text-decoration-color var(--duration-fast) var(--ease-out); }
   .courses__list a:hover { text-decoration-color: var(--ctx-ornament); }
   @media (min-width: 1024px) { .courses__list { mask-image: none; } }
   /* The filter needs JavaScript, so it only shows when JavaScript runs. */

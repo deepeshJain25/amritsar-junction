@@ -14,6 +14,8 @@
   --brand-emerald: #1F4A3A;
   --brand-gold: #B8894A;
   --brand-gold-soft: #D9B778;
+  /* Gold for large text on beige (the welcome script): brand/gold is 2.7:1 there and fails; this deeper gold is 3.6:1 on primary, 3.2:1 on sunken. */
+  --brand-gold-deep: #9E753E;
   --brand-gold-tint: rgba(184, 137, 74, 0.1);
 
   /* Ink */

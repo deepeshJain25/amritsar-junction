@@ -70,9 +70,9 @@ const people: { name: string; role: string; photo?: ImageMetadata }[] = [
       </div>
     </section>
 
-    <aside class="story-quote" aria-label="Pull quote">
+    <figure class="story-quote">
       <blockquote class="text-italic text-display-md">“Nobody leaves an Amritsari table hungry. That is not a slogan. It is how the city was built.”</blockquote>
-    </aside>
+    </figure>
 
     <section class="story-chapter" aria-labelledby="kitchen">
       <div class="container">
@@ -87,9 +87,9 @@ const people: { name: string; role: string; photo?: ImageMetadata }[] = [
       </div>
     </section>
 
-    <aside class="story-quote" aria-label="Pull quote">
+    <figure class="story-quote">
       <blockquote class="text-italic text-display-md">“It is not light food. It is generous food.”</blockquote>
-    </aside>
+    </figure>
 
     <section class="story-chapter" aria-labelledby="table">
       <div class="container">
@@ -132,7 +132,7 @@ const people: { name: string; role: string; photo?: ImageMetadata }[] = [
   @media (min-width: 1024px) {
     .story-hero__text { padding-inline: max(var(--space-6), calc((100vw - var(--container-max)) / 2)) var(--space-8); }
   }
-  .story-hero__welcome { margin-bottom: var(--space-6); color: var(--brand-gold); }
+  .story-hero__welcome { margin-bottom: var(--space-6); color: var(--brand-gold-deep); }
   .story-hero__media :global(.photo), .story-hero__media :global(.photo__frame) { height: 100%; }
   .story-hero__media :global(.photo__frame) { position: relative; aspect-ratio: 4 / 5; }
   @media (min-width: 1024px) { .story-hero__media :global(.photo__frame) { aspect-ratio: auto; } }
@@ -147,7 +147,7 @@ const people: { name: string; role: string; photo?: ImageMetadata }[] = [
   .story-chapter :global(h3) { margin-top: var(--space-6); }
   .story-chapter :global(h3 + p) { margin-top: var(--space-2); }
 
-  .story-quote { padding: var(--space-8) var(--container-margin); text-align: center; }
+  .story-quote { margin: 0; padding: var(--space-8) var(--container-margin); text-align: center; }
   .story-quote blockquote { max-width: 28ch; margin-inline: auto; color: var(--brand-maroon); }
 
   .people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--grid-gutter); margin-top: var(--space-7); }

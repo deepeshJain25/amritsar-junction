@@ -110,7 +110,8 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
   top: var(--space-3);
   left: var(--space-3);
   z-index: 100;
-  padding: var(--space-2) var(--space-4);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-4);
   background: var(--surface-raised);
   color: var(--ink-primary);
   border-radius: var(--radius-sm);

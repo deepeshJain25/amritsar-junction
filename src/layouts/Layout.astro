@@ -31,6 +31,8 @@ const ogUrl = new URL(og.src, siteUrl).href;
 // The AJ monogram on maroon; the ornate badge is print-only and never used on the web.
 const logoUrl = new URL('/favicon-512.png', siteUrl).href;
 const fullTitle = home ? title : `${title} | ${site.name}`;
+const fonts =
+  'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,50,0..1;1,9..144,300..600,50,0..1&family=Inter:wght@400..600&family=Noto+Sans+Gurmukhi:wght@400..500&display=swap';
 
 const graph = [
   restaurantSchema(siteUrl, ogUrl, logoUrl),
@@ -76,10 +78,10 @@ const graph = [
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,50,0..1;1,9..144,300..600,50,0..1&family=Inter:wght@400..600&family=Noto+Sans+Gurmukhi:wght@400..500&display=swap"
-    />
+    <!-- Fonts load without blocking the first paint: text shows in the fallback stack, then swaps. -->
+    <link rel="preload" as="style" href={fonts} />
+    <link rel="stylesheet" href={fonts} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={fonts} /></noscript>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
