@@ -1,0 +1,51 @@
+---
+import Photo from '../Photo.astro';
+import Motif from '../ui/Motif.astro';
+
+// A 4:5 portrait beside a short feature: eyebrow, display-md title, body, then a link or buttons.
+// 50/50 on desktop with the image on either side; stacked on phones with the image first.
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  caption?: string;
+  side?: 'left' | 'right';
+  eyebrow: string;
+  title: string;
+  as?: 'h2' | 'h3';
+  /** The arch-frame motif behind the photograph, for signature dishes. */
+  arch?: boolean;
+  id?: string;
+}
+
+const { image, alt, caption, side = 'left', eyebrow, title, as: Heading = 'h2', arch = false, id } = Astro.props;
+---
+
+<div class:list={['feature', `feature--image-${side}`]}>
+  <div class="feature__media">
+    {arch && <Motif name="arch-frame" class="feature__arch" />}
+    <Photo src={image} alt={alt} caption={caption} aspect="4 / 5" radius="lg" sizes="(min-width: 1024px) 560px, 100vw" />
+  </div>
+  <div class="feature__text" data-reveal>
+    <p class="eyebrow text-meta">{eyebrow}</p>
+    <Heading id={id} class="text-display-md">{title}</Heading>
+    <div class="feature__body stack text-body"><slot /></div>
+    {Astro.slots.has('actions') && <div class="btn-row feature__actions"><slot name="actions" /></div>}
+  </div>
+</div>
+
+<style>
+  .feature { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7); align-items: center; }
+  @media (min-width: 1024px) {
+    .feature { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-9); }
+    .feature--image-right .feature__media { order: 2; }
+  }
+  .feature__media { position: relative; isolation: isolate; }
+  /* The arch sits behind the photograph, offset so its curve shows above and beside it. Desktop only, so it never causes sideways scroll. */
+  .feature__media :global(.feature__arch) { display: none; position: absolute; z-index: -1; width: 100%; inset: calc(-1 * var(--space-6)) auto auto calc(-1 * var(--space-6)); }
+  @media (min-width: 1024px) { .feature__media :global(.feature__arch) { display: block; } }
+  .feature--image-right :global(.feature__arch) { inset: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) auto auto; }
+  .feature__media :global(.photo) { position: relative; }
+  .feature__text { display: grid; justify-items: start; }
+  .feature__body { margin-top: var(--space-5); max-width: var(--measure-prose); color: var(--ctx-ink); }
+  .feature__actions { margin-top: var(--space-6); }
+</style>

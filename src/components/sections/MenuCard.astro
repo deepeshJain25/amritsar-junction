@@ -1,0 +1,56 @@
+---
+// One dish: an optional 4:3 photograph, then name and price on one row, the description, and tags.
+// Dishes come from the POS storefront API (see src/lib/menu.ts); photographs are matched in the page.
+import type { Dish } from '../../lib/menu';
+import Photo from '../Photo.astro';
+
+interface Props {
+  dish: Dish;
+  image?: ImageMetadata;
+  alt?: string;
+  as?: 'h3' | 'h4';
+}
+
+const { dish, image, alt = '', as: Heading = 'h3' } = Astro.props;
+const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.name} $${s.price}`).join(' · '), dish.options].filter(Boolean);
+---
+
+<li class:list={['menu-card', image && 'menu-card--photo']} data-nonveg={dish.veg ? undefined : ''}>
+  {image && <Photo src={image} alt={alt} aspect="4 / 3" radius="lg-top" sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw" />}
+  <div class="menu-card__body">
+    <div class="menu-card__head">
+      <Heading class="text-heading-md">{dish.name}</Heading>
+      {dish.price && <p class="menu-card__price text-tabular">{dish.price}</p>}
+    </div>
+    {dish.desc && <p class="text-body-sm menu-card__desc">{dish.desc}</p>}
+    {(dish.veg || tags.length > 0) && (
+      <ul class="menu-card__tags" role="list">
+        {dish.veg && <li class="text-meta menu-card__veg">Veg</li>}
+        {tags.map((t) => <li class="text-body-sm menu-card__opt">{t}</li>)}
+      </ul>
+    )}
+  </div>
+</li>
+
+<style>
+  .menu-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-raised);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elev-inset);
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+  .menu-card:hover { box-shadow: var(--elev-inset), var(--elev-1); }
+  .menu-card:hover :global(img) { transform: scale(1.03); }
+  .menu-card__body { display: grid; gap: var(--space-3); padding: var(--space-5); }
+  .menu-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+  .menu-card__price { flex: none; margin: 0; text-align: right; }
+  .menu-card__desc { color: var(--ink-secondary); }
+  .menu-card__tags { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); margin-top: var(--space-1); }
+  .menu-card__veg { color: var(--brand-emerald); }
+  .menu-card__opt { color: var(--ink-secondary); }
+  @media (prefers-reduced-motion: reduce) {
+    .menu-card:hover :global(img) { transform: none; }
+  }
+</style>

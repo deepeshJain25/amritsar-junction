@@ -1,0 +1,50 @@
+---
+import site from '../../content/site.json';
+import Hours from '../Hours.astro';
+import Todo from '../Todo.astro';
+import Button from '../ui/Button.astro';
+import Motif from '../ui/Motif.astro';
+import SectionOpener from './SectionOpener.astro';
+
+// The maroon "Come hungry" moment: hours and address side by side, then reserve and order.
+// It carries the page's one pair of corner flourishes, so no other section on the page should.
+---
+
+<section class="visit surface-inverse-warm section" aria-labelledby="visit-title">
+  <Motif name="corner-flourish" width={72} class="visit__corner visit__corner--start" />
+  <Motif name="corner-flourish" width={72} class="visit__corner visit__corner--end" />
+  <div class="container">
+    <SectionOpener eyebrow="Visit · Open daily" title="Come hungry" align="center" id="visit-title" />
+    <div class="visit__cols">
+      <div>
+        <h3 class="eyebrow text-meta">Hours</h3>
+        <Hours />
+      </div>
+      <div>
+        <h3 class="eyebrow text-meta">Find us</h3>
+        <address class="text-body-sm">
+          <Todo text={site.address} /><br />
+          <a href={site.phoneHref}><Todo text={site.phone} /></a>
+        </address>
+      </div>
+    </div>
+    <div class="btn-row visit__actions">
+      <Button href={site.bookingUrl}>Reserve a table</Button>
+      <Button variant="secondary" href={site.orderUrl}>Order online</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .visit { position: relative; overflow: hidden; }
+  .visit :global(.visit__corner) { position: absolute; }
+  .visit :global(.visit__corner--start) { top: var(--space-5); left: var(--space-5); }
+  .visit :global(.visit__corner--end) { right: var(--space-5); bottom: var(--space-5); transform: rotate(180deg); }
+  @media (max-width: 639px) { .visit :global(.visit__corner) { display: none; } }
+  .visit__cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7); justify-content: center; max-width: 720px; margin-inline: auto; }
+  @media (min-width: 640px) { .visit__cols { grid-template-columns: repeat(2, minmax(0, max-content)); gap: var(--space-9); } }
+  .visit__cols h3 { display: flex; margin-bottom: var(--space-4); }
+  .visit address { font-style: normal; overflow-wrap: anywhere; }
+  .visit address a { display: inline-flex; align-items: center; min-height: var(--touch-target); }
+  .visit__actions { justify-content: center; margin-top: var(--space-8); }
+</style>

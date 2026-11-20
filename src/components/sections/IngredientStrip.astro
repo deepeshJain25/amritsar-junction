@@ -1,0 +1,32 @@
+---
+import { Picture } from 'astro:assets';
+
+// A full-bleed 16:5 letterbox photograph between sections. No overlay text.
+interface Props {
+  image: ImageMetadata;
+  /** Leave empty when the strip is purely a visual divider. */
+  alt?: string;
+  focus?: string;
+}
+
+const { image, alt = '', focus = '50% 50%' } = Astro.props;
+const widths = [640, 960, 1280, 1600, 1920].filter((w) => w < image.width).concat(image.width);
+---
+
+<div class="strip">
+  <Picture
+    src={image}
+    alt={alt}
+    formats={['avif', 'webp']}
+    widths={[...new Set(widths)]}
+    sizes="100vw"
+    loading="lazy"
+    decoding="async"
+    style={`object-position: ${focus}`}
+  />
+</div>
+
+<style>
+  .strip { position: relative; aspect-ratio: 16 / 5; overflow: hidden; background: var(--surface-sunken); }
+  .strip :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+</style>

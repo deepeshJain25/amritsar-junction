@@ -1,0 +1,35 @@
+---
+import Motif from '../ui/Motif.astro';
+
+// A section's opening: eyebrow and meta label, a display title, an optional standfirst, then a divider.
+// Left-aligned for editorial sections, centered for signature and feature moments. Sits space-7 above its content.
+interface Props {
+  eyebrow: string;
+  title: string;
+  standfirst?: string;
+  align?: 'left' | 'center';
+  size?: 'lg' | 'md';
+  /** Heading level; sections are h2, a page's first opener may be h1. */
+  as?: 'h1' | 'h2' | 'h3';
+  id?: string;
+  divider?: boolean;
+}
+
+const { eyebrow, title, standfirst, align = 'left', size = 'lg', as: Heading = 'h2', id, divider = true } = Astro.props;
+---
+
+<header class:list={['opener', `opener--${align}`]} data-reveal>
+  <p class="eyebrow text-meta">{eyebrow}</p>
+  <Heading id={id} class:list={[size === 'lg' ? 'text-display-lg' : 'text-display-md']}>{title}</Heading>
+  {standfirst && <p class="text-body-lg opener__standfirst">{standfirst}</p>}
+  {divider && <div class="opener__divider"><Motif name="divider-standard" /></div>}
+</header>
+
+<style>
+  .opener { display: grid; justify-items: start; margin-bottom: var(--rhythm-opener); }
+  .opener--center { justify-items: center; text-align: center; }
+  .opener--center > * { max-width: 34ch; }
+  .opener--center .opener__standfirst { max-width: 56ch; }
+  .opener__standfirst { margin-top: var(--space-4); max-width: var(--measure-prose); color: var(--ctx-ink-muted); }
+  .opener__divider { display: flex; padding-top: var(--space-5); }
+</style>

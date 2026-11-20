@@ -1,0 +1,22 @@
+---
+import Button from '../ui/Button.astro';
+import FeatureBlock from './FeatureBlock.astro';
+
+// The catering invitation that closes the home page: an image-right feature with one primary action.
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  caption?: string;
+}
+
+const { image, alt, caption } = Astro.props;
+---
+
+<section class="section" aria-labelledby="catering-cta-title">
+  <div class="container">
+    <FeatureBlock image={image} alt={alt} caption={caption} side="right" eyebrow="Catering & events" title="Feeding a wedding, a kirtan or the whole office?" id="catering-cta-title">
+      <p>From party trays to full functions, we cook the same Punjabi food we serve in the restaurant, for ten guests or a full wedding hall.</p>
+      <Button slot="actions" href="/catering">Plan your catering</Button>
+    </FeatureBlock>
+  </div>
+</section>

@@ -1,0 +1,67 @@
+---
+import { Picture } from 'astro:assets';
+
+// A full-bleed photograph with a warm scrim and its words anchored bottom-left.
+// "home" is 100vh (80vh on phones) with a display-xl title; "page" is 60vh with display-lg.
+// Still image only. Put buttons in the "actions" slot; `welcome` adds the Gurmukhi sign-off above the title.
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  eyebrow?: string;
+  title: string;
+  standfirst?: string;
+  size?: 'home' | 'page';
+  welcome?: boolean;
+  /** Where the photo's subject sits, for object-position, e.g. "50% 40%". */
+  focus?: string;
+}
+
+const { image, alt, eyebrow, title, standfirst, size = 'page', welcome = false, focus = '50% 50%' } = Astro.props;
+const widths = [640, 960, 1280, 1600, 1920, 2400].filter((w) => w < image.width).concat(image.width);
+---
+
+<section class:list={['hero', `hero--${size}`, 'surface-image']} data-hero aria-labelledby="hero-title">
+  <div class="hero__media" data-hero-media>
+    <Picture
+      src={image}
+      alt={alt}
+      formats={['avif', 'webp']}
+      widths={[...new Set(widths)]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      style={`object-position: ${focus}`}
+    />
+  </div>
+  <div class="hero__content container">
+    <div class="hero__stack" data-hero-stack>
+      {welcome && <p class="text-script hero__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>}
+      {eyebrow && <p class="eyebrow text-meta">{eyebrow}</p>}
+      <h1 id="hero-title" class:list={[size === 'home' ? 'text-display-xl' : 'text-display-lg']}>{title}</h1>
+      {standfirst && <p class="text-body-lg hero__standfirst">{standfirst}</p>}
+      {Astro.slots.has('actions') && <div class="btn-row hero__actions"><slot name="actions" /></div>}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; display: grid; align-items: end; overflow: hidden; background: var(--ink-primary); isolation: isolate; }
+  .hero--home { min-height: 80vh; min-height: 80svh; }
+  .hero--page { min-height: 60vh; min-height: 60svh; }
+  @media (min-width: 1024px) {
+    .hero--home { min-height: 100vh; min-height: 100svh; }
+  }
+  .hero__media { position: absolute; inset: 0; z-index: -1; }
+  .hero__media::after { content: ""; position: absolute; inset: 0; background: var(--scrim-hero); }
+  .hero__media :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero__content { padding-top: calc(var(--nav-height) + var(--space-8)); padding-bottom: var(--space-8); }
+  @media (min-width: 1024px) {
+    .hero__content { padding-bottom: var(--space-9); }
+  }
+  .hero__stack { display: grid; justify-items: start; max-width: 640px; }
+  .hero__stack .eyebrow { margin-bottom: var(--space-3); }
+  .hero__standfirst { margin-top: var(--space-5); color: var(--ctx-ink); }
+  .hero__actions { margin-top: var(--space-6); }
+  .hero__welcome { margin-bottom: var(--space-4); color: var(--brand-gold-soft); }
+</style>
