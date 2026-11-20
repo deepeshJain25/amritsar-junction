@@ -17,7 +17,9 @@ const current = (href: string) => (href === path ? 'page' : undefined);
 
 <header class:list={['nav', mode === 'overlay' ? 'surface-image' : 'surface-primary']} data-nav data-mode={mode}>
   <div class="nav__bar container">
-    <a class="nav__brand" href="/" aria-label={`${site.name}, home`}><Wordmark /></a>
+    <a class="nav__brand" href="/" aria-label={`${site.name}, home`}>
+      <img class="nav__badge" src="/logo/badge.svg" alt="" width="56" height="56" decoding="async" />
+    </a>
     <nav class="nav__links" aria-label="Main">
       <ul role="list">
         {site.nav.map((item) => <li><a class="text-body-sm" href={item.href} aria-current={current(item.href)}>{item.label}</a></li>)}
@@ -104,6 +106,9 @@ const current = (href: string) => (href === path ? 'page' : undefined);
 
   .nav__bar { display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
   .nav__brand { display: inline-flex; align-items: center; min-height: var(--touch-target); text-decoration: none; margin-right: auto; }
+  /* The round badge sits inside the bar with a few pixels to spare: 48px on phones, 56px from lg. */
+  .nav__badge { display: block; width: 48px; height: 48px; }
+  @media (min-width: 1024px) { .nav__badge { width: 56px; height: 56px; } }
 
   .nav__links { display: none; }
   .nav__links ul { display: flex; gap: var(--space-5); }
