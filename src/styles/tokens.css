@@ -1,0 +1,136 @@
+/* Amritsar Junction design tokens, v1.0. Every color, spacing, radius, shadow and motion value lives here; components use these, never raw values.
+   Naming is --<group>-<role>. A dark theme can be added later by redefining the surface/ink pairs under [data-theme="dark"]. */
+:root {
+  /* Surfaces: beige is the resting state (~70% of any page); inverse surfaces are reserved for named moments, two per page at most. */
+  --surface-primary: #F5EDE0;
+  --surface-raised: #FBF5EA;
+  --surface-sunken: #EDE2D0;
+  --surface-inverse-warm: #6B1F2B;
+  --surface-inverse-warm-deep: #4A1220;
+  --surface-inverse-cool: #1F4A3A;
+
+  /* Brand: maroon for display and links, emerald for meta and badges, gold for ornament. Gold text fails on beige at body sizes (2.7:1). */
+  --brand-maroon: #6B1F2B;
+  --brand-emerald: #1F4A3A;
+  --brand-gold: #B8894A;
+  --brand-gold-soft: #D9B778;
+  --brand-gold-tint: rgba(184, 137, 74, 0.1);
+
+  /* Ink */
+  --ink-primary: #2A1A14;
+  --ink-secondary: #6E5C4F;
+  --ink-muted: #9A8A7B;
+  --ink-on-inverse: #F3E4C8;
+  --ink-on-inverse-muted: #C6B18F;
+
+  /* Lines */
+  --line-primary: #E2D4BE;
+
+  /* State: the spec names state/focus without a value. Emerald reads 8.6:1 on beige; gold-soft 5.9:1 on maroon and 5.2:1 on emerald. */
+  --state-focus: var(--brand-emerald);
+  --state-focus-on-inverse: var(--brand-gold-soft);
+  --state-error: var(--brand-maroon);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* Spacing: 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 160px;
+
+  /* Rhythm: prose stacks on space-5, subsections on space-8, full sections on space-9 mobile / space-10 desktop. */
+  --rhythm-prose: var(--space-5);
+  --rhythm-subsection: var(--space-8);
+  --rhythm-section: var(--space-9);
+  --rhythm-opener: var(--space-7);
+
+  /* Radii */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Elevation: kept soft, tinted with ink rather than black. Depth comes from color and spacing first. */
+  --elev-0: none;
+  --elev-1: 0 1px 2px rgba(42, 26, 20, 0.04), 0 4px 12px rgba(42, 26, 20, 0.06);
+  --elev-2: 0 2px 4px rgba(42, 26, 20, 0.05), 0 12px 32px rgba(42, 26, 20, 0.1);
+  --elev-inset: inset 0 0 0 1px var(--line-primary);
+
+  /* Grid. Breakpoints (media queries cannot read variables): sm 0, md 640px, lg 1024px, xl 1280px, 2xl 1536px. */
+  --grid-columns: 4;
+  --grid-gutter: 16px;
+  --container-margin: 16px;
+  --container-max: 100%;
+  --measure-prose: 60ch;
+
+  /* Chrome */
+  --nav-height: 60px;
+  --touch-target: 44px;
+  --scrim-hero: linear-gradient(to bottom, rgba(42, 26, 20, 0.3), rgba(42, 26, 20, 0.7));
+
+  /* Ornament: gold at 60% on beige, gold-soft at 70% on maroon/emerald, arch-frame at 10% behind images. */
+  --motif-opacity: 0.6;
+  --motif-opacity-on-inverse: 0.7;
+  --motif-opacity-arch: 0.1;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 450ms;
+  --duration-page: 600ms;
+  --stagger: 60ms;
+  --reveal-distance: 12px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --grid-columns: 8;
+    --grid-gutter: 24px;
+    --container-margin: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --grid-columns: 12;
+    --grid-gutter: 32px;
+    --container-max: 1120px;
+    --rhythm-section: var(--space-10);
+    --nav-height: 72px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root { --container-max: 1200px; }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --grid-gutter: 40px;
+    --container-max: 1280px;
+  }
+}
+
+/* Fades and translates become instant; content stays fully usable. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-page: 0ms;
+    --stagger: 0ms;
+    --reveal-distance: 0px;
+  }
+}
