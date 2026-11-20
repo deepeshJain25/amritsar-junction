@@ -88,5 +88,22 @@ const graph = [
       <slot />
     </main>
     <Footer />
+    <script>
+      // Section reveals: mark what is already on screen as shown, then fade the rest in as it scrolls into view.
+      const targets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
+      if (targets.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const inView = (el: HTMLElement) => el.getBoundingClientRect().top < window.innerHeight;
+        targets.filter(inView).forEach((el) => el.classList.add('is-revealed'));
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-revealed');
+            observer.unobserve(entry.target);
+          });
+        }, { rootMargin: '0px 0px -10% 0px' });
+        targets.filter((el) => !el.classList.contains('is-revealed')).forEach((el) => observer.observe(el));
+        document.documentElement.classList.add('reveal-ready');
+      }
+    </script>
   </body>
 </html>

@@ -238,3 +238,25 @@ select.input {
   background-size: 12px 8px;
 }
 textarea.input { min-height: 128px; resize: vertical; }
+
+/* Motion: restrained and editorial. Durations come from the motion tokens, which drop to 0 under prefers-reduced-motion. */
+@keyframes fade-in { from { opacity: 0; } }
+
+/* On load: the hero photograph fades in, then its words follow 60ms apart. */
+.js [data-hero-media] { animation: fade-in var(--duration-slow) var(--ease-out) both; }
+.js [data-hero-stack] > * { animation: fade-in var(--duration-base) var(--ease-out) both; }
+.js [data-hero-stack] > :nth-child(2) { animation-delay: calc(1 * var(--stagger)); }
+.js [data-hero-stack] > :nth-child(3) { animation-delay: calc(2 * var(--stagger)); }
+.js [data-hero-stack] > :nth-child(4) { animation-delay: calc(3 * var(--stagger)); }
+.js [data-hero-stack] > :nth-child(5) { animation-delay: calc(4 * var(--stagger)); }
+
+/* On scroll: openers rise 12px and fade in, once each. Hidden only after the reveal script has run (it adds .reveal-ready),
+   so the page never loses content if JavaScript fails. Anything already on screen at load is shown as is. */
+[data-reveal] { transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out); }
+.reveal-ready [data-reveal]:not(.is-revealed) { opacity: 0; transform: translateY(var(--reveal-distance)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-hero-media], .js [data-hero-stack] > * { animation: none; }
+  [data-reveal] { transition: none; }
+  .reveal-ready [data-reveal]:not(.is-revealed) { opacity: 1; transform: none; }
+}
