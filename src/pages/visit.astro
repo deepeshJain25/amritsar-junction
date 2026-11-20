@@ -1,135 +1,153 @@
 ---
 import Hours from '../components/Hours.astro';
 import Todo from '../components/Todo.astro';
+import FeatureBlock from '../components/sections/FeatureBlock.astro';
+import Hero from '../components/sections/Hero.astro';
+import SectionOpener from '../components/sections/SectionOpener.astro';
+import Button from '../components/ui/Button.astro';
+import Input from '../components/ui/Input.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { confirmed } from '../lib/seo';
+import dal from '../assets/photos/dal-makhani.jpg';
 import saag from '../assets/photos/sarson-ka-saag.jpg';
 
 // The map searches by the full address once it is confirmed, and by the restaurant's name until then.
 const mapSearch = confirmed(site.address) ? `${site.name}, ${site.address}` : site.mapQuery;
 const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(mapSearch)}&output=embed`;
 const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapSearch)}`;
+
+const times = ['12:00', '12:30', '13:00', '13:30', '14:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
+const label = (t: string) => {
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+};
+
+// Ordering partners. A link still in [square brackets] shows highlighted and gets no button until it is confirmed.
+const partners = [
+  { name: 'Direct', note: 'Pick up from the restaurant. Call ahead and it will be hot when you arrive.', href: site.phoneHref, cta: 'Call to order' },
+  { name: 'Uber Eats', note: 'Delivered to your door.', href: '[Uber Eats link]', cta: 'Order on Uber Eats' },
+  { name: 'DoorDash', note: 'Delivered to your door.', href: '[DoorDash link]', cta: 'Order on DoorDash' },
+];
 ---
 
 <Layout
+  nav="overlay"
   title="Visit & Reserve a Table"
-  description={`Find Amritsar Junction: address, opening hours, phone, parking and directions, and book a table online at our Punjabi restaurant in ${confirmed(site.suburb) ?? 'Sydney'}.`}
+  description={`Find Amritsar Junction: address, opening hours, phone, parking and directions. Book a table or order takeaway from our Punjabi restaurant in ${confirmed(site.suburb) ?? 'Sydney'}.`}
   crumb="Visit & Reserve"
   share={saag}
 >
-  <section class="aj-wrap aj-visit-head">
-    <span class="aj-kicker">Visit &amp; Reserve</span>
-    <h1 class="aj-headline">Find your way to the table</h1>
-    <p class="aj-deck">Walk in, call ahead or book online. Either way, there will be hot kulchas waiting.</p>
-  </section>
+  <Hero image={saag} alt="Sarson ka saag topped with white butter, with makki di roti, radish and jaggery" eyebrow="Visit & reserve" title="Find us, book a table, order in" standfirst="Walk in, call ahead or book online. Either way, there will be hot kulchas waiting." />
 
-  <section class="aj-wrap aj-visit" aria-label="Address, hours and directions">
-    <div class="aj-visit__facts">
-      <div class="aj-fact">
-        <h2 class="aj-kicker">Address</h2>
-        <address><Todo text={site.address} /></address>
-        <a class="aj-link" href={directions} target="_blank" rel="noopener">Get directions</a>
-      </div>
-      <div class="aj-fact">
-        <h2 class="aj-kicker">Phone and email</h2>
-        <p><a href={site.phoneHref}><Todo text={site.phone} /></a><br /><a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a></p>
-      </div>
-      <div class="aj-fact">
-        <h2 class="aj-kicker">Opening hours</h2>
-        <Hours />
-        <p class="aj-caption" style="margin-top: var(--space-2)"><Todo text="[Public holiday hours may differ. Call ahead.]" /></p>
-      </div>
-      <div class="aj-fact">
-        <h2 class="aj-kicker">Parking</h2>
-        <p><Todo text={site.parking} /></p>
-      </div>
-      <div class="aj-fact">
-        <h2 class="aj-kicker">Public transport</h2>
-        <p><Todo text={site.transport} /></p>
-      </div>
-    </div>
-    <div class="aj-map">
-      <iframe
-        title={`Map showing ${site.name}`}
-        src={mapEmbed}
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        allowfullscreen
-      ></iframe>
-    </div>
-  </section>
-
-  <section class="aj-band aj-story-gap" id="reserve" data-theme="marble" aria-labelledby="reserve-title">
-    <div class="aj-wrap aj-reserve">
-      <div>
-        <span class="aj-kicker">Reserve a table</span>
-        <h2 id="reserve-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Book your table</h2>
-        <p class="aj-deck">Tell us when you are coming and how many of you there are. We will confirm by phone or email.</p>
-        <p style="margin-top: var(--space-4)">For groups of more than <Todo text="[12]" />, or to book the whole room, please call <a href={site.phoneHref}><Todo text={site.phone} /></a>.</p>
-        <p><a class="aj-link" href="/catering">Catering and events</a></p>
-      </div>
-      <form class="aj-form" method="post" action="#reserve" data-form="reservation">
-        <div class="aj-field"><label for="r-name">Your name</label><input class="aj-input" id="r-name" name="name" autocomplete="name" required /></div>
-        <div class="aj-field"><label for="r-phone">Phone</label><input class="aj-input" id="r-phone" name="phone" type="tel" autocomplete="tel" required /></div>
-        <div class="aj-field aj-full"><label for="r-email">Email</label><input class="aj-input" id="r-email" name="email" type="email" autocomplete="email" required /></div>
-        <div class="aj-field"><label for="r-date">Date</label><input class="aj-input" id="r-date" name="date" type="date" required /></div>
-        <div class="aj-field">
-          <label for="r-time">Time</label>
-          <select class="aj-input" id="r-time" name="time" required>
+  <section class="section" id="reserve" aria-labelledby="reserve-title">
+    <div class="container reserve">
+      <div class="reserve__form">
+        <SectionOpener eyebrow="Reserve a table" title="Book your table" standfirst="Tell us when you are coming and how many of you there are. We will confirm by phone or email." size="md" id="reserve-title" />
+        <form class="form-grid" method="post" action="#reserve" data-form="reservation">
+          <Input label="Your name" name="name" id="r-name" autocomplete="name" />
+          <Input label="Phone" name="phone" id="r-phone" type="tel" autocomplete="tel" />
+          <Input label="Email" name="email" id="r-email" type="email" autocomplete="email" full />
+          <Input label="Date" name="date" id="r-date" type="date" />
+          <Input label="Time" name="time" id="r-time" type="select">
             <option value="">Choose a time</option>
-            {['12:00', '12:30', '13:00', '13:30', '14:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'].map((t) => {
-              const [h, m] = t.split(':').map(Number);
-              return <option value={t}>{`${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`}</option>;
-            })}
-          </select>
-        </div>
-        <div class="aj-field">
-          <label for="r-guests">Guests</label>
-          <select class="aj-input" id="r-guests" name="guests" required>
+            {times.map((t) => <option value={t}>{label(t)}</option>)}
+          </Input>
+          <Input label="Guests" name="guests" id="r-guests" type="select">
             {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => <option value={n} selected={n === 2}>{n} {n === 1 ? 'guest' : 'guests'}</option>)}
-          </select>
-        </div>
-        <div class="aj-field">
-          <label for="r-occasion">Occasion <span class="aj-opt">(optional)</span></label>
-          <select class="aj-input" id="r-occasion" name="occasion">
+          </Input>
+          <Input label="Occasion" name="occasion" id="r-occasion" type="select" optional>
             <option value="">None</option>
             <option>Birthday</option>
             <option>Anniversary</option>
             <option>Family dinner</option>
             <option>Business</option>
-          </select>
+          </Input>
+          <Input label="Requests or allergies" name="notes" id="r-notes" type="textarea" optional full placeholder="High chair, a quiet table, allergies" />
+          <div class="field--full"><Button type="submit">Request booking</Button></div>
+        </form>
+        <div class="reserve__hours">
+          <h3 class="eyebrow text-meta">Hours</h3>
+          <Hours />
+          <p class="text-body-sm reserve__muted"><Todo text="[Public holiday hours may differ. Call ahead.]" /></p>
         </div>
-        <div class="aj-field aj-full"><label for="r-notes">Requests or allergies <span class="aj-opt">(optional)</span></label><textarea class="aj-input" id="r-notes" name="notes" rows="3" placeholder="High chair, a quiet table, allergies"></textarea></div>
-        <div class="aj-full"><button class="aj-btn aj-btn--primary" type="submit">Request booking</button></div>
-      </form>
+      </div>
+
+      <div class="reserve__place">
+        <div class="map">
+          <iframe title={`Map showing ${site.name}`} src={mapEmbed} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <span class="map__pin" aria-hidden="true"></span>
+        </div>
+        <dl class="facts">
+          <div>
+            <dt class="eyebrow text-meta">Address</dt>
+            <dd><address><Todo text={site.address} /></address><Button variant="tertiary" href={directions} target="_blank" rel="noopener">Get directions</Button></dd>
+          </div>
+          <div>
+            <dt class="eyebrow text-meta">Phone and email</dt>
+            <dd><a href={site.phoneHref}><Todo text={site.phone} /></a><br /><a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a></dd>
+          </div>
+          <div>
+            <dt class="eyebrow text-meta">Parking</dt>
+            <dd><Todo text={site.parking} /></dd>
+          </div>
+          <div>
+            <dt class="eyebrow text-meta">Public transport</dt>
+            <dd><Todo text={site.transport} /></dd>
+          </div>
+        </dl>
+      </div>
     </div>
   </section>
 
-  <section class="aj-wrap aj-story-gap aj-order" id="order" aria-labelledby="order-title">
-    <span class="aj-kicker">Takeaway &amp; delivery</span>
-    <h2 id="order-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Order online</h2>
-    <p class="aj-deck" style="margin: 0 auto var(--space-4)">Pick up from the restaurant, or have it delivered. <Todo text="[Online ordering link, and Uber Eats or DoorDash links, to come.]" /></p>
-    <a class="aj-btn aj-btn--secondary" href={site.phoneHref}>Call to order</a>
+  <section class="section surface-sunken" id="order" aria-labelledby="order-title">
+    <div class="container">
+      <SectionOpener eyebrow="Takeaway & delivery" title="Order in" size="md" align="center" id="order-title" />
+      <ul class="partners" role="list">
+        {partners.map((p) => (
+          <li class="partner">
+            <h3 class="text-heading-md">{p.name}</h3>
+            <p class="text-body-sm partner__note">{p.note}</p>
+            {confirmed(p.href)
+              ? <Button variant="secondary" href={p.href}>{p.cta}</Button>
+              : <p class="text-body-sm"><Todo text={p.href} /></p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="private-title">
+    <div class="container">
+      <FeatureBlock image={dal} alt="A ladle lifting creamy dal makhani from a black bowl, swirled with cream and coriander" side="right" eyebrow="Private dining" title="The whole room, for your table" id="private-title">
+        <p>Birthdays, engagements, a family that has not all been in one place for years: for groups of more than <Todo text="[12]" />, or to book the whole room, call us and we will plan the evening with you.</p>
+        <p>We can set a shared Punjabi menu so the food keeps coming to the middle of the table, the way it does at home.</p>
+        <Button slot="actions" href={site.phoneHref}>Call to plan</Button>
+        <Button slot="actions" variant="tertiary" href="/catering">Catering and events</Button>
+      </FeatureBlock>
+    </div>
   </section>
 </Layout>
 
 <style>
-  .aj-visit-head { padding-top: var(--space-6); padding-bottom: var(--space-5); }
-  .aj-visit-head .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  .aj-visit-head .aj-deck { margin-top: var(--space-3); }
-  .aj-visit { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-5); padding-bottom: var(--space-7); }
-  @media (max-width: 860px) { .aj-visit { grid-template-columns: 1fr; padding-bottom: var(--space-6); } }
-  .aj-visit__facts { border-top: 3px solid var(--rule-strong); }
-  .aj-fact { padding: var(--space-3) 0; border-bottom: 1px solid var(--rule); }
-  .aj-fact h2 { margin-bottom: var(--space-1); }
-  .aj-fact address { font-style: normal; margin-bottom: var(--space-1); }
-  .aj-fact p { margin: 0; }
-  .aj-fact .aj-hours { max-width: 340px; }
-  .aj-map { min-height: 420px; background: var(--paper-deep); }
-  .aj-map iframe { width: 100%; height: 100%; min-height: 420px; border: 0; display: block; }
-  .aj-reserve { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-6); align-items: start; }
-  @media (max-width: 960px) { .aj-reserve { grid-template-columns: 1fr; gap: var(--space-4); } }
-  .aj-order { text-align: center; }
-  .aj-order { scroll-margin-top: var(--space-3); }
+  .reserve { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-9); align-items: start; }
+  @media (min-width: 1024px) { .reserve { grid-template-columns: 7fr 5fr; gap: var(--space-9); } }
+  .reserve__hours { margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--line-primary); }
+  .reserve__hours h3 { display: flex; margin-bottom: var(--space-4); }
+  .reserve__muted { margin-top: var(--space-4); color: var(--ink-secondary); }
+
+  /* A muted map, its own pin covered by a gold one at the centre. */
+  .map { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--radius-lg); background: var(--surface-sunken); }
+  .map iframe { width: 100%; height: 100%; border: 0; filter: grayscale(1) sepia(0.25) contrast(0.9) brightness(1.05); }
+  .map__pin { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; translate: -50% -100%; background: var(--brand-gold); border: 3px solid var(--surface-raised); border-radius: 50% 50% 50% 0; rotate: -45deg; box-shadow: var(--elev-2); pointer-events: none; }
+  .facts { display: grid; gap: var(--space-6); margin-top: var(--space-7); }
+  .facts dt { display: flex; }
+  .facts dd { margin: 0; }
+  .facts address { font-style: normal; overflow-wrap: anywhere; }
+  .facts a:not(.btn) { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--ink-primary); overflow-wrap: anywhere; }
+
+  .partners { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+  @media (min-width: 1024px) { .partners { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gutter); } }
+  .partner { display: grid; gap: var(--space-4); justify-items: start; align-content: start; padding: var(--space-6) var(--space-5); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--elev-inset); }
+  .partner__note { color: var(--ink-secondary); }
 </style>
