@@ -1,0 +1,30 @@
+---
+// A decorative motif from public/motifs/, drawn as a CSS mask so it takes the surface's ornament color:
+// gold at 60% on beige, gold-soft at 70% on maroon or emerald. Always aria-hidden, never interactive.
+const motifs = {
+  'divider-standard': [160, 12],
+  'divider-ornate': [200, 16],
+  'eyebrow-mark': [8, 8],
+  'corner-flourish': [64, 64],
+  'arch-frame': [100, 125],
+  'rule-vertical': [2, 24],
+} as const;
+
+export type MotifName = keyof typeof motifs;
+
+interface Props {
+  name: MotifName;
+  /** Rendered width in px; height follows the motif's own proportions. */
+  width?: number;
+  class?: string;
+}
+
+const { name, width, class: extra } = Astro.props;
+const [w, h] = motifs[name];
+---
+
+<span
+  class:list={['motif', `motif--${name}`, extra]}
+  aria-hidden="true"
+  style={`--motif-src: url(/motifs/${name}.svg); --motif-width: ${width ?? w}px; --motif-ratio: ${w} / ${h};`}
+></span>

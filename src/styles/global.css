@@ -111,3 +111,38 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
 
 /* A fact the restaurant still has to confirm, written in [square brackets] in the content files. */
 .todo { background: var(--brand-gold-tint); color: inherit; padding: 0 0.2em; border-radius: var(--radius-sm); box-shadow: inset 0 -1px 0 var(--ctx-ornament); }
+
+/* Ornament: motifs are gold SVG masks (see components/ui/Motif.astro), dampened by the surface's motif opacity. */
+.motif {
+  display: inline-block;
+  flex: none;
+  width: var(--motif-width);
+  max-width: 100%;
+  aspect-ratio: var(--motif-ratio);
+  background: var(--ctx-ornament);
+  opacity: var(--ctx-motif-opacity);
+  -webkit-mask: var(--motif-src) center / contain no-repeat;
+  mask: var(--motif-src) center / contain no-repeat;
+  pointer-events: none;
+}
+.motif--arch-frame { opacity: var(--motif-opacity-arch); }
+/* Dividers keep space-5 clear of text and images on every side. */
+.divider { display: flex; justify-content: center; padding-block: var(--space-5); }
+
+/* Eyebrow: the meta label above every title, led by the eyebrow-mark diamond, 8px above its title. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--ctx-meta);
+}
+.eyebrow::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--ctx-ornament);
+  -webkit-mask: url(/motifs/eyebrow-mark.svg) center / contain no-repeat;
+  mask: url(/motifs/eyebrow-mark.svg) center / contain no-repeat;
+}
