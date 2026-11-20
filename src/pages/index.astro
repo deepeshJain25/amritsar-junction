@@ -1,146 +1,114 @@
 ---
-import Hours from '../components/Hours.astro';
-import MenuItem from '../components/MenuItem.astro';
-import Photo from '../components/Photo.astro';
-import Todo from '../components/Todo.astro';
+import CateringCTA from '../components/sections/CateringCTA.astro';
+import FeatureBlock from '../components/sections/FeatureBlock.astro';
+import Hero from '../components/sections/Hero.astro';
+import IngredientStrip from '../components/sections/IngredientStrip.astro';
+import MenuCard from '../components/sections/MenuCard.astro';
+import MenuGrid from '../components/sections/MenuGrid.astro';
+import SectionOpener from '../components/sections/SectionOpener.astro';
+import VisitBlock from '../components/sections/VisitBlock.astro';
+import Button from '../components/ui/Button.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { getMenu } from '../lib/menu';
-import kulcha from '../assets/photos/kulcha-plate.jpg';
-import hero from '../assets/photos/tandoor-skewers.jpg';
+import kulchaChole from '../assets/photos/kulcha-chole.jpg';
+import kulchaPair from '../assets/photos/kulcha-pair.jpg';
+import kulchaPlate from '../assets/photos/kulcha-plate.jpg';
+import kulchaThali from '../assets/photos/kulcha-thali.jpg';
+import dal from '../assets/photos/dal-makhani.jpg';
+import bhurji from '../assets/photos/paneer-bhurji.jpg';
 import saag from '../assets/photos/sarson-ka-saag.jpg';
+import hero from '../assets/photos/tandoor-skewers.jpg';
 
 const all = (await getMenu()).flatMap((c) => c.items);
-// Featured dishes, matched by their POS name. One that is renamed or removed in the POS is simply left out.
-const teaser = [
-  'Aloo Kulcha',
-  'Amritsari Fish',
-  'Dal Makhni',
-  'Butter Chicken',
-  'Sarson Ka Saag - Amritsari Special',
-  'Tandoori Chicken Tikka',
+// Featured dishes, matched by their POS name, each with its photograph. One renamed or removed in the POS is left out.
+const featured = [
+  { name: 'Aloo Kulcha', image: kulchaThali, alt: 'An Amritsari kulcha on a brass thali with chole, white butter and pickle' },
+  { name: 'Amritsari Special Chole', image: kulchaPlate, alt: 'A tray of dark Amritsari chole beside a charred kulcha topped with butter' },
+  { name: 'Dal Makhni', image: dal, alt: 'A ladle lifting creamy dal makhani from a dark bowl, swirled with cream' },
+  { name: 'Sarson Ka Saag - Amritsari Special', image: saag, alt: 'Sarson ka saag topped with white butter, with makki di roti and radish' },
+  { name: 'Paneer Bhurji', image: bhurji, alt: 'Paneer bhurji in a silver dish with red onion, coriander and lime' },
+  { name: 'Tandoori Chicken Tikka', image: hero, alt: 'Chicken tikka and paneer skewers over glowing coals' },
 ]
-  .map((name) => all.find((d) => d.name === name))
-  .filter((d) => d !== undefined);
+  .map((f) => ({ ...f, dish: all.find((d) => d.name === f.name) }))
+  .filter((f) => f.dish !== undefined);
 ---
 
 <Layout
   home
+  nav="overlay"
   title="Amritsar Junction | Punjabi Restaurant & Amritsari Kulcha"
   description="Punjabi restaurant in Sydney serving Amritsari kulcha, tandoori kebabs, dal makhani, butter chicken and chaat. Book a table, order online or plan catering."
   share={hero}
 >
-  <section aria-labelledby="cover-title">
-    <div class="aj-hero">
-      <Photo
-        src={hero}
-        alt="Paneer, chicken and seekh kebab skewers smoking over hot coals"
-        sizes="100vw"
-        eager
+  <Hero
+    image={hero}
+    alt="Paneer, chicken and seekh kebab skewers smoking over hot coals"
+    size="home"
+    eyebrow="This week"
+    title="Amritsar's food, brought to your table in Sydney"
+    standfirst="Kulchas baked in the tandoor, black dal cooked slow, and the chaat of the Golden Temple's lanes. Pull up a chair."
+    focus="50% 60%"
+  >
+    <Button slot="actions" href={site.bookingUrl}>Reserve a table</Button>
+    <Button slot="actions" variant="secondary" href={site.orderUrl}>Order online</Button>
+  </Hero>
+
+  <section class="section" aria-labelledby="signature-title">
+    <div class="container">
+      <SectionOpener
+        eyebrow="The signature"
+        title="The bread a whole city is named for"
+        standfirst="In Amritsar, breakfast is a kulcha, crackling from the tandoor, with a bowl of dark chole and an onion on the side."
+        align="center"
+        id="signature-title"
       />
-    </div>
-    <div class="aj-wrap aj-cover">
-      <p class="aj-caption aj-hero-cap">Skewers of paneer, chicken tikka and seekh kebab, straight off the coals.</p>
-      <div class="aj-cover__grid">
-        <div>
-          <span class="aj-kicker">The Table · This week</span>
-          <h1 id="cover-title" class="aj-headline">Amritsar's food, brought to your table in Sydney</h1>
-        </div>
-        <div>
-          <p class="aj-deck">Kulchas baked in the tandoor, black dal cooked slow, and the chaat of the Golden Temple's lanes. Pull up a chair.</p>
-          <div class="aj-btn-row">
-            <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
-            <a class="aj-btn aj-btn--secondary" href={site.orderUrl}>Order online</a>
-          </div>
-        </div>
-      </div>
+      <FeatureBlock
+        image={kulchaPair}
+        alt="Two golden Amritsari kulchas sprinkled with coriander seed and chilli on a hessian cloth"
+        caption="Coriander seed and chilli, pressed into the dough before baking."
+        side="right"
+        eyebrow="Aloo kulcha"
+        title="Pressed against the clay wall until it shatters"
+        as="h3"
+        arch
+      >
+        <p>Ask anyone from Amritsar what they miss and the answer comes fast: a proper kulcha. Not a soft naan, but a layered, stuffed bread pressed against the hot clay wall of the tandoor until the outside shatters and the inside steams.</p>
+        <p>Ours is filled with spiced potato and onion, brushed with butter and finished with a knob of white makhan that melts into every crease. It comes the way it does at home, with tangy Amritsari chole, tamarind chutney and pickled onion. Tear, scoop, repeat.</p>
+        <Button slot="actions" variant="tertiary" href="/gallery#kulcha">Read the kulcha story</Button>
+      </FeatureBlock>
     </div>
   </section>
 
-  <hr class="aj-rule aj-wrap-rule" />
-
-  <article class="aj-story-gap" aria-labelledby="feature-title">
-    <div class="aj-wrap aj-spread aj-spread--portrait">
-      <Photo
-        src={kulcha}
-        alt="A charred Amritsari kulcha topped with white butter, beside a tray of dark chole"
-        caption="Amritsari kulcha, with a knob of white butter melting in."
-        shape="arch"
-        sizes="(max-width: 860px) 100vw, 40vw"
+  <section class="section home-dishes" aria-labelledby="dishes-title">
+    <div class="container">
+      <SectionOpener
+        eyebrow="From the menu"
+        title="Six dishes to begin with"
+        standfirst={`A short taste of the ${all.length} dishes on our menu, from street chaat to the tandoor.`}
+        size="md"
+        id="dishes-title"
       />
-      <div>
-        <span class="aj-kicker">Feature · The signature</span>
-        <h2 id="feature-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">The bread a whole city is named for</h2>
-        <p class="aj-deck">In Amritsar, breakfast is a kulcha, crackling from the tandoor, with a bowl of dark chole and an onion on the side.</p>
-        <hr class="aj-short" />
-        <p class="aj-dropcap">Ask anyone from Amritsar what they miss and the answer comes fast: a proper kulcha. Not a soft naan, but a layered, stuffed bread pressed against the hot clay wall of the tandoor until the outside shatters and the inside steams. Ours is filled with spiced potato and onion, brushed with butter and finished with a knob of white makhan that melts into every crease.</p>
-        <p>It comes the way it does at home, with tangy Amritsari chole, a sharp tamarind chutney and a pile of pickled onion. Tear, scoop, repeat.</p>
-        <a class="aj-link" href="/gallery#kulcha">Read the story of the kulcha</a>
-      </div>
-    </div>
-  </article>
-
-  <section class="aj-deep aj-story-gap" aria-labelledby="teaser-title">
-    <div class="aj-wrap">
-      <div class="aj-teaser">
-        <div class="aj-head">
-          <span class="aj-kicker">Contents · From the menu</span>
-          <h2 id="teaser-title" class="aj-headline" style="margin-top: var(--space-2)">Six dishes to begin with</h2>
-          <p class="aj-deck">A short taste of the {all.length} dishes on our menu, from street chaat to the tandoor.</p>
-          <p style="margin-top: var(--space-4)"><a class="aj-btn aj-btn--secondary" href="/menu">See the full menu</a></p>
-        </div>
-        <ul class="aj-menu-list aj-columns-2">
-          {teaser.map((dish) => <MenuItem dish={dish} />)}
-        </ul>
+      <MenuGrid>
+        {featured.map((f) => <MenuCard dish={f.dish!} image={f.image} alt={f.alt} />)}
+      </MenuGrid>
+      <div class="home-dishes__more">
+        <Button variant="tertiary" href="/menu">See the full menu</Button>
       </div>
     </div>
   </section>
 
-  <section class="aj-band aj-story-gap" data-theme="marble" aria-labelledby="visit-title">
-    <div class="aj-wrap aj-spread aj-spread--flip">
-      <Photo
-        src={saag}
-        alt="Sarson ka saag topped with white butter, with yellow makki di roti and radish"
-        caption="Sarson ka saag and makki di roti, a Punjabi winter on a plate."
-        sizes="(max-width: 860px) 100vw, 40vw"
-      />
-      <div>
-        <span class="aj-kicker">Visit · Open daily</span>
-        <h2 id="visit-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-4)">Come hungry</h2>
-        <Hours />
-        <p style="margin-top: var(--space-4)"><Todo text={site.address} /><br /><a href={site.phoneHref}><Todo text={site.phone} /></a></p>
-        <div class="aj-btn-row">
-          <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
-          <a class="aj-btn aj-btn--gilt" href={site.orderUrl}>Order online</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <IngredientStrip image={saag} focus="50% 55%" />
 
-  <section class="aj-story-gap" aria-labelledby="catering-title">
-    <div class="aj-wrap aj-catering-teaser">
-      <span class="aj-kicker">Catering &amp; events</span>
-      <h2 id="catering-title" class="aj-headline" style="margin: var(--space-2) 0 var(--space-3)">Feeding a wedding, a kirtan or the whole office?</h2>
-      <p class="aj-deck" style="margin: 0 auto var(--space-4)">From party trays to full functions, we cook Punjabi food for a crowd.</p>
-      <a class="aj-btn aj-btn--primary" href="/catering">Plan your catering</a>
-    </div>
-  </section>
+  <VisitBlock />
+
+  <CateringCTA
+    image={kulchaChole}
+    alt="A stack of tandoor-baked kulchas on a plate with a bowl of chole behind"
+    caption="Kulchas and chole, a favourite for morning functions."
+  />
 </Layout>
 
 <style>
-  .aj-hero :global(img) { width: 100%; height: min(72vh, 640px); object-fit: cover; }
-  @media (max-width: 720px) { .aj-hero :global(img) { height: auto; aspect-ratio: 4 / 3; } .aj-hero-cap { margin-bottom: var(--space-4); } }
-  .aj-hero :global(figure) { margin: 0; }
-  .aj-hero-cap { margin: var(--space-2) 0 var(--space-5); }
-  .aj-cover { padding-bottom: var(--space-6); }
-  .aj-cover__grid { display: grid; grid-template-columns: 7fr 5fr; gap: var(--space-5); align-items: end; }
-  .aj-cover__grid .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  .aj-cover__grid .aj-deck { margin-bottom: var(--space-4); }
-  @media (max-width: 860px) { .aj-cover__grid { grid-template-columns: 1fr; gap: var(--space-4); } }
-  .aj-wrap-rule { max-width: calc(var(--page) - 2 * var(--space-6)); margin: 0 auto; }
-  .aj-teaser { display: grid; grid-template-columns: 4fr 8fr; gap: var(--space-6); align-items: start; }
-  @media (max-width: 960px) { .aj-teaser { grid-template-columns: 1fr; gap: 0; } }
-  .aj-columns-2 { columns: 2 280px; column-gap: var(--space-5); }
-  .aj-catering-teaser { text-align: center; }
-  .aj-catering-teaser .aj-headline { max-width: 18em; margin-left: auto !important; margin-right: auto !important; }
+  .home-dishes__more { display: flex; justify-content: center; margin-top: var(--space-7); }
 </style>
