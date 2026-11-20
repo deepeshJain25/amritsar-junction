@@ -1,97 +1,153 @@
 ---
+import { getImage, Picture } from 'astro:assets';
 import Photo from '../components/Photo.astro';
+import Hero from '../components/sections/Hero.astro';
+import SectionOpener from '../components/sections/SectionOpener.astro';
 import { essays } from '../content/gallery';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
-import kulcha from '../assets/photos/kulcha-thali.jpg';
+import kulchaChole from '../assets/photos/kulcha-chole.jpg';
+import kulchaPlate from '../assets/photos/kulcha-plate.jpg';
+import skewers from '../assets/photos/tandoor-skewers.jpg';
+
+// Every photograph from the essays once, each with a full-size version for the lightbox.
+const seen = new Set<string>();
+const photos = await Promise.all(
+  essays
+    .flatMap((e) => e.photos)
+    .filter((p) => !seen.has(p.src.src) && seen.add(p.src.src))
+    .map(async (p) => ({ ...p, full: (await getImage({ src: p.src, width: Math.min(1600, p.src.width), format: 'webp' })).src })),
+);
+
+// The kulcha story: its essay, told as a vertical sequence of photographs and paragraphs.
+const kulcha = essays.find((e) => e.id === 'kulcha')!;
+const sequence = [
+  ...kulcha.photos,
+  { src: kulchaPlate, alt: 'A charred kulcha topped with white butter beside a tray of dark chole', caption: 'White butter, slowly sinking in.' },
+  { src: kulchaChole, alt: 'A stack of tandoor-baked kulchas with a bowl of chole behind', caption: 'Fresh from the tandoor, waiting for the chole.' },
+];
 
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const gallerySchema = {
   '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: `${site.name} gallery: the stories behind our dishes`,
+  '@type': 'ImageGallery',
+  name: `${site.name} gallery: inside the kitchen`,
   url: new URL('/gallery', siteUrl).href,
-  hasPart: essays.map((e) => ({
-    '@type': 'Article',
-    headline: `${e.kicker}: ${e.title}`,
-    description: e.deck,
-    url: new URL(`/gallery#${e.id}`, siteUrl).href,
-    image: e.photos.map((p) => new URL(p.src.src, siteUrl).href),
-  })),
+  associatedMedia: photos.map((p) => ({ '@type': 'ImageObject', contentUrl: new URL(p.full, siteUrl).href, caption: p.caption, description: p.alt })),
 };
 ---
 
 <Layout
-  title="Gallery: The Stories Behind Our Dishes"
-  description="A photo essay on the history and flavour of Amritsari kulcha, chole, tandoori kebabs, dal makhani, sarson ka saag, paneer bhurji and jalebi."
+  nav="overlay"
+  title="Gallery: Inside the Kitchen"
+  description="Photographs from the Amritsar Junction kitchen: Amritsari kulcha and chole, tandoori kebabs, dal makhani, sarson ka saag, paneer bhurji and jalebi, and the story of the kulcha."
   crumb="Gallery"
-  share={kulcha}
+  share={skewers}
   schema={[gallerySchema]}
 >
-  <header class="aj-wrap aj-gal-head">
-    <span class="aj-kicker">Gallery · A photo essay</span>
-    <h1 class="aj-headline">Seven dishes, seven stories</h1>
-    <p class="aj-deck">Where our food comes from, how it is made, and why it tastes the way it does.</p>
-    <nav class="aj-gal-toc" aria-label="Stories in this essay">
-      {essays.map((e, i) => <a href={`#${e.id}`}><span>{String(i + 1).padStart(2, '0')}</span> {e.kicker}</a>)}
-    </nav>
-  </header>
+  <Hero image={skewers} alt="Skewers of paneer and chicken tikka over glowing coals, wrapped in smoke" eyebrow="Gallery" title="Inside the kitchen" standfirst="Fire, clay, butter and patience: the food, as it comes off the tandoor and out of the pot." focus="50% 55%" />
 
-  {essays.map((e, i) => (
-    <article
-      id={e.id}
-      class:list={['aj-essay', i % 2 === 1 && 'aj-deep']}
-      aria-labelledby={`${e.id}-title`}
-    >
-      <div class:list={['aj-wrap', 'aj-spread', 'aj-spread--portrait', i % 2 === 1 && 'aj-spread--flip']}>
-        <div class="aj-essay__photos">
-          {e.photos.map((p, j) => (
-            <Photo
-              src={p.src}
-              alt={p.alt}
-              caption={p.caption}
-              shape={j === 0 && p.src.height > p.src.width ? 'arch' : 'natural'}
-              sizes="(max-width: 860px) 100vw, 42vw"
-              eager={i === 0 && j === 0}
-            />
+  <section class="section" aria-labelledby="photos-title">
+    <div class="container">
+      <SectionOpener eyebrow="The photographs" title="From the pass" size="md" id="photos-title" />
+      <ul class="masonry" role="list">
+        {photos.map((p, i) => (
+          <li class="masonry__item">
+            <a class="masonry__link" href={p.full} data-lightbox={i} data-caption={p.caption}>
+              <Picture src={p.src} alt={p.alt} formats={['avif', 'webp']} widths={[360, 540, 720].filter((w) => w <= p.src.width)} sizes="(min-width: 1024px) 380px, 50vw" loading="lazy" decoding="async" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section kulcha surface-sunken" id="kulcha" aria-labelledby="kulcha-title">
+    <div class="container grid">
+      <div class="col-full col-prose">
+        <SectionOpener eyebrow="The kulcha story" title={kulcha.title} standfirst={kulcha.deck} align="center" id="kulcha-title" />
+        <ol class="kulcha__sequence" role="list">
+          {sequence.map((p, i) => (
+            <li class:list={[p.src.width <= p.src.height * 1.3 && 'kulcha__step--portrait']}>
+              <Photo src={p.src} alt={p.alt} caption={p.caption} aspect={p.src.width > p.src.height * 1.3 ? '16 / 9' : '4 / 5'} radius="lg" sizes="(min-width: 1024px) 760px, 100vw" />
+              {kulcha.body[i] && <p class="text-body-lg kulcha__para">{kulcha.body[i]}</p>}
+            </li>
           ))}
-        </div>
-        <div class="aj-essay__text">
-          <span class="aj-kicker">{String(i + 1).padStart(2, '0')} · {e.kicker}{e.native && <> · <span lang="pa">{e.native}</span></>}</span>
-          <h2 id={`${e.id}-title`} class="aj-headline">{e.title}</h2>
-          <p class="aj-deck">{e.deck}</p>
-          <hr class="aj-short" />
-          {e.body.map((para, j) => <p class={j === 0 ? 'aj-dropcap' : undefined}>{para}</p>)}
-        </div>
-      </div>
-    </article>
-  ))}
-
-  <section class="aj-band aj-story-gap" data-theme="marble" aria-labelledby="gal-cta">
-    <div class="aj-wrap" style="text-align: center">
-      <span class="aj-kicker">Hungry yet?</span>
-      <h2 id="gal-cta" class="aj-headline" style="margin: var(--space-2) 0 var(--space-4)">Taste the stories</h2>
-      <div class="aj-btn-row" style="justify-content: center">
-        <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
-        <a class="aj-btn aj-btn--gilt" href="/menu">Read the menu</a>
+        </ol>
       </div>
     </div>
   </section>
+
+  <dialog class="lightbox" aria-label="Photograph">
+    <figure class="lightbox__figure">
+      <img class="lightbox__img" alt="" />
+      <figcaption class="text-caption lightbox__caption"></figcaption>
+    </figure>
+    <button class="lightbox__btn lightbox__close" type="button" data-close><span class="sr-only">Close</span><span aria-hidden="true">×</span></button>
+    <button class="lightbox__btn lightbox__prev" type="button" data-step="-1"><span class="sr-only">Previous photograph</span><span aria-hidden="true">←</span></button>
+    <button class="lightbox__btn lightbox__next" type="button" data-step="1"><span class="sr-only">Next photograph</span><span aria-hidden="true">→</span></button>
+  </dialog>
 </Layout>
 
+<script>
+  // Lightbox: each tile is a link to the full image, so without JavaScript it simply opens the photograph.
+  const dialog = document.querySelector<HTMLDialogElement>('.lightbox');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-lightbox]')];
+  if (dialog && links.length) {
+    const img = dialog.querySelector<HTMLImageElement>('.lightbox__img')!;
+    const caption = dialog.querySelector<HTMLElement>('.lightbox__caption')!;
+    let index = 0;
+    const show = (i: number) => {
+      index = (i + links.length) % links.length;
+      const link = links[index];
+      img.src = link.href;
+      img.alt = link.querySelector('img')?.alt ?? '';
+      caption.textContent = link.dataset.caption ?? '';
+    };
+    links.forEach((link, i) => link.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(i);
+      dialog.showModal();
+    }));
+    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) => b.addEventListener('click', () => show(index + Number(b.dataset.step))));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(index + 1);
+      if (e.key === 'ArrowLeft') show(index - 1);
+    });
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+    dialog.addEventListener('close', () => links[index].focus());
+  }
+</script>
+
 <style>
-  .aj-gal-head { padding-top: var(--space-6); padding-bottom: var(--space-5); text-align: center; }
-  .aj-gal-head .aj-kicker { display: block; margin-bottom: var(--space-3); }
-  .aj-gal-head .aj-deck { margin: var(--space-3) auto 0; }
-  .aj-gal-toc { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-5); padding: var(--space-3) 0; border-top: 3px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); }
-  .aj-gal-toc a { color: var(--ink); text-decoration: none; font-size: 17px; }
-  @media (max-width: 720px) { .aj-gal-toc { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--space-3); text-align: left; } .aj-gal-toc a { display: flex; align-items: center; gap: var(--space-1); min-height: 44px; } }
-  .aj-gal-toc a:hover { color: var(--accent); text-decoration: underline; }
-  .aj-gal-toc span { font-family: var(--font-label); font-size: 12px; font-weight: 600; color: var(--gold-ink); }
-  .aj-essay { padding: var(--space-7) 0; scroll-margin-top: var(--space-3); }
-  @media (max-width: 720px) { .aj-essay { padding: var(--space-6) 0; } }
-  .aj-essay__photos { display: grid; gap: var(--space-5); }
-  .aj-essay__text .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  .aj-essay__text .aj-deck { margin-top: var(--space-3); }
-  .aj-essay__text p:not(.aj-deck) { max-width: var(--measure); }
+  /* Masonry: CSS columns keep each photograph's own proportions, 2 columns then 3 from lg. */
+  .masonry { columns: 2; column-gap: var(--space-5); }
+  @media (min-width: 1024px) { .masonry { columns: 3; } }
+  .masonry__item { break-inside: avoid; margin-bottom: var(--space-5); }
+  .masonry__link { display: block; overflow: hidden; border-radius: var(--radius-md); background: var(--surface-sunken); }
+  .masonry__link :global(img) { width: 100%; height: auto; transition: transform var(--duration-base) var(--ease-out); }
+  .masonry__link:hover :global(img) { transform: scale(1.05); }
+  @media (prefers-reduced-motion: reduce) { .masonry__link:hover :global(img) { transform: none; } }
+
+  .kulcha { scroll-margin-top: 0; }
+  .kulcha__sequence { display: grid; gap: var(--space-9); }
+  /* Portrait photographs run narrower so they are not stretched past their own resolution. */
+  .kulcha__step--portrait :global(.photo) { max-width: 520px; margin-inline: auto; }
+  .kulcha__para { margin-top: var(--space-7); max-width: var(--measure-prose); margin-inline: auto; }
+
+  .lightbox { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: var(--space-8) var(--space-5); border: 0; background: var(--ink-primary); color: var(--ink-on-inverse); }
+  .lightbox[open] { display: grid; place-items: center; }
+  .lightbox::backdrop { background: var(--scrim-backdrop); }
+  .lightbox__figure { display: grid; gap: var(--space-4); justify-items: center; max-width: min(1200px, 100%); }
+  .lightbox__img { max-width: 100%; max-height: calc(100dvh - 2 * var(--space-9)); width: auto; height: auto; border-radius: var(--radius-md); }
+  .lightbox__caption { color: var(--ink-on-inverse-muted); text-align: center; }
+  .lightbox__btn { position: absolute; width: var(--touch-target); height: var(--touch-target); display: grid; place-items: center; background: none; border: 1px solid var(--brand-gold-soft); border-radius: var(--radius-pill); color: var(--ink-on-inverse); font-size: 1.25rem; line-height: 1; }
+  .lightbox__btn:focus-visible { outline-color: var(--state-focus-on-inverse); }
+  .lightbox__close { top: var(--space-5); right: var(--space-5); }
+  .lightbox__prev { left: var(--space-5); top: 50%; translate: 0 -50%; }
+  .lightbox__next { right: var(--space-5); top: 50%; translate: 0 -50%; }
+  @media (max-width: 639px) {
+    .lightbox__prev, .lightbox__next { top: auto; bottom: var(--space-5); translate: none; }
+  }
 </style>
