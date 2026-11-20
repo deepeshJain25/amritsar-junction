@@ -25,6 +25,7 @@
 
   /* Lines */
   --line-primary: #E2D4BE;
+  --line-on-inverse: rgba(243, 228, 200, 0.24);
 
   /* State: the spec names state/focus without a value. Emerald reads 8.6:1 on beige; gold-soft 5.9:1 on maroon and 5.2:1 on emerald. */
   --state-focus: var(--brand-emerald);

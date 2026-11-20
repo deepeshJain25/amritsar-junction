@@ -1,0 +1,11 @@
+/* Minimal reset: box sizing, zeroed margins, media that behaves, and form controls that inherit type. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd, ol, ul { margin: 0; }
+ol[role="list"], ul[role="list"] { list-style: none; padding: 0; }
+img, picture, svg, video, iframe { display: block; max-width: 100%; }
+img { height: auto; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; }
+p, li, figcaption { overflow-wrap: break-word; }

@@ -10,7 +10,7 @@ const link = (part: string) => part.match(/^\{([^}]+)\}\(([^)]+)\)$/);
 ---
 
 {parts.map((part) => {
-  if (part.startsWith('[')) return <mark class="aj-todo">{part}</mark>;
+  if (part.startsWith('[')) return <mark class="todo">{part}</mark>;
   const match = link(part);
   if (match) return <a href={match[2]}>{match[1]}</a>;
   return part;
