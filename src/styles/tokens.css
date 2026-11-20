@@ -78,6 +78,8 @@
   --nav-height: 60px;
   --touch-target: 44px;
   --scrim-hero: linear-gradient(to bottom, rgba(42, 26, 20, 0.3), rgba(42, 26, 20, 0.7));
+  --scrim-nav: linear-gradient(to bottom, rgba(42, 26, 20, 0.45), rgba(42, 26, 20, 0));
+  --scrim-backdrop: rgba(42, 26, 20, 0.4);
 
   /* Ornament: gold at 60% on beige, gold-soft at 70% on maroon/emerald, arch-frame at 10% behind images. */
   --motif-opacity: 0.6;

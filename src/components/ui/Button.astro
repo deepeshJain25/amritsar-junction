@@ -1,0 +1,20 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+// A link or button in one of three styles. Primary is the single main action; secondary sits beside it;
+// tertiary is an underlined text link with an arrow. Colors follow the surface it sits on.
+type Props = {
+  variant?: 'primary' | 'secondary' | 'tertiary';
+  href?: string;
+  /** Tertiary links end with an arrow unless this is false. */
+  arrow?: boolean;
+  class?: string;
+} & Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'class'>;
+
+const { variant = 'primary', href, arrow = variant === 'tertiary', class: extra, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class:list={['btn', `btn--${variant}`, extra]} href={href} type={href ? undefined : (rest.type ?? 'button')} {...rest}>
+  <slot />{arrow && <span aria-hidden="true">→</span>}
+</Tag>

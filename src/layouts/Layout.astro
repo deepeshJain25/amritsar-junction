@@ -1,7 +1,7 @@
 ---
 import { getImage } from 'astro:assets';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
+import Footer from '../components/ui/Footer.astro';
+import Nav from '../components/ui/Nav.astro';
 import site from '../content/site.json';
 import { breadcrumbSchema, restaurantSchema } from '../lib/seo';
 import defaultShare from '../assets/photos/tandoor-skewers.jpg';
@@ -18,12 +18,13 @@ interface Props {
   /** Photo for social sharing previews. */
   share?: ImageMetadata;
   home?: boolean;
-  theme?: 'paper' | 'marble';
+  /** "overlay" when the page opens on a full-bleed photo hero marked data-hero. */
+  nav?: 'overlay' | 'solid';
   /** Keep the page out of search engines (test and internal pages). */
   noindex?: boolean;
 }
 
-const { title, description, crumb, schema = [], share = defaultShare, home = false, theme = 'paper', noindex = false } = Astro.props;
+const { title, description, crumb, schema = [], share = defaultShare, home = false, nav = 'solid', noindex = false } = Astro.props;
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, siteUrl).href;
 const og = await getImage({ src: share, width: 1200, format: 'jpg' });
@@ -40,15 +41,16 @@ const graph = [
 ---
 
 <!doctype html>
-<html lang="en-AU" data-theme={theme}>
+<html lang="en-AU">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
-    <meta name="theme-color" content="#0f3b2e" />
+    <meta name="theme-color" content="#6B1F2B" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
     <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
@@ -80,16 +82,11 @@ const graph = [
     />
   </head>
   <body>
-    <a class="aj-skip" href="#main">Skip to content</a>
-    <Header home={home} />
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav mode={nav} />
     <main id="main">
       <slot />
     </main>
     <Footer />
-    <nav class="aj-actionbar" aria-label="Quick actions">
-      <a href={site.phoneHref}>Call</a>
-      <a href={site.bookingUrl} class="is-cta">Reserve</a>
-      <a href={site.orderUrl}>Order</a>
-    </nav>
   </body>
 </html>

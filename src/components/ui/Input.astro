@@ -1,0 +1,42 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+// A labelled form field: text-like inputs, a select (options go in the slot) or a textarea.
+// The label is a meta eyebrow above the field; help or error text sits below it.
+type Props = {
+  label: string;
+  name: string;
+  id?: string;
+  type?: 'text' | 'email' | 'tel' | 'date' | 'number' | 'select' | 'textarea';
+  optional?: boolean;
+  help?: string;
+  error?: string;
+  /** Span both columns of a .form-grid. */
+  full?: boolean;
+} & Omit<HTMLAttributes<'input'> & HTMLAttributes<'textarea'> & HTMLAttributes<'select'>, 'type' | 'name' | 'id'>;
+
+const { label, name, id = `f-${name}`, type = 'text', optional = false, help, error, full = false, ...rest } = Astro.props;
+const describedBy = [help && `${id}-help`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
+const shared = {
+  class: 'input',
+  id,
+  name,
+  required: !optional,
+  'aria-invalid': error ? 'true' : undefined,
+  'aria-describedby': describedBy,
+  ...rest,
+};
+---
+
+<div class:list={['field', full && 'field--full']}>
+  <label class="field__label text-meta" for={id}>
+    {label}{optional && <span class="field__optional"> (optional)</span>}
+  </label>
+  {type === 'select'
+    ? <select {...shared}><slot /></select>
+    : type === 'textarea'
+      ? <textarea rows={4} {...shared}></textarea>
+      : <input type={type} {...shared} />}
+  {help && <p class="field__help" id={`${id}-help`}>{help}</p>}
+  {error && <p class="field__error" id={`${id}-error`}>{error}</p>}
+</div>

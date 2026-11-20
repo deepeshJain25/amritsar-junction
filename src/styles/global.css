@@ -17,6 +17,9 @@
   --ctx-motif-opacity: var(--motif-opacity);
   --ctx-line: var(--line-primary);
   --ctx-focus: var(--state-focus);
+  --ctx-cta: var(--surface-inverse-warm);
+  --ctx-cta-hover: var(--surface-inverse-warm-deep);
+  --ctx-cta-ink: var(--ink-on-inverse);
 }
 .surface-inverse-warm,
 .surface-inverse-cool,
@@ -29,6 +32,13 @@
   --ctx-motif-opacity: var(--motif-opacity-on-inverse);
   --ctx-line: var(--line-on-inverse);
   --ctx-focus: var(--state-focus-on-inverse);
+}
+/* A maroon button would vanish on a maroon or emerald section, so the primary turns cream there. Over photographs it stays maroon. */
+.surface-inverse-warm,
+.surface-inverse-cool {
+  --ctx-cta: var(--ink-on-inverse);
+  --ctx-cta-hover: var(--brand-gold-soft);
+  --ctx-cta-ink: var(--surface-inverse-warm-deep);
 }
 .surface-primary { background: var(--surface-primary); color: var(--ctx-ink); }
 .surface-raised { background: var(--surface-raised); color: var(--ctx-ink); }
@@ -146,3 +156,86 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
   -webkit-mask: url(/motifs/eyebrow-mark.svg) center / contain no-repeat;
   mask: url(/motifs/eyebrow-mark.svg) center / contain no-repeat;
 }
+
+/* Buttons: primary (maroon, the one main action), secondary (gold outline), tertiary (underlined link). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 14px 28px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), text-decoration-thickness var(--duration-fast) var(--ease-out);
+}
+.btn--primary { background: var(--ctx-cta); color: var(--ctx-cta-ink); }
+.btn--primary:hover { background: var(--ctx-cta-hover); }
+.btn--secondary { background: transparent; color: var(--ctx-ink); border-color: var(--ctx-ornament); }
+.btn--secondary:hover { background: var(--brand-gold-tint); }
+.btn--tertiary {
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--ctx-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--ctx-ornament);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.45em;
+  white-space: normal;
+  text-align: left;
+}
+.btn--tertiary:hover { text-decoration-thickness: 2px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+@media (max-width: 639px) {
+  .btn-row--stack { flex-direction: column; align-items: stretch; }
+}
+
+/* Forms: raised inputs with a hairline, meta labels in emerald, a 2px focus border, maroon for errors. */
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+@media (min-width: 640px) {
+  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.field { display: grid; gap: var(--space-2); align-content: start; }
+.field--full { grid-column: 1 / -1; }
+.field__label { color: var(--ctx-meta); }
+.field__optional { color: var(--ctx-ink-muted); text-transform: none; letter-spacing: 0; font-weight: var(--weight-regular); }
+.field__help { color: var(--ctx-ink-muted); font-size: var(--text-body-sm); line-height: var(--leading-body-sm); }
+.field__error { color: var(--state-error); font-size: var(--text-body-sm); line-height: var(--leading-body-sm); }
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-raised);
+  color: var(--ink-primary);
+  border: 1px solid var(--line-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body-sm);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+.input::placeholder { color: var(--ink-muted); }
+/* The border thickens to 2px; the extra pixel is a shadow so the field does not shift. */
+.input:focus-visible { outline: none; border-color: var(--state-focus); box-shadow: 0 0 0 1px var(--state-focus); }
+.input[aria-invalid="true"] { border-color: var(--state-error); }
+select.input {
+  appearance: none;
+  padding-right: var(--space-7);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%236E5C4F' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-4) center;
+  background-size: 12px 8px;
+}
+textarea.input { min-height: 128px; resize: vertical; }

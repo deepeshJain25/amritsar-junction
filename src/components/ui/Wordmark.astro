@@ -1,0 +1,43 @@
+---
+// The digital logo: the AJ monogram in gold, a gold hairline, and "Amritsar Junction" in Fraunces.
+// Set live in the brand font so it stays crisp and takes the surface's colors. The ornate badge is print-only.
+interface Props {
+  layout?: 'horizontal' | 'stacked';
+}
+
+const { layout = 'horizontal' } = Astro.props;
+---
+
+<span class:list={['wordmark', `wordmark--${layout}`]}>
+  <span class="wordmark__mono" aria-hidden="true"><span>A</span><span class="wordmark__j">J</span></span>
+  {layout === 'horizontal' && <span class="wordmark__rule" aria-hidden="true"></span>}
+  <span class="wordmark__name">Amritsar Junction</span>
+  {layout === 'stacked' && <span class="wordmark__meta text-meta">Indian Kitchen · Sydney</span>}
+</span>
+
+<style>
+  .wordmark {
+    --wordmark-size: 1.125rem;
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--font-display);
+    font-weight: var(--weight-regular);
+    font-variation-settings: "opsz" 36, "WONK" 1, "SOFT" 50;
+    font-size: var(--wordmark-size);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    min-width: 120px;
+  }
+  @media (min-width: 1024px) {
+    .wordmark { --wordmark-size: 1.375rem; min-width: 160px; }
+  }
+  .wordmark__name { color: var(--ctx-accent); }
+  /* The monogram sits at 1.4x the wordmark's cap height. */
+  .wordmark__mono { color: var(--ctx-ornament); font-size: 1.4em; }
+  .wordmark__j { margin-left: -0.2em; }
+  .wordmark__rule { align-self: center; width: 1px; height: 1.1em; margin-inline: var(--space-3); background: var(--ctx-ornament); }
+  .wordmark--stacked { flex-direction: column; align-items: flex-start; gap: var(--space-3); --wordmark-size: 1.5rem; }
+  .wordmark--stacked .wordmark__mono { font-size: 1.6em; }
+  .wordmark__meta { color: var(--ctx-meta); }
+</style>

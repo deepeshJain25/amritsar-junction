@@ -1,0 +1,177 @@
+---
+import site from '../../content/site.json';
+import Button from './Button.astro';
+import Wordmark from './Wordmark.astro';
+
+// The site header. "overlay" sits transparent over a full-bleed photo hero (the element marked data-hero)
+// and turns solid beige once 80% of the hero has scrolled past; "solid" is beige from the start.
+// Below xl the links move into a drawer; it needs JavaScript, and the footer repeats every link for when it is off.
+interface Props {
+  mode?: 'overlay' | 'solid';
+}
+
+const { mode = 'solid' } = Astro.props;
+const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
+const current = (href: string) => (href === path ? 'page' : undefined);
+---
+
+<header class:list={['nav', mode === 'overlay' ? 'surface-image' : 'surface-primary']} data-nav data-mode={mode}>
+  <div class="nav__bar container">
+    <a class="nav__brand" href="/" aria-label={`${site.name}, home`}><Wordmark /></a>
+    <nav class="nav__links" aria-label="Main">
+      <ul role="list">
+        {site.nav.map((item) => <li><a class="text-body-sm" href={item.href} aria-current={current(item.href)}>{item.label}</a></li>)}
+      </ul>
+    </nav>
+    <div class="nav__ctas">
+      <Button href={site.bookingUrl}>Reserve</Button>
+      <Button variant="secondary" href={site.orderUrl}>Order</Button>
+    </div>
+    <button class="nav__toggle" type="button" aria-controls="nav-drawer" aria-expanded="false" data-nav-open>
+      <span class="sr-only">Open menu</span>
+      <span class="nav__burger" aria-hidden="true"></span>
+    </button>
+  </div>
+
+  <dialog class="nav__drawer surface-raised" id="nav-drawer" aria-label="Menu">
+    <div class="nav__drawer-head">
+      <Wordmark />
+      <button class="nav__close" type="button" data-nav-close><span class="sr-only">Close menu</span><span aria-hidden="true">×</span></button>
+    </div>
+    <ul class="nav__drawer-links" role="list">
+      {site.nav.map((item) => <li><a class="text-heading-md" href={item.href} aria-current={current(item.href)}>{item.label}</a></li>)}
+    </ul>
+    <div class="nav__drawer-ctas">
+      <Button href={site.bookingUrl}>Reserve a table</Button>
+      <Button variant="secondary" href={site.orderUrl}>Order online</Button>
+    </div>
+  </dialog>
+</header>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const drawer = document.querySelector<HTMLDialogElement>('#nav-drawer');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-nav-open]');
+
+  if (nav) {
+    const hero = nav.dataset.mode === 'overlay' ? document.querySelector<HTMLElement>('[data-hero]') : null;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const scrolled = window.scrollY > 0;
+      const solid = hero ? window.scrollY > hero.offsetHeight * 0.8 - nav.offsetHeight : true;
+      nav.classList.toggle('is-solid', solid);
+      nav.classList.toggle('surface-primary', solid);
+      nav.classList.toggle('surface-image', !solid);
+      nav.classList.toggle('is-raised', solid && scrolled);
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+    update();
+  }
+
+  if (drawer && openBtn) {
+    const close = () => drawer.close();
+    openBtn.addEventListener('click', () => {
+      drawer.showModal();
+      openBtn.setAttribute('aria-expanded', 'true');
+    });
+    drawer.addEventListener('close', () => {
+      openBtn.setAttribute('aria-expanded', 'false');
+      openBtn.focus();
+    });
+    drawer.querySelector('[data-nav-close]')?.addEventListener('click', close);
+    // A click on the backdrop lands on the dialog element itself.
+    drawer.addEventListener('click', (e) => { if (e.target === drawer) close(); });
+    drawer.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+  }
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--surface-primary);
+    transition: background-color var(--duration-slow) var(--ease-out), box-shadow var(--duration-slow) var(--ease-out), color var(--duration-slow) var(--ease-out);
+  }
+  /* Over a hero the header floats on the photo. Without JavaScript it scrolls away with the hero instead of staying fixed and unreadable. */
+  .nav[data-mode="overlay"] { position: absolute; inset: 0 0 auto 0; background: transparent; }
+  :global(.js) .nav[data-mode="overlay"] { position: fixed; }
+  .nav.is-solid { background: var(--surface-primary); }
+  .nav.is-raised { box-shadow: var(--elev-1); }
+  .nav[data-mode="overlay"]:not(.is-solid) { background: var(--scrim-nav); }
+
+  .nav__bar { display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
+  .nav__brand { display: inline-flex; align-items: center; min-height: var(--touch-target); text-decoration: none; margin-right: auto; }
+
+  .nav__links { display: none; }
+  .nav__links ul { display: flex; gap: var(--space-5); }
+  .nav__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    color: var(--ctx-ink);
+    font-weight: var(--weight-medium);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.5em;
+    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+  }
+  .nav__links a:hover, .nav__links a[aria-current="page"] { text-decoration-color: var(--ctx-ornament); }
+
+  .nav__ctas { display: none; gap: var(--space-3); }
+  .nav__ctas :global(.btn) { padding-inline: var(--space-5); }
+
+  .nav__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    margin-right: calc(-1 * var(--space-3));
+    background: none;
+    border: 0;
+    color: var(--ctx-ink);
+  }
+  .nav__burger, .nav__burger::before, .nav__burger::after { display: block; width: 22px; height: 1.5px; background: currentColor; }
+  .nav__burger { position: relative; }
+  .nav__burger::before, .nav__burger::after { content: ""; position: absolute; left: 0; }
+  .nav__burger::before { top: -7px; }
+  .nav__burger::after { top: 7px; }
+
+  @media (min-width: 640px) {
+    .nav__ctas { display: flex; }
+  }
+  @media (min-width: 1280px) {
+    .nav__links { display: block; }
+    .nav__toggle { display: none; }
+  }
+
+  /* Drawer: slides in from the right, links in heading-md, actions pinned to the bottom. */
+  .nav__drawer {
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(380px, 88vw);
+    height: 100dvh;
+    max-height: none;
+    max-width: none;
+    margin: 0;
+    padding: 0 var(--space-5) var(--space-5);
+    border: 0;
+    box-shadow: var(--elev-2);
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--duration-slow) var(--ease-in-out), overlay var(--duration-slow) allow-discrete, display var(--duration-slow) allow-discrete;
+  }
+  .nav__drawer[open] { display: flex; transform: none; }
+  @starting-style { .nav__drawer[open] { transform: translateX(100%); } }
+  .nav__drawer::backdrop { background: var(--scrim-backdrop); }
+  .nav__drawer-head { display: flex; align-items: center; justify-content: space-between; height: var(--nav-height); }
+  .nav__close { width: var(--touch-target); height: var(--touch-target); margin-right: calc(-1 * var(--space-3)); background: none; border: 0; font-size: 1.75rem; line-height: 1; color: var(--ctx-ink); }
+  .nav__drawer-links { display: grid; gap: var(--space-1); padding-top: var(--space-6); }
+  .nav__drawer-links a { display: flex; align-items: center; min-height: 52px; color: var(--ctx-ink); text-decoration: none; }
+  .nav__drawer-links a[aria-current="page"] { color: var(--ctx-accent); }
+  .nav__drawer-ctas { display: grid; gap: var(--space-3); margin-top: auto; padding-top: var(--space-6); }
+</style>

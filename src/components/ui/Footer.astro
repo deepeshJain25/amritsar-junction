@@ -1,0 +1,59 @@
+---
+import site from '../../content/site.json';
+import Hours from '../Hours.astro';
+import Todo from '../Todo.astro';
+import Button from './Button.astro';
+import Wordmark from './Wordmark.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer surface-sunken">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <Wordmark layout="stacked" />
+        <p class="text-body-sm footer__muted">Amritsari kulcha, tandoor kebabs and slow-cooked Punjabi curries.</p>
+        <Button href={site.bookingUrl}>Reserve a table</Button>
+      </div>
+      <div>
+        <h2 class="eyebrow text-meta">Find us</h2>
+        <address class="text-body-sm">
+          <Todo text={site.address} /><br />
+          <a href={site.phoneHref}><Todo text={site.phone} /></a><br />
+          <a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a>
+        </address>
+      </div>
+      <div>
+        <h2 class="eyebrow text-meta">Hours</h2>
+        <Hours />
+      </div>
+      <div>
+        <h2 class="eyebrow text-meta">Read on</h2>
+        <ul role="list" class="footer__links">
+          {site.nav.map((item) => <li><a class="text-body-sm" href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+    <div class="footer__base">
+      <p class="text-script footer__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>
+      <p class="text-body-sm footer__muted">© {year} {site.name} · Indian restaurant, <Todo text={site.suburb} />, Sydney</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { padding: var(--space-10) 0 var(--space-8); border-top: 1px solid var(--line-primary); }
+  .footer__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-7) var(--grid-gutter); }
+  @media (min-width: 640px) { .footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { .footer__grid { grid-template-columns: 1.4fr 1fr 1fr 0.8fr; } }
+  .footer__brand { display: grid; gap: var(--space-5); justify-items: start; align-content: start; }
+  .footer__muted { color: var(--ctx-ink-muted); }
+  .footer h2 { display: flex; margin-bottom: var(--space-4); }
+  .footer address { font-style: normal; overflow-wrap: anywhere; }
+  .footer address a, .footer__links a { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--ctx-ink); }
+  .footer__links a { text-decoration: none; }
+  .footer__links a:hover { text-decoration: underline; text-decoration-color: var(--ctx-ornament); }
+  .footer__base { display: grid; justify-items: center; gap: var(--space-3); margin-top: var(--space-9); padding-top: var(--space-7); border-top: 1px solid var(--line-primary); text-align: center; }
+  .footer__welcome { color: var(--brand-gold); }
+</style>
