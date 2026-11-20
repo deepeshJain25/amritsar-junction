@@ -1,21 +1,36 @@
 ---
 import Photo from '../components/Photo.astro';
 import Todo from '../components/Todo.astro';
+import FeatureBlock from '../components/sections/FeatureBlock.astro';
+import VisitBlock from '../components/sections/VisitBlock.astro';
+import Motif from '../components/ui/Motif.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import dal from '../assets/photos/dal-makhani.jpg';
 import kulchaPair from '../assets/photos/kulcha-pair.jpg';
+import kulchaThali from '../assets/photos/kulcha-thali.jpg';
+import bhurji from '../assets/photos/paneer-bhurji.jpg';
 import skewers from '../assets/photos/tandoor-skewers.jpg';
 
+const title = 'From the lanes of Amritsar to George Street';
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const article = {
   '@context': 'https://schema.org',
   '@type': 'Article',
-  headline: 'From the lanes of Amritsar to a table in Sydney',
+  headline: title,
   about: { '@id': new URL('/#restaurant', siteUrl).href },
   publisher: { '@type': 'Organization', name: site.name },
   inLanguage: 'en-AU',
 };
+
+// The people strip. Names in [square brackets] show highlighted until the restaurant confirms them;
+// a portrait can be added per person once it is photographed.
+const people: { name: string; role: string; photo?: ImageMetadata }[] = [
+  { name: "[Owner's name]", role: 'Owner' },
+  { name: "[Head chef's name]", role: 'Head chef, at the tandoor' },
+  { name: "[Name]", role: 'Kitchen, slow pots and curries' },
+  { name: "[Name]", role: 'Front of house' },
+];
 ---
 
 <Layout
@@ -26,109 +41,119 @@ const article = {
   schema={[article]}
 >
   <article>
-    <header class="aj-wrap aj-story-head">
-      <span class="aj-kicker">Our Story · The long read</span>
-      <h1 class="aj-headline">From the lanes of Amritsar to a table in Sydney</h1>
-      <p class="aj-deck">A city that feeds everyone who walks through its gates, a clay oven that never cools, and the people who brought both here.</p>
-      <p class="aj-caption aj-byline">Words by the Amritsar Junction family · <Todo text="[Photographs to come from our kitchen]" /></p>
+    <header class="story-hero">
+      <div class="story-hero__text">
+        <p class="text-script story-hero__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>
+        <p class="eyebrow text-meta">Our story</p>
+        <h1 class="text-display-xl">{title}</h1>
+      </div>
+      <div class="story-hero__media">
+        <Photo src={kulchaPair} alt="Two golden Amritsari kulchas sprinkled with coriander seed and chilli, fresh from the tandoor" sizes="(min-width: 1024px) 50vw, 100vw" eager />
+      </div>
     </header>
 
-    <div class="aj-story-hero">
-      <Photo
-        src={skewers}
-        alt="Paneer and chicken tikka skewers smoking over the coals of a tandoor grill"
-        caption="The tandoor at full heat. Everything that comes off it carries a little smoke."
-        sizes="100vw"
-        eager
-      />
-    </div>
-
-    <section class="aj-wrap aj-story-gap aj-story-body" aria-labelledby="people">
-      <div class="aj-story-side">
-        <span class="aj-kicker">Part one</span>
-        <h2 id="people" class="aj-section">The people in the kitchen</h2>
-      </div>
-      <div class="aj-columns">
-        <p class="aj-dropcap">Every restaurant begins with someone who could not find the food they grew up with. For us that someone is <Todo text="[owner's name]" />, who grew up <Todo text="[in or near Amritsar, and the family's story]" />. Sydney gave them a home, but the kulcha was never right, the chole never dark enough, the lassi never thick enough to stand a spoon in.</p>
-        <p>So they built the kitchen they missed. At the tandoor is <Todo text="[head chef's name]" />, who learned to cook <Todo text="[where and how the chef trained]" />. In the kitchen, the rules are simple: the dal is never hurried, the bread is baked to order, and nobody leaves hungry.</p>
-        <p>We opened Amritsar Junction in <Todo text="[year]" /> in <Todo text={site.suburb} />, and we have been feeding families, students, office crowds and wedding parties ever since. Many of our regulars came for one dish and now order without opening the menu.</p>
+    <section class="section story-standfirst" aria-label="Introduction">
+      <div class="container">
+        <p class="text-body-lg">A city that feeds everyone who walks through its gates, a clay oven that never cools, and the people who brought both here.</p>
+        <p class="text-caption">Words by the Amritsar Junction family</p>
+        <div class="divider"><Motif name="divider-ornate" /></div>
       </div>
     </section>
 
-    <aside class="aj-wrap aj-pull" aria-label="Pull quote">
-      <blockquote>“Nobody leaves an Amritsari table hungry. That is not a slogan. It is how the city was built.”</blockquote>
-    </aside>
-
-    <section class="aj-wrap aj-story-gap" aria-labelledby="amritsar">
-      <div class="aj-spread aj-spread--portrait">
-        <Photo
-          src={kulchaPair}
-          alt="Two golden Amritsari kulchas sprinkled with coriander seed and chilli on a hessian cloth"
-          caption="Kulchas, the breakfast of Amritsar's old city."
-          shape="arch"
-          sizes="(max-width: 860px) 100vw, 40vw"
-        />
-        <div>
-          <span class="aj-kicker">Part two</span>
-          <h2 id="amritsar" class="aj-section" style="margin: var(--space-2) 0 var(--space-4)">Why Amritsar?</h2>
+    <section class="story-chapter" aria-labelledby="city">
+      <div class="container">
+        <FeatureBlock image={kulchaThali} alt="An Amritsari kulcha on a brass thali with chole, white butter and pickle" caption="The breakfast of Amritsar's old city." eyebrow="Chapter one" title="The city" id="city">
           <p>Amritsar is a city that cooks for strangers. At its heart stands the Harmandir Sahib, the Golden Temple, whose community kitchen, the langar, serves a free meal to tens of thousands of people every day. Anyone may sit on the floor in a row and be fed dal and roti, whatever their faith, their wealth or where they have come from. That spirit of feeding everyone generously runs through every dhaba in the city.</p>
           <p>Amritsar also sits on the Grand Trunk Road, one of Asia's oldest highways, and centuries of travellers, traders and soldiers have passed through it. The city learned to feed people quickly and well: kulchas from clay ovens at dawn, batter-fried fish by the river in winter, chole simmering in huge brass pots and lassi in glasses so tall they come with a spoon.</p>
           <p>Our name is a nod to all of that. A junction is where roads meet. Ours is where Amritsar's food meets Sydney.</p>
-        </div>
+        </FeatureBlock>
       </div>
     </section>
 
-    <hr class="aj-rule aj-wrap-rule" />
+    <aside class="story-quote" aria-label="Pull quote">
+      <blockquote class="text-italic text-display-md">“Nobody leaves an Amritsari table hungry. That is not a slogan. It is how the city was built.”</blockquote>
+    </aside>
 
-    <section class="aj-wrap aj-story-gap" aria-labelledby="cooking">
-      <div class="aj-spread aj-spread--portrait aj-spread--flip">
-        <Photo
-          src={dal}
-          alt="A ladle lifting creamy dal makhani from a black bowl, swirled with cream and coriander"
-          caption="Dal makhani: black lentils, butter and patience."
-          shape="arch"
-          sizes="(max-width: 860px) 100vw, 40vw"
-        />
-        <div>
-          <span class="aj-kicker">Part three</span>
-          <h2 id="cooking" class="aj-section" style="margin: var(--space-2) 0 var(--space-4)">How we cook</h2>
-          <h3 class="aj-sub">The tandoor</h3>
+    <section class="story-chapter" aria-labelledby="kitchen">
+      <div class="container">
+        <FeatureBlock image={dal} alt="A ladle lifting creamy dal makhani from a black bowl, swirled with cream and coriander" caption="Dal makhani: black lentils, butter and patience." side="right" eyebrow="Chapter two" title="The kitchen" id="kitchen">
+          <h3 class="text-heading-sm">The tandoor</h3>
           <p>The clay oven is the centre of our kitchen. Breads are slapped against its walls and peeled off blistered and smoky. Paneer, chicken, lamb and fish go in on long iron skewers and come out charred at the edges and juicy within. No grill or pan gives the same flavour.</p>
-          <h3 class="aj-sub">Slow pots</h3>
+          <h3 class="text-heading-sm">Slow pots</h3>
           <p>Some dishes cannot be rushed. Our dal makhani simmers low for hours until the black lentils turn to velvet. Sarson ka saag cooks down slowly until the mustard greens are silky. Amritsari chole get their deep colour and tang from tea leaves and dried pomegranate, the old way.</p>
-          <h3 class="aj-sub">Butter, ghee and fresh spice</h3>
-          <p>We finish our dishes the way Punjabi homes do: a spoon of white butter on the saag, a sizzle of ghee over the dal, and spices roasted and ground in our own kitchen. It is not light food. It is generous food.</p>
-        </div>
+          <h3 class="text-heading-sm">Butter, ghee and fresh spice</h3>
+          <p>We finish our dishes the way Punjabi homes do: a spoon of white butter on the saag, a sizzle of ghee over the dal, and spices roasted and ground in our own kitchen.</p>
+        </FeatureBlock>
       </div>
     </section>
 
-    <section class="aj-band aj-story-gap" data-theme="marble" aria-labelledby="invite">
-      <div class="aj-wrap aj-invite">
-        <span class="aj-kicker">Pull up a chair</span>
-        <h2 id="invite" class="aj-headline" style="margin: var(--space-2) 0 var(--space-4)">Come and taste it for yourself</h2>
-        <div class="aj-btn-row" style="justify-content: center">
-          <a class="aj-btn aj-btn--primary" href={site.bookingUrl}>Reserve a table</a>
-          <a class="aj-btn aj-btn--gilt" href="/menu">Read the menu</a>
-        </div>
+    <aside class="story-quote" aria-label="Pull quote">
+      <blockquote class="text-italic text-display-md">“It is not light food. It is generous food.”</blockquote>
+    </aside>
+
+    <section class="story-chapter" aria-labelledby="table">
+      <div class="container">
+        <FeatureBlock image={bhurji} alt="Paneer bhurji in an ornate silver dish with red onion, coriander and lime" caption="Paneer bhurji, the dish for guests who arrive unannounced." eyebrow="Chapter three" title="The table" id="table">
+          <p>Every restaurant begins with someone who could not find the food they grew up with. For us that someone is <Todo text="[owner's name]" />, who grew up <Todo text="[in or near Amritsar, and the family's story]" />. Sydney gave them a home, but the kulcha was never right, the chole never dark enough, the lassi never thick enough to stand a spoon in.</p>
+          <p>So they built the kitchen they missed. At the tandoor is <Todo text="[head chef's name]" />, who learned to cook <Todo text="[where and how the chef trained]" />. The rules are simple: the dal is never hurried, the bread is baked to order, and nobody leaves hungry.</p>
+          <p>We opened Amritsar Junction in <Todo text="[year]" /> in <Todo text={site.suburb} />, and we have been feeding families, students, office crowds and wedding parties ever since. Many of our regulars came for one dish and now order without opening the menu.</p>
+        </FeatureBlock>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="people-title">
+      <div class="container">
+        <p class="eyebrow text-meta">The people</p>
+        <h2 id="people-title" class="text-display-md">Who cooks for you</h2>
+        <ul class="people" role="list">
+          {people.map((p) => (
+            <li class="people__card">
+              {p.photo
+                ? <Photo src={p.photo} alt={`Portrait of ${p.name}`} aspect="4 / 5" radius="lg" sizes="(min-width: 1024px) 280px, 50vw" />
+                : <div class="people__frame" aria-hidden="true"><Motif name="arch-frame" width={96} /></div>}
+              <h3 class="text-heading-md"><Todo text={p.name} /></h3>
+              <p class="text-body-sm people__role">{p.role}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   </article>
+
+  <VisitBlock />
 </Layout>
 
 <style>
-  .aj-story-head { padding-top: var(--space-6); padding-bottom: var(--space-5); text-align: center; }
-  .aj-story-head .aj-kicker { display: block; margin-bottom: var(--space-3); }
-  .aj-story-head .aj-headline { max-width: 16em; margin: 0 auto; }
-  .aj-story-head .aj-deck { margin: var(--space-4) auto 0; }
-  .aj-byline { margin-top: var(--space-4); }
-  .aj-story-hero :global(img) { width: 100%; height: min(60vh, 560px); object-fit: cover; }
-  @media (max-width: 720px) { .aj-story-hero :global(img) { height: auto; aspect-ratio: 4 / 3; } .aj-story-hero :global(figcaption) { padding-left: var(--space-4); padding-right: var(--space-4); } }
-  .aj-story-hero :global(figcaption) { max-width: var(--page); margin-left: auto; margin-right: auto; padding-left: var(--space-6); padding-right: var(--space-6); border: 0; }
-  .aj-story-body { display: grid; grid-template-columns: 3fr 9fr; gap: var(--space-5); }
-  .aj-story-side .aj-kicker { display: block; margin-bottom: var(--space-2); }
-  @media (max-width: 860px) { .aj-story-body { grid-template-columns: 1fr; } }
-  .aj-pull blockquote { margin: 0 auto; max-width: 30em; padding: var(--space-4) 0; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); font-style: italic; font-size: clamp(22px, 3vw, 30px); line-height: 1.35; text-align: center; }
-  .aj-sub { font-family: var(--font-label); font-size: 15px; font-weight: 600; letter-spacing: .04em; color: var(--gold-ink); margin: var(--space-4) 0 var(--space-1); }
-  .aj-wrap-rule { max-width: calc(var(--page) - 2 * var(--space-6)); margin: 0 auto; }
-  .aj-invite { text-align: center; }
+  .story-hero { display: grid; grid-template-columns: minmax(0, 1fr); background: var(--surface-primary); }
+  @media (min-width: 1024px) {
+    .story-hero { grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: calc(90vh - var(--nav-height)); }
+  }
+  .story-hero__text { display: grid; align-content: center; justify-items: start; padding: var(--space-9) var(--container-margin); }
+  @media (min-width: 1024px) {
+    .story-hero__text { padding-inline: max(var(--space-6), calc((100vw - var(--container-max)) / 2)) var(--space-8); }
+  }
+  .story-hero__welcome { margin-bottom: var(--space-6); color: var(--brand-gold); }
+  .story-hero__media :global(.photo), .story-hero__media :global(.photo__frame) { height: 100%; }
+  .story-hero__media :global(.photo__frame) { position: relative; aspect-ratio: 4 / 5; }
+  @media (min-width: 1024px) { .story-hero__media :global(.photo__frame) { aspect-ratio: auto; } }
+  .story-hero__media :global(img) { position: absolute; inset: 0; height: 100%; object-fit: cover; }
+
+  .story-standfirst .container { display: grid; justify-items: center; text-align: center; }
+  .story-standfirst .text-body-lg { max-width: var(--measure-prose); font-size: var(--text-heading-lg); line-height: var(--leading-heading-lg); }
+  .story-standfirst .text-caption { margin-top: var(--space-5); color: var(--ink-secondary); }
+  .story-standfirst { padding-bottom: var(--space-8); }
+
+  .story-chapter { padding-block: var(--space-8); }
+  .story-chapter :global(h3) { margin-top: var(--space-6); }
+  .story-chapter :global(h3 + p) { margin-top: var(--space-2); }
+
+  .story-quote { padding: var(--space-8) var(--container-margin); text-align: center; }
+  .story-quote blockquote { max-width: 28ch; margin-inline: auto; color: var(--brand-maroon); }
+
+  .people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7) var(--grid-gutter); margin-top: var(--space-7); }
+  @media (min-width: 1024px) { .people { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .people__card { display: grid; gap: var(--space-2); align-content: start; }
+  .people__frame { display: grid; place-items: center; aspect-ratio: 4 / 5; margin-bottom: var(--space-3); background: var(--surface-sunken); border-radius: var(--radius-lg); }
+  .people__frame :global(.motif) { opacity: var(--motif-opacity); }
+  .people__role { color: var(--ink-secondary); }
 </style>
