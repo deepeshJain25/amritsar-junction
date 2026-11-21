@@ -21,12 +21,12 @@ import saag from '../assets/photos/sarson-ka-saag.jpg';
 import hero from '../assets/photos/tandoor-skewers.jpg';
 
 const all = (await getMenu()).flatMap((c) => c.items);
-// Featured dishes, matched by their POS name, each with its photograph. One renamed or removed in the POS is left out.
+// Featured dishes, matched by their name in src/content/menu.ts, each with its photograph. One renamed or removed there is left out.
 const featured = [
   { name: 'Aloo Kulcha', image: kulchaThali, alt: 'An Amritsari kulcha on a brass thali with chole, white butter and pickle' },
-  { name: 'Amritsari Special Chole', image: kulchaPlate, alt: 'A tray of dark Amritsari chole beside a charred kulcha topped with butter' },
+  { name: 'Amritsari Chole', image: kulchaPlate, alt: 'A tray of dark Amritsari chole beside a charred kulcha topped with butter' },
   { name: 'Dal Makhni', image: dal, alt: 'A ladle lifting creamy dal makhani from a dark bowl, swirled with cream' },
-  { name: 'Sarson Ka Saag - Amritsari Special', image: saag, alt: 'Sarson ka saag topped with white butter, with makki di roti and radish' },
+  { name: 'Sarson Ka Saag', image: saag, alt: 'Sarson ka saag topped with white butter, with makki di roti and radish' },
   { name: 'Paneer Bhurji', image: bhurji, alt: 'Paneer bhurji in a silver dish with red onion, coriander and lime' },
   { name: 'Tandoori Chicken Tikka', image: hero, alt: 'Chicken tikka and paneer skewers over glowing coals' },
 ]

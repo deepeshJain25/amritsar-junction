@@ -8,30 +8,31 @@ import VisitBlock from '../components/sections/VisitBlock.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { getMenu } from '../lib/menu';
-import jalebi from '../assets/photos/jalebi-street.jpg';
+import kulchaPair from '../assets/photos/kulcha-pair.jpg';
 import kulcha from '../assets/photos/kulcha-plate.jpg';
 import saag from '../assets/photos/sarson-ka-saag.jpg';
 import skewers from '../assets/photos/tandoor-skewers.jpg';
 
-// Dishes, prices and descriptions come from the POS storefront API at build time.
+// Dishes, prices and descriptions come from src/content/menu.ts, which follows the printed menu card.
 const chapters = await getMenu();
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const count = chapters.reduce((n, c) => n + c.items.length, 0);
 
-// The sub-nav names eight courses; each jumps to the first POS chapter of that course. A course whose chapter is missing is left out.
+// The sub-nav names nine courses; each jumps to the first POS chapter of that course. A course whose chapter is missing is left out.
 const courses = [
   ['Chaat', 'chaats'],
-  ['Kulcha', 'amritsari-special-kulcha'],
-  ['Tandoor', 'entree-vegetarian'],
-  ['Curries', 'veg-mains'],
+  ['Tandoor', 'vegetarian-entrees'],
+  ['Curries', 'vegetarian-mains'],
+  ['Specials', 'amritsari-specials'],
+  ['Kulcha', 'kulchas-stuffed-breads'],
   ['Breads', 'breads'],
-  ['Rice', 'tandoori-dum-biryani'],
-  ['Sweets', 'dessert'],
+  ['Rice', 'biryani'],
+  ['Sweets', 'desserts'],
   ['Drinks', 'drinks'],
 ].filter(([, id]) => chapters.some((c) => c.id === id));
 
 // Ingredient strips open these chapters, breaking the long read into courses.
-const strips: Record<string, ImageMetadata> = { 'non-veg-entree': skewers, 'veg-mains': saag, dessert: jalebi };
+const strips: Record<string, ImageMetadata> = { 'non-vegetarian-entrees': skewers, 'vegetarian-mains': saag, 'kulchas-stuffed-breads': kulchaPair };
 
 // The whole menu as schema.org Menu, so Google can read every dish, its price and dietary note.
 const menuSchema = {

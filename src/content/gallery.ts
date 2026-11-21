@@ -3,8 +3,6 @@ import kulchaChole from '../assets/photos/kulcha-chole.jpg';
 import kulchaPair from '../assets/photos/kulcha-pair.jpg';
 import kulchaThali from '../assets/photos/kulcha-thali.jpg';
 import dal from '../assets/photos/dal-makhani.jpg';
-import jalebiStreet from '../assets/photos/jalebi-street.jpg';
-import jalebi from '../assets/photos/jalebi.jpg';
 import bhurji from '../assets/photos/paneer-bhurji.jpg';
 import saag from '../assets/photos/sarson-ka-saag.jpg';
 import skewers from '../assets/photos/tandoor-skewers.jpg';
@@ -63,7 +61,7 @@ export const essays: Essay[] = [
       "The tandoori chicken the world knows was popularised after Partition, when Punjabi cooks who had fled Peshawar brought their ovens to Delhi. Today the same fire gives us paneer tikka in a red yoghurt marinade, malai tikka mellow with cream and cardamom, seekh kebabs dripping with spice and soya chap blistered like street food. Every one carries the same signature: the taste of smoke. Squeeze over some lemon, add a spoon of cool mint chutney and a few rings of raw onion, and you have the whole of Punjab on one plate.",
     ],
     photos: [
-      { src: skewers, alt: 'Skewers of paneer, chicken tikka and seekh kebab over glowing coals, wrapped in smoke', caption: 'Paneer, chicken tikka, hariyali and seekh kebab, side by side over the coals.' },
+      { src: skewers, alt: 'Skewers of paneer, chicken tikka and seekh kebab over glowing coals, wrapped in smoke', caption: 'Paneer, chicken tikka and seekh kebab, side by side over the coals.' },
     ],
   },
   {
@@ -111,22 +109,6 @@ export const essays: Essay[] = [
     ],
     photos: [
       { src: bhurji, alt: 'Paneer bhurji in an ornate silver dish, garnished with tomato, red onion, coriander and lime', caption: 'Paneer bhurji with red onion, coriander and a wedge of lime.' },
-    ],
-  },
-  {
-    id: 'jalebi',
-    kicker: 'Jalebi',
-    title: 'A thousand years of spirals',
-    deck: 'Crisp, syrupy and best eaten hot from the pan.',
-    body: [
-      'Jalebi is older than almost anything else on a Punjabi table, and it came from far away. Its ancestor, zulbiya, appears in an Arabic cookbook from the tenth century: a fermented batter fried in spirals and soaked in syrup or honey. Persian and Turkish traders carried it east, and by the fifteenth century Indian writers were describing it at feasts.',
-      "India made it its own. The batter of flour and yoghurt is left to ferment until it is gently sour, then piped by hand in quick, looping spirals into a wide pan of hot ghee. When the coils are golden and crisp they are plunged straight into a warm syrup scented with cardamom, saffron or rose water, and lifted out glistening and bright orange.",
-      'The best jalebi is eaten within minutes: the outside shatters, the hollow inside floods your mouth with syrup, and the faint tang of the fermented batter keeps it from being merely sweet. In Amritsar, jalebi shops do brisk trade from morning until night, and on winter evenings people eat them hot with a bowl of thick, cold rabri.',
-      'At any Punjabi wedding, festival or celebration, a tray of jalebi is how you say: today is a good day.',
-    ],
-    photos: [
-      { src: jalebiStreet, alt: 'A tall pile of bright orange jalebi on a wide iron pan at a sweet stall', caption: 'Fresh jalebi piled high at a sweet stall.' },
-      { src: jalebi, alt: 'Glistening jalebi spirals in syrup, topped with slivers of pistachio', caption: 'Soaked in syrup and finished with pistachio.' },
     ],
   },
 ];

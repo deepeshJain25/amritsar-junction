@@ -8,7 +8,6 @@ import Input from '../components/ui/Input.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { confirmed } from '../lib/seo';
-import jalebi from '../assets/photos/jalebi-street.jpg';
 import bhurji from '../assets/photos/paneer-bhurji.jpg';
 import kulchaChole from '../assets/photos/kulcha-chole.jpg';
 
@@ -19,7 +18,7 @@ const formats = [
     min: '[10]',
     price: '[$00 per head]',
     for: 'Birthdays, house parties, office lunches and family get-togethers.',
-    includes: ['Choice of 2 curries from the menu', 'Dal makhani or dal tadka', 'Jeera rice or pulao', 'Naan, roti or lachha paratha', 'Raita, salad and pickle'],
+    includes: ['Choice of 2 curries from the menu', 'Dal makhani or dal tadka', 'Jeera rice or pulao', 'Naan, roti or lacha paratha', 'Raita, salad and pickle'],
   },
   {
     name: 'Full functions',
@@ -35,7 +34,7 @@ const formats = [
     min: '[25]',
     price: '[$00 per head]',
     for: 'Kirtans, akhand path bhog, gurpurab and community gatherings.',
-    includes: ['A fully vegetarian menu', 'No onion or garlic on request', 'Dal, chole and two seasonal sabzis', 'Rice, roti or fresh kulchas', 'Kheer or gulab jamun, and masala chai'],
+    includes: ['A fully vegetarian menu', 'No onion or garlic on request', 'Dal, chole, palak paneer and malai kofta', 'Rice, roti or fresh kulchas', 'Rasmalai or gulab jamun, and masala chai'],
   },
 ];
 
@@ -47,7 +46,7 @@ const samples = [
       ['To begin', 'Papdi chaat, aloo tikki, tandoori paneer tikka, soya chap tikka'],
       ['Mains', 'Dal makhani, Amritsari chole, paneer tikka butter masala, sarson ka saag in winter'],
       ['Rice and bread', 'Jeera rice, Amritsari kulchas, butter naan'],
-      ['Sweet', 'Gulab jamun, hot jalebi'],
+      ['Sweet', 'Gulab jamun, rasmalai'],
     ],
   },
   {
@@ -55,8 +54,8 @@ const samples = [
     label: 'Mixed',
     courses: [
       ['To begin', 'Amritsari fish, tandoori chicken tikka, malai paneer tikka'],
-      ['Mains', 'Butter chicken, dal makhani, Amritsari chole, a seasonal vegetable'],
-      ['Rice and bread', 'Tandoori dum biryani, butter naan, lachha paratha'],
+      ['Mains', 'Butter chicken, dal makhni, Amritsari chole, kadai paneer'],
+      ['Rice and bread', 'Chicken biryani, butter naan, lacha paratha'],
       ['Sweet', 'Gulab jamun, rasmalai'],
     ],
   },
@@ -89,8 +88,8 @@ const faqSchema = {
   schema={faqSchema.mainEntity.length ? [faqSchema] : []}
 >
   <Hero
-    image={jalebi}
-    alt="A tall pile of bright orange jalebi on a wide iron pan at a sweet stall"
+    image={kulchaChole}
+    alt="A stack of tandoor-baked kulchas with a bowl of chole behind"
     eyebrow="Catering & events"
     title="Punjabi food, by the tray or by the function"
     standfirst="From a tray of butter chicken for the office to a full wedding spread with a chaat counter, we cook for ten guests or a whole hall."
