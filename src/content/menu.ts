@@ -26,7 +26,7 @@ export interface MenuSection {
 export const menu: MenuSection[] = [
   {
     title: "Chaats",
-    deck: "Street food from the lanes around the Golden Temple: crisp, tangy, sweet and cold all in one bite.",
+    deck: "Street food from the old streets of Amritsar: crisp, tangy, sweet and cold all in one bite.",
     veg: true,
     dishes: [
       { name: "Pani Puri", desc: "Six crisp hollow puris filled with spiced potato and chickpeas, served with tangy mint and tamarind water.", price: 8.99, options: ["6 pcs"] },

@@ -3,7 +3,7 @@
 // shows, after these, just without an intro; renaming one in the POS drops its intro until it is renamed here too.
 // Dishes, prices and descriptions all come from the storefront API, not from this file.
 export const sectionCopy: Record<string, string> = {
-  Chaats: 'Street food from the lanes around the Golden Temple: crisp, tangy, sweet and cold all in one bite.',
+  Chaats: 'Street food from the old streets of Amritsar: crisp, tangy, sweet and cold all in one bite.',
   'Entrée Vegetarian': "Paneer and soya chap, marinated and kissed by the tandoor's fire.",
   Momo: 'Hand-folded dumplings, steamed, fried or tossed in the wok.',
   'Indo Chinese Veg': 'The wok-tossed food every Punjabi grows up craving: hot, glossy and loud with garlic.',
