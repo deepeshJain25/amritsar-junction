@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import site from '../../content/site.json';
+import banner from '../../assets/logo-banner.webp';
 import Button from './Button.astro';
 import Wordmark from './Wordmark.astro';
 
@@ -18,7 +20,7 @@ const current = (href: string) => (href === path ? 'page' : undefined);
 <header class:list={['nav', mode === 'overlay' ? 'surface-image' : 'surface-primary']} data-nav data-mode={mode}>
   <div class="nav__bar container">
     <a class="nav__brand" href="/" aria-label={`${site.name}, home`}>
-      <img class="nav__badge" src="/logo/badge.svg" alt="" width="56" height="56" decoding="async" />
+      <Image class="nav__banner" src={banner} alt="" widths={[280, 360, 560, 720, 1080]} sizes="(min-width: 1024px) 312px, 260px" loading="eager" fetchpriority="high" />
     </a>
     <nav class="nav__links" aria-label="Main">
       <ul role="list">
@@ -105,10 +107,22 @@ const current = (href: string) => (href === path ? 'page' : undefined);
   .nav[data-mode="overlay"]:not(.is-solid) { background: var(--scrim-nav); }
 
   .nav__bar { display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
-  .nav__brand { display: inline-flex; align-items: center; min-height: var(--touch-target); text-decoration: none; margin-right: auto; }
-  /* The round badge sits inside the bar with a few pixels to spare: 48px on phones, 56px from lg. */
-  .nav__badge { display: block; width: 48px; height: 48px; }
-  @media (min-width: 1024px) { .nav__badge { width: 56px; height: 56px; } }
+  /* The brand banner fills the bar from top to bottom. It bleeds out to the left edge of the window: the gap
+     between the window and the container is filled with the banner's own left-edge green, so it reads as one band
+     that ends cleanly before the links. */
+  .nav__brand {
+    --bleed: calc((100vw - min(100vw, var(--container-max) + 2 * var(--container-margin))) / 2 + var(--container-margin));
+    display: flex;
+    align-self: stretch;
+    margin-left: calc(-1 * var(--bleed));
+    padding-left: max(0px, var(--bleed) - var(--container-margin));
+    margin-right: auto;
+    background: #132015;
+    text-decoration: none;
+  }
+  .nav__banner { display: block; height: 100%; width: auto; max-width: none; }
+  /* Very narrow phones: stop at the menu button rather than squeeze it. */
+  @media (max-width: 359px) { .nav__banner { height: auto; width: calc(100vw - var(--touch-target) - var(--space-4)); object-fit: contain; align-self: center; } }
 
   .nav__links { display: none; }
   .nav__links ul { display: flex; gap: var(--space-5); }
