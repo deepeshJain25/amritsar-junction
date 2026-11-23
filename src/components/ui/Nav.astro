@@ -17,7 +17,7 @@ const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
 const current = (href: string) => (href === path ? 'page' : undefined);
 ---
 
-<header class:list={['nav', mode === 'overlay' ? 'surface-image' : 'surface-primary']} data-nav data-mode={mode}>
+<header class="nav surface-image" data-nav data-mode={mode}>
   <div class="nav__bar container">
     <a class="nav__brand" href="/" aria-label={`${site.name}, home`}>
       <Image class="nav__banner" src={banner} alt="" widths={[280, 360, 560, 720, 1080]} sizes="(min-width: 1024px) 312px, 260px" loading="eager" fetchpriority="high" />
@@ -65,8 +65,6 @@ const current = (href: string) => (href === path ? 'page' : undefined);
       const scrolled = window.scrollY > 0;
       const solid = hero ? window.scrollY > hero.offsetHeight * 0.8 - nav.offsetHeight : true;
       nav.classList.toggle('is-solid', solid);
-      nav.classList.toggle('surface-primary', solid);
-      nav.classList.toggle('surface-image', !solid);
       nav.classList.toggle('is-raised', solid && scrolled);
     };
     window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
@@ -96,33 +94,34 @@ const current = (href: string) => (href === path ? 'page' : undefined);
     position: sticky;
     top: 0;
     z-index: 40;
-    background: var(--surface-primary);
-    transition: background-color var(--duration-slow) var(--ease-out), box-shadow var(--duration-slow) var(--ease-out), color var(--duration-slow) var(--ease-out);
+    /* The green behind the brand banner, taken from the banner's own edges, so the bar and the banner read as one band. */
+    --nav-green: #132015;
+    background: var(--nav-green);
+    transition: box-shadow var(--duration-slow) var(--ease-out);
   }
-  /* Over a hero the header floats on the photo. Without JavaScript it scrolls away with the hero instead of staying fixed and unreadable. */
-  .nav[data-mode="overlay"] { position: absolute; inset: 0 0 auto 0; background: transparent; }
+  /* Over a hero the header sits on top of the photo. Without JavaScript it scrolls away with the hero. */
+  .nav[data-mode="overlay"] { position: absolute; inset: 0 0 auto 0; }
   :global(.js) .nav[data-mode="overlay"] { position: fixed; }
-  .nav.is-solid { background: var(--surface-primary); }
   .nav.is-raised { box-shadow: var(--elev-1); }
-  .nav[data-mode="overlay"]:not(.is-solid) { background: var(--scrim-nav); }
 
-  .nav__bar { display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
-  /* The brand banner fills the bar from top to bottom. It bleeds out to the left edge of the window: the gap
-     between the window and the container is filled with the banner's own left-edge green, so it reads as one band
-     that ends cleanly before the links. */
-  .nav__brand {
-    --bleed: calc((100vw - min(100vw, var(--container-max) + 2 * var(--container-margin))) / 2 + var(--container-margin));
-    display: flex;
-    align-self: stretch;
-    margin-left: calc(-1 * var(--bleed));
-    padding-left: max(0px, var(--bleed) - var(--container-margin));
-    margin-right: auto;
-    background: #132015;
-    text-decoration: none;
+  .nav__bar { position: relative; display: flex; align-items: center; gap: var(--space-6); height: var(--nav-height); }
+  /* The banner fills the bar from top to bottom, centred in the space left of the links and buttons.
+     Its left and right edges fade into the bar's green so the gold pattern has no hard cut. */
+  .nav__brand { display: flex; justify-content: center; align-self: stretch; flex: 1; min-width: 0; text-decoration: none; }
+  .nav__banner {
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
   }
-  .nav__banner { display: block; height: 100%; width: auto; max-width: none; }
-  /* Very narrow phones: stop at the menu button rather than squeeze it. */
-  @media (max-width: 359px) { .nav__banner { height: auto; width: calc(100vw - var(--touch-target) - var(--space-4)); object-fit: contain; align-self: center; } }
+  /* Phones: the banner is centred on the screen itself, with the menu button on top at the right. */
+  @media (max-width: 639px) {
+    .nav__brand { position: absolute; inset: 0; }
+    .nav__toggle { position: relative; margin-left: auto; }
+    .nav__banner { max-width: calc(100% - 2 * var(--touch-target)); }
+  }
 
   .nav__links { display: none; }
   .nav__links ul { display: flex; gap: var(--space-5); }
