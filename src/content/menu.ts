@@ -1,4 +1,5 @@
-// The menu, section by section, as printed on the restaurant's menu card. The order here is the order on the page.
+// The menu as printed on the restaurant's menu card. The site's dishes and prices come from the POS storefront API
+// (src/lib/menu.ts); this file only supplies descriptions for POS dishes that have none, matched by name.
 // Prices are in AUD. A dish with sizes shows "From" its cheapest. `veg` on a section applies to every dish in it
 // unless the dish sets its own; a wrong "Veg" tag is a dietary risk, so check it whenever a dish is added.
 // `estimate: true` marks a price we set from typical Sydney prices because the restaurant has not confirmed one yet.
