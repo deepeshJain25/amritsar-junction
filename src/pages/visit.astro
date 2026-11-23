@@ -15,7 +15,8 @@ import saag from '../assets/photos/sarson-ka-saag.jpg';
 // The map searches by the full address once it is confirmed, and by the restaurant's name until then.
 const mapSearch = confirmed(site.address) ? `${site.name}, ${site.address}` : site.mapQuery;
 const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(mapSearch)}&output=embed`;
-const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapSearch)}`;
+// "Get directions" opens the restaurant's own Google Maps pin.
+const directions = site.mapUrl;
 
 const times = ['12:00', '12:30', '13:00', '13:30', '14:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
 const label = (t: string) => {

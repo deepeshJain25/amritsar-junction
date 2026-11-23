@@ -51,6 +51,8 @@ export function restaurantSchema(siteUrl: URL, image?: string, logo?: string) {
           addressCountry: 'AU',
         }
       : undefined,
+    geo: { '@type': 'GeoCoordinates', latitude: site.geo.latitude, longitude: site.geo.longitude },
+    hasMap: site.mapUrl,
     openingHoursSpecification: hours,
   });
 }
