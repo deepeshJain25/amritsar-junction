@@ -22,7 +22,7 @@
   "parking": "[Street parking on the surrounding streets, and a public car park a short walk away.]",
   "transport": "[Nearest train station and bus stop.]",
   "mapQuery": "Amritsar Junction Indian Restaurant",
-  "orderUrl": "/visit#order",
+  "orderUrl": "/menu",
   "bookingUrl": "/visit#reserve",
   "nav": [
     { "label": "The Table", "href": "/" },

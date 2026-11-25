@@ -123,14 +123,10 @@ const current = (href: string) => (href === path ? 'page' : undefined);
     object-fit: contain;
     mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
   }
-  /* Phones: the banner is centred on the screen itself, with the basket and menu buttons on top at the right. */
+  /* Phones: the banner sits at the left edge, with the basket and menu buttons at the right. */
   @media (max-width: 639px) {
-    .nav__brand { position: absolute; inset: 0; }
-    .nav__bar .nav__cart { position: relative; margin-left: auto; }
-    .nav__toggle { position: relative; }
-    /* Clear of the basket and menu buttons on the right, and centred, so the same space is kept on the left. */
     .nav__bar { gap: var(--space-2); }
-    .nav__banner { max-width: calc(100% - 4 * var(--touch-target) - 2 * var(--space-2)); }
+    .nav__brand { justify-content: flex-start; }
   }
 
   .nav__links { display: none; }

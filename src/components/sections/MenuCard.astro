@@ -22,10 +22,8 @@ const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.
 <li class:list={['menu-card', image && 'menu-card--photo']} data-nonveg={dish.veg ? undefined : ''}>
   {image && <Photo src={image} alt={alt} aspect="4 / 3" radius="lg-top" sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw" />}
   <div class="menu-card__body">
-    <div class="menu-card__head">
-      <Heading class="text-heading-md">{dish.name}</Heading>
-      {dish.price && <p class="menu-card__price text-tabular">{dish.price}</p>}
-    </div>
+    <Heading class="text-heading-md menu-card__name">{dish.name}</Heading>
+    {dish.price && <p class="menu-card__price text-tabular">{dish.price}</p>}
     {dish.desc && <p class="text-body-sm menu-card__desc">{dish.desc}</p>}
     {(dish.veg || tags.length > 0) && (
       <ul class="menu-card__tags" role="list">
@@ -54,14 +52,37 @@ const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.
   }
   .menu-card:hover { box-shadow: var(--elev-inset), var(--elev-1); }
   .menu-card:hover :global(img) { transform: scale(1.03); }
-  .menu-card__body { display: grid; gap: var(--space-3); padding: var(--space-5); }
+  /* Name and price share the top row; on phones the price drops to the bottom row, beside Add. */
+  .menu-card__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name price" "desc desc" "tags tags" "order order";
+    align-items: baseline;
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-5);
+  }
+  .menu-card__name { grid-area: name; }
+  .menu-card__price { grid-area: price; margin: 0; text-align: right; }
+  .menu-card__desc { grid-area: desc; color: var(--ink-secondary); }
+  .menu-card__tags { grid-area: tags; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); margin-top: var(--space-1); }
   /* The Add control sits at the bottom right of the card. */
-  .menu-card__order { display: none; justify-content: flex-end; align-self: end; margin-top: var(--space-2); }
+  .menu-card__order { grid-area: order; display: none; justify-content: flex-end; align-self: end; margin-top: var(--space-2); }
   :global(.js) .menu-card__order { display: flex; }
-  .menu-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
-  .menu-card__price { flex: none; margin: 0; text-align: right; }
-  .menu-card__desc { color: var(--ink-secondary); }
-  .menu-card__tags { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-4); margin-top: var(--space-1); }
+  @media (max-width: 639px) {
+    .menu-card__body {
+      /* Price with the Veg tag under it on the left, Add on the right across both rows. */
+      grid-template-areas: "name name" "desc desc" "price order" "tags order";
+      align-items: center;
+      gap: var(--space-1) var(--space-4);
+      padding: var(--space-4);
+    }
+    .menu-card__price { text-align: left; font-weight: var(--weight-medium); }
+    /* Two lines of description on phones, so more dishes fit on screen. */
+    .menu-card__desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+    .menu-card__desc { margin-bottom: var(--space-2); }
+    .menu-card__tags { margin-top: 0; }
+    .menu-card__order { margin-top: 0; }
+  }
   .menu-card__veg { color: var(--brand-emerald); }
   .menu-card__opt { color: var(--ink-secondary); }
   @media (prefers-reduced-motion: reduce) {
