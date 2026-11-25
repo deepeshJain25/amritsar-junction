@@ -4,6 +4,8 @@ import { fetchMenu, type ApiMenuItem } from './storefront';
 
 export interface Dish {
   id: number;
+  /** Stable key for the cart and catalog, from the full POS name, e.g. "veg-momo-steam-fried". */
+  sku: string;
   name: string;
   desc: string;
   veg: boolean;
@@ -13,7 +15,8 @@ export interface Dish {
   /** Plain number for structured data, e.g. "18.99". */
   amount?: string;
   /** Size choices from the POS, cheapest first. When present, `price` reads "From $x". */
-  sizes?: { name: string; price: string }[];
+  /** `id` is the POS menu item to order for that size: the POS lists each size as its own item. */
+  sizes?: { id: number; name: string; price: string }[];
   /** Whether the POS allows this item to be ordered online. */
   purchasable: boolean;
 }
@@ -56,19 +59,20 @@ const printedDesc = new Map(
 
 function toDish(item: ApiMenuItem, category: string): Dish {
   const sizes = item.size_options
-    .map((s) => ({ name: s.size_tier_name, n: Number(s.price) }))
+    .map((s) => ({ id: s.id, name: s.size_tier_name, n: Number(s.price) }))
     .filter((s) => s.n > 0)
     .sort((a, b) => a.n - b.n);
   const n = sizes.length ? sizes[0].n : Number(item.price);
   const named = splitName(item.name.trim());
   return {
     id: item.id,
+    sku: slug(item.name),
     ...named,
     desc: item.description.trim() || printedDesc.get(key(named.name)) || printedDesc.get(key(item.name)) || '',
     veg: isVeg(item, category),
     price: n > 0 ? (sizes.length > 1 ? `From ${money(n)}` : money(n)) : undefined,
     amount: n > 0 ? n.toFixed(2) : undefined,
-    sizes: sizes.length ? sizes.map((s) => ({ name: s.name, price: s.n.toFixed(2) })) : undefined,
+    sizes: sizes.length ? sizes.map((s) => ({ id: s.id, name: s.name, price: s.n.toFixed(2) })) : undefined,
     purchasable: item.is_purchasable,
   };
 }

@@ -1,7 +1,10 @@
 ---
 // One dish: an optional 4:3 photograph, then name and price on one row, the description, and tags.
 // Dishes come from the POS storefront API (see src/lib/menu.ts); photographs are matched in the page.
+// A dish with a price gets an "Add" button, wired up by components/order/OrderUI.astro; it needs JavaScript,
+// so without it the button stays hidden and the menu reads as before.
 import type { Dish } from '../../lib/menu';
+import { toCatalogItem } from '../../lib/order/catalog';
 import Photo from '../Photo.astro';
 
 interface Props {
@@ -12,6 +15,7 @@ interface Props {
 }
 
 const { dish, image, alt = '', as: Heading = 'h3' } = Astro.props;
+const item = toCatalogItem(dish, '');
 const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.name} $${s.price}`).join(' · '), dish.options].filter(Boolean);
 ---
 
@@ -29,6 +33,13 @@ const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.
         {tags.map((t) => <li class="text-body-sm menu-card__opt">{t}</li>)}
       </ul>
     )}
+    {item && (
+      <div class="menu-card__order" data-order-item={JSON.stringify({ sku: item.sku, name: item.name, price: item.price, variants: item.variants })}>
+        <button type="button" class="btn btn--secondary order-add" data-order-add data-focus={`inc:${item.sku}`}>
+          <span aria-hidden="true">+</span> Add<span class="sr-only"> {dish.name}</span>
+        </button>
+      </div>
+    )}
   </div>
 </li>
 
@@ -44,6 +55,9 @@ const tags = [dish.sizes && dish.sizes.length > 1 && dish.sizes.map((s) => `${s.
   .menu-card:hover { box-shadow: var(--elev-inset), var(--elev-1); }
   .menu-card:hover :global(img) { transform: scale(1.03); }
   .menu-card__body { display: grid; gap: var(--space-3); padding: var(--space-5); }
+  /* The Add control sits at the bottom right of the card. */
+  .menu-card__order { display: none; justify-content: flex-end; align-self: end; margin-top: var(--space-2); }
+  :global(.js) .menu-card__order { display: flex; }
   .menu-card__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
   .menu-card__price { flex: none; margin: 0; text-align: right; }
   .menu-card__desc { color: var(--ink-secondary); }

@@ -1,0 +1,24 @@
+---
+// The ordering layer on every page: the cart drawer (768px and up), the choice sheet for dishes
+// with sizes or styles, and the "added" toast. Behaviour lives in src/lib/order/ui.ts; without
+// JavaScript none of it shows and the basket icon is a plain link to /cart.
+---
+
+<dialog class="cart-drawer surface-raised" id="cart-drawer" aria-labelledby="cart-drawer-title">
+  <div class="cart-drawer__head">
+    <div>
+      <p class="eyebrow text-meta">Your basket</p>
+      <h2 class="text-heading-md" id="cart-drawer-title">Your order</h2>
+    </div>
+    <button class="cart-drawer__close" type="button" data-cart-close><span class="sr-only">Close basket</span><span aria-hidden="true">×</span></button>
+  </div>
+  <div class="cart-drawer__body" id="cart-drawer-view" data-cart-view></div>
+</dialog>
+
+<dialog class="variant-sheet surface-raised" id="variant-sheet" aria-labelledby="variant-title"></dialog>
+
+<div class="order-toast surface-inverse-warm text-body-sm" role="status" aria-live="polite" data-order-toast></div>
+
+<script>
+  import '../../lib/order/ui';
+</script>

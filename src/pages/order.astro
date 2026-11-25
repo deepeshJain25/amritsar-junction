@@ -1,0 +1,184 @@
+---
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+import thali from '../assets/photos/kulcha-thali.jpg';
+import { getImage } from 'astro:assets';
+
+// The order status page. The ordering Worker serves this one page for every /order/<id>; the script reads
+// the id from the address and asks /api/orders/<id>. Three states share one layout (eyebrow, heading,
+// summary, actions) so moving from waiting to success reads as one moment: waiting, success and error.
+const photo = await getImage({ src: thali, width: 720, format: 'webp' });
+---
+
+<Layout title="Your order" description="The status of your Amritsar Junction order." crumb="Your order" noindex>
+  <section class="section status" data-order-status data-phone={site.phone} data-phone-href={site.phoneHref} aria-live="polite">
+    <div class="container status__inner">
+      <div class="status__head">
+        <span class="status__mark" aria-hidden="true"></span>
+        <svg class="status__check" viewBox="0 0 56 56" width="56" height="56" aria-hidden="true" focusable="false">
+          <circle cx="28" cy="28" r="28" />
+          <path d="m17 29 7 7 15-16" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <p class="eyebrow text-meta" data-eyebrow>Your order</p>
+        <h1 class="text-display-md" data-heading tabindex="-1">Looking up your order…</h1>
+        <p class="text-body-lg status__lede" data-lede></p>
+      </div>
+      <div class="status__body" data-body></div>
+      <div class="btn-row status__actions" data-actions></div>
+      <p class="text-body-sm status__help">Anything wrong, or plans changed? Call us on <a href={site.phoneHref}>{site.phone}</a>.</p>
+    </div>
+    <img class="status__photo" src={photo.src} alt="" width="720" height={Math.round((720 * thali.height) / thali.width)} loading="lazy" decoding="async" data-photo hidden />
+  </section>
+</Layout>
+
+<script>
+  import { money } from '../lib/order/catalog';
+  import * as cart from '../lib/order/cart';
+  import type { OrderView } from '../lib/order/api';
+  import { h } from '../lib/order/dom';
+  import { describeSlot } from '../lib/order/slots';
+  import { track } from '../lib/order/track';
+
+  const root = document.querySelector<HTMLElement>('[data-order-status]')!;
+  const $ = (k: string) => root.querySelector<HTMLElement>(`[data-${k}]`)!;
+  const id = location.pathname.split('/').filter(Boolean)[1] ?? '';
+  const phone = root.dataset.phone!;
+  const phoneHref = root.dataset.phoneHref!;
+
+  let polls = 0;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let lastState = '';
+
+  function summary(o: OrderView) {
+    const when = describeSlot(o.fulfilment.slot);
+    return h(
+      'div',
+      { class: 'status__summary' },
+      h(
+        'dl',
+        { class: 'status__facts' },
+        h('div', {}, h('dt', { class: 'text-meta' }, 'Order'), h('dd', { class: 'text-tabular' }, o.id)),
+        h('div', {}, h('dt', { class: 'text-meta' }, o.fulfilment.type === 'delivery' ? 'Delivery' : 'Pickup'), h('dd', {}, o.fulfilment.type === 'delivery' ? `${when}, to ${o.fulfilment.address}` : `${when}, from our door`)),
+        o.kitchenNote && h('div', {}, h('dt', { class: 'text-meta' }, 'Note for the kitchen'), h('dd', {}, o.kitchenNote)),
+      ),
+      h(
+        'ul',
+        { class: 'summary__lines', role: 'list' },
+        ...o.lines.map((l) =>
+          h('li', {}, h('span', {}, `${l.qty} × ${l.name}`, l.variantLabels.length > 0 && h('span', { class: 'summary__meta' }, ` · ${l.variantLabels.join(', ')}`), l.note && h('span', { class: 'summary__meta' }, ` · “${l.note}”`)), h('span', { class: 'text-tabular' }, money(l.lineTotal))),
+        ),
+      ),
+      h(
+        'dl',
+        { class: 'cart__totals' },
+        h('div', {}, h('dt', {}, 'Subtotal'), h('dd', { class: 'text-tabular' }, money(o.subtotal))),
+        o.deliveryFee > 0 && h('div', {}, h('dt', {}, 'Delivery'), h('dd', { class: 'text-tabular' }, money(o.deliveryFee))),
+        h('div', { class: 'cart__grand' }, h('dt', {}, 'Total'), h('dd', { class: 'text-tabular' }, money(o.total))),
+      ),
+      h('p', { class: 'cart__gst text-body-sm' }, 'Prices include GST.'),
+    );
+  }
+
+  function show(o: OrderView | null, failure?: string) {
+    const state = o ? `${o.state}:${o.reason ?? ''}` : 'missing';
+    root.dataset.state = o?.state ?? 'error';
+    const eyebrow = $('eyebrow');
+    const heading = $('heading');
+    const lede = $('lede');
+    const actions = $('actions');
+    $('photo').hidden = o?.state !== 'success';
+
+    if (!o) {
+      eyebrow.textContent = 'Something went wrong';
+      heading.textContent = 'We could not find that order';
+      lede.textContent = failure ?? 'Check the link in your receipt email, or call us and we will look it up.';
+      $('body').replaceChildren();
+      actions.replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `Call ${phone}`), h('a', { class: 'btn btn--secondary', href: '/menu' }, 'Back to the menu'));
+    } else if (o.state === 'waiting') {
+      eyebrow.textContent = 'Hold tight';
+      heading.textContent = "We're confirming your payment";
+      lede.textContent = polls > 10 ? 'This is taking longer than usual. Refresh in a minute, or call us.' : `Order ${o.id}. We'll refresh this page for you.`;
+      $('body').replaceChildren(summary(o));
+      actions.replaceChildren(...(polls > 10 ? [h('button', { type: 'button', class: 'btn btn--secondary', onClick: () => { polls = 0; load(); } }, 'Refresh')] : []));
+    } else if (o.state === 'success') {
+      eyebrow.replaceChildren(h('span', { lang: 'pa' }, 'ਜੀ ਆਇਆਂ ਨੂੰ'), ' · Welcome');
+      const at = describeSlot(o.fulfilment.slot).replace(' today', '');
+      heading.textContent = o.fulfilment.type === 'delivery' ? "We've got it. On its way." : `We've got it. See you at ${at}.`;
+      lede.textContent = `Thank you, ${o.firstName}. Your receipt is on its way to your email.`;
+      $('body').replaceChildren(summary(o));
+      actions.replaceChildren(h('a', { class: 'btn btn--secondary', href: '/menu' }, 'Back to the menu'));
+      cart.clear();
+    } else {
+      eyebrow.textContent = 'Something went wrong';
+      if (o.reason === 'order_failed') {
+        heading.textContent = "We've received your payment";
+        lede.textContent = "But your order didn't reach our kitchen. Call us and we'll sort it right away.";
+        actions.replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `We've already charged you. Tap to call ${phone}`));
+        cart.clear();
+      } else {
+        heading.textContent = "Your card wasn't charged";
+        lede.textContent = 'Try another card, or call us and we will take your order over the phone.';
+        actions.replaceChildren(h('a', { class: 'btn btn--primary', href: '/checkout' }, 'Try again'), h('a', { class: 'btn btn--secondary', href: phoneHref }, `Call ${phone}`));
+      }
+      $('body').replaceChildren(summary(o));
+    }
+
+    if (state !== lastState) {
+      // Move focus to the new heading so screen readers hear the change, but not on first load.
+      if (lastState) heading.focus();
+      lastState = state;
+      if (o) track('order_status_viewed', { status: o.state, reason: o.reason });
+      if (o?.state === 'success') track('checkout_completed', { order_id: o.id, total: o.total / 100 });
+    }
+  }
+
+  async function load() {
+    clearTimeout(timer);
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, { cache: 'no-store' });
+      if (res.status === 404) return show(null);
+      if (!res.ok) throw new Error(String(res.status));
+      const o = (await res.json()) as OrderView;
+      polls += 1;
+      show(o);
+      // Every 3 seconds for 30 seconds while waiting, then a manual refresh.
+      if (o.state === 'waiting' && polls <= 10) timer = setTimeout(load, 3000);
+    } catch {
+      show(null, 'We could not check your order just now. Check your connection, or call us.');
+    }
+  }
+
+  if (/^aj-[a-z0-9]{8}$/.test(id)) load();
+  else show(null);
+</script>
+
+<style>
+  .status__inner { max-width: calc(640px + 2 * var(--container-margin)); }
+  .status__head { display: grid; justify-items: start; gap: var(--space-2); }
+  .status__head h1:focus { outline: none; }
+  .status__lede { color: var(--ink-secondary); }
+  .status__body { margin-top: var(--space-7); }
+  .status__actions { margin-top: var(--space-7); }
+  .status__help { margin-top: var(--space-6); color: var(--ink-secondary); }
+  .status[data-state="error"] [data-eyebrow] { color: var(--brand-maroon); }
+
+  /* The mark: a thali that pulses slowly while waiting, a check on success. Still when motion is unwelcome. */
+  .status__mark, .status__check { display: none; width: 56px; height: 56px; margin-bottom: var(--space-3); }
+  .status[data-state="waiting"] .status__mark {
+    display: block;
+    border-radius: var(--radius-pill);
+    background: var(--brand-gold-tint);
+    box-shadow: inset 0 0 0 6px var(--surface-primary), inset 0 0 0 7px var(--brand-gold);
+    animation: status-pulse 2.4s var(--ease-in-out) infinite;
+  }
+  .status[data-state="success"] .status__check { display: block; fill: var(--brand-emerald); stroke: var(--ink-on-inverse); }
+  @keyframes status-pulse { 50% { opacity: 0.45; transform: scale(0.94); } }
+  @media (prefers-reduced-motion: reduce) { .status[data-state="waiting"] .status__mark { animation: none; } }
+
+  .status__photo { display: block; width: min(100% - 2 * var(--container-margin), 640px); height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 70%; margin: var(--space-9) auto 0; border-radius: var(--radius-lg); }
+  .status__photo[hidden] { display: none; }
+  /* The summary is built by the script above, so its styles are global. */
+  :global(.status__facts) { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-5); margin: 0 0 var(--space-6); }
+  :global(.status__facts dt) { margin-bottom: var(--space-1); color: var(--brand-emerald); }
+  :global(.status__facts dd) { margin: 0; }
+</style>

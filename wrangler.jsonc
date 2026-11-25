@@ -1,13 +1,34 @@
 // Used by Cloudflare Workers Builds: every push to main on GitHub runs `npm run build`, then `npx wrangler deploy`.
 // Serves the static Astro build from dist/ as the amritsar-junction Worker
-// (https://amritsar-junction.anzunited.workers.dev).
+// (https://amritsar-junction.anzunited.workers.dev), with the ordering Worker (worker/index.ts) in front of
+// /api/* and /order/*. Setup, secrets and local testing: docs/ordering.md.
 // Keep name, compatibility date and observability in step with deploy/cloudflare.config.ts, used by `npm run deploy`.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "amritsar-junction",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-11-04",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/order/*"]
+  },
+  // Orders. Create the database once with `npx wrangler d1 create amritsar-junction-orders`,
+  // paste the id it prints below, then `npx wrangler d1 migrations apply amritsar-junction-orders --remote`.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "amritsar-junction-orders",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Public settings. Stripe keys are secrets: `npx wrangler secret put STRIPE_SECRET_KEY` (and the others).
+  "vars": {
+    "STOREFRONT_API_URL": "https://dev.chaseintel.com.au/api",
+    "RESTAURANT_ID": "da070da6-42ad-4722-be8d-30a32a80bd41",
+    "POS_FORWARD": "true",
+    "POS_PAYMENT_METHOD": "MANUAL_CASH"
   },
   "observability": {
     "enabled": true

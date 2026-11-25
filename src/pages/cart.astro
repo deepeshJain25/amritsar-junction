@@ -1,0 +1,39 @@
+---
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+
+// The full basket: what the header icon opens on phones, and the step before checkout on any screen.
+---
+
+<Layout title="Your basket" description="Review your order from Amritsar Junction before checkout." crumb="Basket" noindex>
+  <section class="section order-page">
+    <div class="container order-page__inner">
+      <p class="eyebrow text-meta">Your basket</p>
+      <h1 class="text-display-md">Your order</h1>
+      <div class="order-page__view" id="cart-page" data-cart-page>
+        <p class="text-body order-page__loading">Loading your basket…</p>
+      </div>
+      <noscript>
+        <p class="text-body">Ordering online needs JavaScript. Call us on <a href={site.phoneHref}>{site.phone}</a> and we will take your order over the phone.</p>
+      </noscript>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { track } from '../lib/order/track';
+  import { mountCartView } from '../lib/order/view';
+
+  const el = document.querySelector<HTMLElement>('[data-cart-page]');
+  if (el) {
+    mountCartView(el);
+    track('cart_opened', { surface: 'page' });
+  }
+</script>
+
+<style>
+  .order-page__inner { max-width: calc(560px + 2 * var(--container-margin)); }
+  .order-page__view { margin-top: var(--space-7); }
+  .order-page__loading { color: var(--ink-secondary); }
+  :global(html:not(.js)) .order-page__loading { display: none; }
+</style>

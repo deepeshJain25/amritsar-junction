@@ -1,0 +1,14 @@
+# Local settings for the ordering Worker. Copy to .dev.vars (git-ignored) and fill in.
+# `npm run build && npx wrangler dev` reads .dev.vars; it overrides the "vars" in wrangler.jsonc.
+
+# Stripe test keys, from dashboard.stripe.com/test/apikeys. Leave the secret key empty to use mock payments.
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+# From `stripe listen --forward-to localhost:8787/api/webhooks/stripe` (prints a whsec_… secret).
+STRIPE_WEBHOOK_SECRET=
+
+# With no Stripe secret key, fake payments so the whole flow can be tried locally. Never set this in production.
+MOCK_PAYMENTS=true
+
+# Paid orders go to the POS (dev.chaseintel.com.au) and can print a docket. Off locally unless you mean it.
+POS_FORWARD=false

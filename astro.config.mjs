@@ -5,8 +5,8 @@ import { defineConfig, envField } from 'astro/config';
 // The live domain is still to be confirmed. Canonical links, Open Graph URLs and the sitemap all build from `site`.
 export default defineConfig({
   site: 'https://www.amritsarjunction.com.au',
-  // Test pages stay out of the sitemap; they also carry a noindex tag.
-  integrations: [react(), sitemap({ filter: (page) => !page.includes('/order-test') })],
+  // Test and ordering pages stay out of the sitemap; they also carry a noindex tag.
+  integrations: [react(), sitemap({ filter: (page) => !/\/(order-test|cart|checkout|order)\/?$/.test(new URL(page).pathname) })],
   // The menu is fetched from the POS storefront API when the site is built.
   // Override either value with an environment variable or a .env file.
   env: {

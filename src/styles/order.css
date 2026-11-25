@@ -1,0 +1,205 @@
+/* Ordering: menu-card steppers, the choice sheet, the cart drawer and page, the toast, checkout and order status.
+   These elements are built by scripts (src/lib/order/), so their styles are global rather than scoped. */
+
+/* Stepper: "− n +" with 44px round buttons. */
+.qty { display: inline-flex; align-items: center; gap: var(--space-2); }
+.qty__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border: 1px solid var(--ctx-ornament);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ctx-ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.qty__btn:hover:not(:disabled) { background: var(--brand-gold-tint); }
+.qty__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.qty__value { min-width: 2ch; text-align: center; font-weight: var(--weight-medium); }
+.btn.order-add { padding-inline: var(--space-5); }
+
+/* Shared dialog motion: fade in; slide only when motion is welcome. */
+.cart-drawer,
+.variant-sheet {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  max-width: none;
+  max-height: none;
+  box-shadow: var(--elev-2);
+  color: var(--ctx-ink);
+  transition: transform var(--duration-slow) var(--ease-in-out), opacity var(--duration-slow) var(--ease-out), overlay var(--duration-slow) allow-discrete, display var(--duration-slow) allow-discrete;
+}
+.cart-drawer::backdrop,
+.variant-sheet::backdrop { background: var(--scrim-backdrop); }
+
+/* Cart drawer: 400px from the right at md, 420px from lg, with its own scroll. */
+.cart-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(400px, 100vw);
+  height: 100dvh;
+  flex-direction: column;
+  transform: translateX(100%);
+}
+@media (min-width: 1024px) { .cart-drawer { width: 420px; } }
+.cart-drawer[open] { display: flex; transform: none; }
+@starting-style { .cart-drawer[open] { transform: translateX(100%); } }
+.cart-drawer__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-6) var(--space-6) var(--space-4); border-bottom: 1px solid var(--line-primary); }
+.cart-drawer__head .eyebrow { margin-bottom: var(--space-1); }
+.cart-drawer__close,
+.variant-sheet__close { flex: none; width: var(--touch-target); height: var(--touch-target); margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3)) 0 0; background: none; border: 0; font-size: 1.75rem; line-height: 1; color: var(--ctx-ink); cursor: pointer; }
+.cart-drawer__body { flex: 1; overflow-y: auto; padding: var(--space-5) var(--space-6) var(--space-6); }
+
+/* Choice sheet: a bottom sheet on phones, a centred panel from md. */
+.variant-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-height: 90dvh;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transform: translateY(100%);
+}
+.variant-sheet[open] { display: flex; transform: none; }
+@starting-style { .variant-sheet[open] { transform: translateY(100%); } }
+@media (min-width: 768px) {
+  .variant-sheet { inset: 0; margin: auto; width: min(480px, calc(100vw - 2 * var(--space-6))); height: fit-content; border-radius: var(--radius-xl); transform: translateY(var(--space-5)); opacity: 0; }
+  .variant-sheet[open] { opacity: 1; transform: none; }
+  @starting-style { .variant-sheet[open] { opacity: 0; transform: translateY(var(--space-5)); } }
+}
+.variant-sheet__form { display: flex; flex-direction: column; width: 100%; max-height: inherit; }
+.variant-sheet__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); padding: var(--space-6) var(--space-6) var(--space-3); }
+.variant-sheet__body { display: grid; gap: var(--space-5); padding: 0 var(--space-6) var(--space-5); overflow-y: auto; }
+.variant-sheet__group { display: grid; gap: var(--space-2); margin: 0; padding: 0; border: 0; }
+.variant-sheet__group legend { margin-bottom: var(--space-2); padding: 0; }
+.variant-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.variant-option:has(input:checked) { border-color: var(--brand-maroon); box-shadow: 0 0 0 1px var(--brand-maroon); }
+.variant-option input { width: 20px; height: 20px; margin: 0; accent-color: var(--brand-maroon); }
+.variant-option__price { color: var(--ctx-ink-muted); }
+.variant-sheet__qty { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.variant-sheet__foot { position: sticky; bottom: 0; padding: var(--space-4) var(--space-6) calc(var(--space-5) + env(safe-area-inset-bottom)); background: inherit; border-top: 1px solid var(--line-primary); }
+.variant-sheet__submit { width: 100%; }
+
+/* Basket view, in the drawer and on /cart. */
+.cart { display: grid; gap: var(--space-6); }
+.cart__notice { padding: var(--space-3) var(--space-4); background: var(--brand-gold-tint); border-radius: var(--radius-md); }
+.cart__lines { display: grid; }
+.cart-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "info remove" "qty total";
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--line-primary);
+}
+.cart-line:first-child { padding-top: 0; }
+.cart-line__info { grid-area: info; display: grid; gap: var(--space-1); }
+.cart-line__name { margin: 0; }
+.cart-line__meta, .cart-line__unit { color: var(--ctx-ink-muted); }
+.cart-line .qty { grid-area: qty; }
+.cart-line__total { grid-area: total; margin: 0; text-align: right; font-weight: var(--weight-medium); }
+.cart-line__remove { grid-area: remove; align-self: start; width: var(--touch-target); height: var(--touch-target); margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) 0 0; background: none; border: 0; font-size: 1.5rem; line-height: 1; color: var(--ctx-ink-muted); cursor: pointer; }
+.cart-line__remove:hover { color: var(--brand-maroon); }
+.cart__note-field .input { min-height: 0; }
+.cart__totals { display: grid; gap: var(--space-2); margin: 0; }
+.cart__totals > div { display: flex; justify-content: space-between; gap: var(--space-4); }
+.cart__totals dd { margin: 0; }
+.cart__muted { color: var(--ctx-ink-muted); font-size: var(--text-body-sm); }
+.cart__grand { padding-top: var(--space-3); border-top: 1px solid var(--line-primary); font-family: var(--font-display); font-size: var(--text-heading-sm); }
+.cart__sums { display: grid; gap: var(--space-2); }
+.cart__gst { margin: 0; color: var(--ctx-ink-muted); }
+.cart__actions { display: grid; gap: var(--space-3); justify-items: center; }
+.cart__checkout { width: 100%; }
+.cart-empty { display: grid; justify-items: center; gap: var(--space-5); padding-block: var(--space-8); text-align: center; }
+.cart-empty__welcome { color: var(--brand-gold-deep); }
+
+/* Toast: bottom centre, above everything but dialogs. */
+.order-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: calc(100vw - 2 * var(--space-4));
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--elev-2);
+  translate: -50% calc(100% + var(--space-6));
+  opacity: 0;
+  pointer-events: none;
+  transition: translate var(--duration-slow) var(--ease-out), opacity var(--duration-slow) var(--ease-out);
+}
+.order-toast:empty { display: none; }
+.order-toast.is-shown { translate: -50% 0; opacity: 1; pointer-events: auto; }
+.order-toast__link { display: inline-flex; align-items: center; min-height: var(--touch-target); padding-inline: var(--space-4); border-radius: var(--radius-pill); color: var(--ctx-ink); font-weight: var(--weight-medium); white-space: nowrap; }
+.order-toast__link:hover { background: var(--surface-inverse-warm-deep); }
+
+/* Reduced motion: dialogs and toast fade without sliding. */
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer, .cart-drawer[open], .variant-sheet, .variant-sheet[open] { transform: none; }
+  @starting-style { .cart-drawer[open], .variant-sheet[open] { transform: none; opacity: 0; } }
+  .order-toast { translate: -50% 0; }
+}
+
+/* Checkout: one column, three sections, each with an eyebrow. */
+.checkout { display: grid; gap: var(--space-9); }
+.checkout__section { display: grid; gap: var(--space-5); }
+.checkout__section > .eyebrow { margin-bottom: calc(-1 * var(--space-4)); }
+.checkout__loading { color: var(--ink-secondary); }
+.checkout__hint { margin: 0; padding: var(--space-3) var(--space-4); background: var(--brand-gold-tint); border-radius: var(--radius-md); }
+.checkout__where { margin-top: var(--space-2); }
+.checkout__payment { min-height: 120px; }
+.checkout__mock { display: grid; gap: var(--space-2); margin: 0; padding: 0; border: 0; }
+.checkout__mock legend { margin-bottom: var(--space-2); padding: 0; }
+.checkout__error { margin: 0; padding: var(--space-3) var(--space-4); border-left: 3px solid var(--state-error); background: var(--surface-raised); color: var(--state-error); }
+.checkout__pay { width: 100%; }
+.checkout__fine { margin: 0; color: var(--ink-secondary); text-align: center; }
+
+/* Pickup / Delivery: two radios drawn as one segmented control. */
+.segmented { display: grid; grid-template-columns: 1fr 1fr; padding: var(--space-1); background: var(--surface-sunken); border-radius: var(--radius-pill); }
+.segmented__option { position: relative; display: flex; }
+.segmented__option input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.segmented__option span { display: flex; flex: 1; align-items: center; justify-content: center; min-height: var(--touch-target); padding-inline: var(--space-4); border-radius: var(--radius-pill); font-weight: var(--weight-medium); text-align: center; transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out); }
+.segmented__option input:checked + span { background: var(--brand-maroon); color: var(--ink-on-inverse); }
+.segmented__option input:focus-visible + span { outline: var(--focus-ring-width) solid var(--state-focus); outline-offset: var(--focus-ring-offset); }
+
+/* Order summary: in checkout's payment section and on the order page. */
+.summary { padding: var(--space-5); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--elev-inset); }
+.summary__toggle { display: flex; justify-content: space-between; gap: var(--space-4); min-height: var(--touch-target); align-items: center; font-weight: var(--weight-medium); cursor: pointer; list-style: none; }
+.summary__toggle::-webkit-details-marker { display: none; }
+.summary__toggle::after { content: ""; width: 8px; height: 8px; margin-left: var(--space-2); border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; rotate: 45deg; translate: 0 -2px; transition: rotate var(--duration-fast) var(--ease-out); }
+.summary[open] .summary__toggle::after { rotate: 225deg; translate: 0 2px; }
+.summary__toggle > :last-child { margin-left: auto; }
+.summary__lines { display: grid; gap: var(--space-2); margin: var(--space-4) 0; padding: var(--space-4) 0; border-block: 1px solid var(--line-primary); }
+.summary__lines li { display: flex; justify-content: space-between; gap: var(--space-4); }
+.summary__meta { color: var(--ink-secondary); }
+.summary__edit { margin-top: var(--space-3); }
+.status__summary .summary__lines { margin-top: 0; }
+
+/* The sticky total bar on phones. */
+.checkout__bar { position: fixed; inset: auto 0 0 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom)); box-shadow: var(--elev-2); }
+.checkout__bar .text-meta { margin-right: var(--space-2); color: var(--ctx-meta); }
+@media (min-width: 768px) { .checkout__bar { display: none; } }
+
+/* A spinner inside the Pay button while Stripe confirms. */
+.spinner { display: inline-block; width: 1em; height: 1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }

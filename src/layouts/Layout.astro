@@ -1,5 +1,6 @@
 ---
 import { getImage } from 'astro:assets';
+import OrderUI from '../components/order/OrderUI.astro';
 import Footer from '../components/ui/Footer.astro';
 import Nav from '../components/ui/Nav.astro';
 import site from '../content/site.json';
@@ -90,6 +91,7 @@ const graph = [
       <slot />
     </main>
     <Footer />
+    <OrderUI />
     <script>
       // Section reveals: mark what is already on screen as shown, then fade the rest in as it scrolls into view.
       const targets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];

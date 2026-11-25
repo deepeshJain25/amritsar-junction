@@ -1,0 +1,34 @@
+---
+import CheckoutForm from '../components/order/CheckoutForm.tsx';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+
+// Checkout: one page with three sections (Your details, When & where, Payment). The form is a React island
+// because Stripe's Payment Element is, rendered in the browser only because the basket lives there.
+// Orders are priced and paid through the ordering Worker (worker/index.ts).
+---
+
+<Layout title="Checkout" description="Pay for your Amritsar Junction order for pickup or delivery." crumb="Checkout" noindex>
+  <section class="section checkout-page">
+    <div class="container checkout-page__inner">
+      <p class="eyebrow text-meta">Checkout</p>
+      <h1 class="text-display-md">Almost there</h1>
+      <div class="checkout-page__form">
+        <CheckoutForm client:only="react" phone={site.phone} phoneHref={site.phoneHref}>
+          <p slot="fallback" class="text-body checkout__loading">Loading checkout…</p>
+        </CheckoutForm>
+      </div>
+      <noscript>
+        <p class="text-body">Ordering online needs JavaScript. Call us on <a href={site.phoneHref}>{site.phone}</a> and we will take your order over the phone.</p>
+      </noscript>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .checkout-page__inner { max-width: calc(560px + 2 * var(--container-margin)); }
+  .checkout-page__form { margin-top: var(--space-7); }
+  :global(html:not(.js)) .checkout__loading { display: none; }
+  /* Room for the sticky total bar on phones. */
+  @media (max-width: 767px) { .checkout-page { padding-bottom: calc(var(--rhythm-section) + 80px); } }
+</style>
