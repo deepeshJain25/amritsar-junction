@@ -20,10 +20,10 @@ interface Props {
   phoneHref: string;
 }
 
-type Fields = { name: string; phone: string; email: string; type: FulfilmentType; slot: string; line1: string; suburb: string };
+type Fields = { name: string; phone: string; type: FulfilmentType; slot: string; line1: string; suburb: string };
 const FORM_STORE = 'aj.checkout.v1';
 const FORM_TTL = 30 * 60_000;
-const EMPTY: Fields = { name: '', phone: '', email: '', type: 'pickup', slot: '', line1: '', suburb: '' };
+const EMPTY: Fields = { name: '', phone: '', type: 'pickup', slot: '', line1: '', suburb: '' };
 
 function useCart() {
   const [c, setC] = useState(cart.getCart());
@@ -171,7 +171,7 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
   };
   const blur = (k: keyof Fields) => () => setErrors((prev) => ({ ...prev, [k]: fieldError(k, f[k]) }));
 
-  const required: (keyof Fields)[] = ['name', 'phone', 'email', ...(f.type === 'delivery' ? (['line1', 'suburb'] as const) : [])];
+  const required: (keyof Fields)[] = ['name', 'phone', ...(f.type === 'delivery' ? (['line1', 'suburb'] as const) : [])];
 
   async function pay(e: FormEvent) {
     e.preventDefault();
@@ -201,7 +201,7 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       const body: IntentRequest = {
         cartId: c.cartId,
         lines: c.lines.map((l) => ({ sku: l.sku, variantLabels: l.variantLabels, qty: l.qty, note: l.note })),
-        contact: { name: f.name, phone: f.phone, email: f.email },
+        contact: { name: f.name, phone: f.phone },
         fulfilment: { type: f.type, slot: slot.iso, ...(f.type === 'delivery' ? { address: { line1: f.line1, suburb: f.suburb, postcode: '' } } : {}) },
         kitchenNote: c.kitchenNote,
       };
@@ -225,7 +225,7 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
         const { error } = await stripe.confirmPayment({
           elements,
           clientSecret: data.clientSecret,
-          confirmParams: { return_url: `${location.origin}/order/${data.orderId}`, receipt_email: f.email },
+          confirmParams: { return_url: `${location.origin}/order/${data.orderId}` },
           redirect: 'if_required',
         });
         if (error) throw new PayError(error.message ?? 'Your card was not charged. Try another card, or call us.');
@@ -258,11 +258,8 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
           <Field id="co-name" label="Name" error={errors.name} full>
             <input className="input" id="co-name" autoComplete="name" value={f.name} onChange={set('name')} onBlur={blur('name')} aria-invalid={!!errors.name || undefined} aria-describedby={errors.name ? 'co-name-error' : undefined} required />
           </Field>
-          <Field id="co-phone" label="Phone" error={errors.phone} help="In case we need to reach you about the order.">
+          <Field id="co-phone" label="Phone" error={errors.phone} full help="In case we need to reach you about the order.">
             <input className="input" id="co-phone" type="tel" autoComplete="tel" inputMode="tel" value={f.phone} onChange={set('phone')} onBlur={blur('phone')} aria-invalid={!!errors.phone || undefined} aria-describedby={errors.phone ? 'co-phone-error' : 'co-phone-help'} required />
-          </Field>
-          <Field id="co-email" label="Email" error={errors.email} help="Your receipt goes here.">
-            <input className="input" id="co-email" type="email" autoComplete="email" value={f.email} onChange={set('email')} onBlur={blur('email')} aria-invalid={!!errors.email || undefined} aria-describedby={errors.email ? 'co-email-error' : 'co-email-help'} required />
           </Field>
         </div>
       </Section>

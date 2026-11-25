@@ -126,7 +126,6 @@ async function sendToPos(env: Env, order: OrderRow): Promise<number> {
     phone: contact.phone,
     first_name: first,
     ...(rest.length ? { last_name: rest.join(' ') } : {}),
-    email: contact.email,
   });
 
   // The docket carries what the POS has no field for: that it is paid, when it is due, and the sizes chosen

@@ -91,7 +91,7 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
     if (!o) {
       eyebrow.textContent = 'Something went wrong';
       heading.textContent = 'We could not find that order';
-      lede.textContent = failure ?? 'Check the link in your receipt email, or call us and we will look it up.';
+      lede.textContent = failure ?? 'Call us and we will look it up.';
       $('body').replaceChildren();
       actions.replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `Call ${phone}`), h('a', { class: 'btn btn--secondary', href: '/menu' }, 'Back to the menu'));
     } else if (o.state === 'waiting') {
@@ -104,7 +104,7 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
       eyebrow.replaceChildren(h('span', { lang: 'pa' }, 'ਜੀ ਆਇਆਂ ਨੂੰ'), ' · Welcome');
       const at = describeSlot(o.fulfilment.slot).replace(' today', '');
       heading.textContent = o.fulfilment.type === 'delivery' ? "We've got it. On its way." : `We've got it. See you at ${at}.`;
-      lede.textContent = `Thank you, ${o.firstName}. Your receipt is on its way to your email.`;
+      lede.textContent = `Thank you, ${o.firstName}.`;
       $('body').replaceChildren(summary(o));
       actions.replaceChildren(h('a', { class: 'btn btn--secondary', href: '/menu' }, 'Back to the menu'));
       cart.clear();

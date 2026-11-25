@@ -13,7 +13,7 @@ export interface Address {
 export interface IntentRequest {
   cartId: string;
   lines: { sku: string; variantLabels: string[]; qty: number; note?: string }[];
-  contact: { name: string; phone: string; email: string };
+  contact: { name: string; phone: string };
   fulfilment: { type: FulfilmentType; slot: string; address?: Address };
   kitchenNote?: string;
 }
@@ -83,7 +83,6 @@ export interface OrderView {
 export const cleanPhone = (s: string) => s.replace(/[\s()-]/g, '');
 /** Australian mobile or landline: 04xx xxx xxx, (02) xxxx xxxx, or with +61. */
 export const isPhone = (s: string) => /^(?:\+?61|0)[2-478]\d{8}$/.test(cleanPhone(s));
-export const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s.trim());
 export const findSuburb = (name: string) => ordering.delivery.suburbs.find((s) => s.name.toLowerCase() === name.trim().toLowerCase());
 
 export function fieldError(field: string, value: string): string | undefined {
@@ -92,8 +91,6 @@ export function fieldError(field: string, value: string): string | undefined {
       return value.trim().length < 2 ? 'Enter your name.' : undefined;
     case 'phone':
       return isPhone(value) ? undefined : 'Enter an Australian phone number, like 0412 345 678.';
-    case 'email':
-      return isEmail(value) ? undefined : 'Enter an email address for your receipt.';
     case 'line1':
       return value.trim().length < 4 ? 'Enter the street address.' : undefined;
     case 'suburb':
@@ -124,11 +121,11 @@ export function priceOrder(req: IntentRequest, catalog: Catalog, now = new Date(
   }
 
   const c = req.contact ?? ({} as IntentRequest['contact']);
-  for (const [field, value] of [['name', c.name], ['phone', c.phone], ['email', c.email]] as const) {
+  for (const [field, value] of [['name', c.name], ['phone', c.phone]] as const) {
     const err = fieldError(field, String(value ?? ''));
     if (err) return { error: err, field };
   }
-  const contact = { name: c.name.trim().slice(0, 80), phone: cleanPhone(c.phone), email: c.email.trim().slice(0, 120) };
+  const contact = { name: c.name.trim().slice(0, 80), phone: cleanPhone(c.phone) };
 
   const f = req.fulfilment ?? ({} as IntentRequest['fulfilment']);
   if (f.type !== 'pickup' && f.type !== 'delivery') return { error: 'Choose pickup or delivery.', field: 'type' };

@@ -41,8 +41,7 @@ async function readJson<T>(request: Request): Promise<T | undefined> {
 
 /** Card payments in AUD, with Apple Pay and Google Pay where the device offers them. */
 async function upsertIntent(env: Env, order: OrderRow): Promise<PaymentIntent> {
-  const contact = JSON.parse(order.contact) as { email: string };
-  const params = { amount: order.total, receipt_email: contact.email, description: `Amritsar Junction order ${order.id}` };
+  const params = { amount: order.total, description: `Amritsar Junction order ${order.id}` };
   if (order.payment_intent_id) {
     const pi = await stripe<PaymentIntent>(env, 'GET', `payment_intents/${order.payment_intent_id}`);
     if (['requires_payment_method', 'requires_confirmation', 'requires_action'].includes(pi.status)) {
