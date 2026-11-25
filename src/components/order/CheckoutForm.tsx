@@ -8,6 +8,7 @@ import { money } from '../../lib/order/catalog';
 import * as cart from '../../lib/order/cart';
 import { slotsFor, type Slot } from '../../lib/order/slots';
 import { track } from '../../lib/order/track';
+import MockCard, { cardErrors, cardOutcome, EMPTY_CARD, type MockCardField, type MockCardValue } from './MockCard';
 
 // The checkout: one page, three sections (Your details, When & where, Payment), then Pay.
 // The Worker prices the order; the totals here are a preview from the basket.
@@ -131,7 +132,9 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
   const [f, setF] = useState<Fields>(loadFields);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields | 'pay', string>>>({});
   const [busy, setBusy] = useState(false);
-  const [mockOutcome, setMockOutcome] = useState('success');
+  // Mock mode only. Card details stay in this component and are never sent anywhere.
+  const [card, setCard] = useState<MockCardValue>(EMPTY_CARD);
+  const [cardErr, setCardErr] = useState<Partial<Record<MockCardField, string>>>({});
   const [now, setNow] = useState(() => new Date());
   const payRef = useRef<HTMLElement>(null);
 
@@ -182,6 +185,12 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       document.getElementById(`co-${Object.keys(found)[0] ?? 'slot'}`)?.focus();
       return;
     }
+    if (config.payments === 'mock') {
+      const bad = cardErrors(card);
+      setCardErr(bad);
+      const first = Object.keys(bad)[0];
+      if (first) return void document.getElementById(`mc-${first}`)?.focus();
+    }
     setBusy(true);
     setErrors({});
     try {
@@ -210,7 +219,7 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       }
 
       if (data.mock) {
-        const r = await fetch(`/api/dev/mock-pay/${data.orderId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome: mockOutcome }) });
+        const r = await fetch(`/api/dev/mock-pay/${data.orderId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome: cardOutcome(card) }) });
         if (!r.ok) throw new PayError(((await r.json()) as ApiError).error);
       } else if (stripe && elements && data.clientSecret) {
         const { error } = await stripe.confirmPayment({
@@ -305,15 +314,16 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
         <Summary c={c} subtotal={subtotal} deliveryFee={deliveryFee} total={total} />
         {config.payments === 'stripe' && <div className="checkout__payment"><PaymentElement options={{ layout: 'tabs' }} /></div>}
         {config.payments === 'mock' && (
-          <fieldset className="checkout__mock">
-            <legend className="field__label text-meta">Test payment (local only, no card is charged)</legend>
-            {[['success', 'Payment succeeds'], ['decline', 'Card is declined'], ['processing', 'Payment takes a while']].map(([v, label]) => (
-              <label key={v} className="variant-option">
-                <input type="radio" name="mock" value={v} checked={mockOutcome === v} onChange={() => setMockOutcome(v)} />
-                <span>{label}</span>
-              </label>
-            ))}
-          </fieldset>
+          <MockCard
+            value={card}
+            errors={cardErr}
+            onChange={(v) => {
+              setCard(v);
+              // Clear an error as soon as the field is fixed.
+              setCardErr((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => cardErrors(v)[k as MockCardField])));
+            }}
+            onBlur={(k) => card[k] && setCardErr((prev) => ({ ...prev, [k]: cardErrors(card)[k] }))}
+          />
         )}
         {config.payments === 'off' && (
           <p className="checkout__hint text-body">Online payment isn't switched on yet. Call us on <a href={phoneHref}>{phone}</a> and we'll take your order over the phone.</p>
