@@ -13,13 +13,13 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*", "/order/*"]
   },
-  // Orders. Create the database once with `npx wrangler d1 create amritsar-junction-orders`,
-  // paste the id it prints below, then `npx wrangler d1 migrations apply amritsar-junction-orders --remote`.
+  // Orders, in the D1 database amritsar-junction-orders (created 26 Nov 2026, Oceania).
+  // New migrations: `npx wrangler d1 migrations apply amritsar-junction-orders --remote`.
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "amritsar-junction-orders",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "162429a8-253a-4e32-9d18-92f04d0410b6",
       "migrations_dir": "migrations"
     }
   ],
