@@ -148,6 +148,13 @@
   transition: translate var(--duration-slow) var(--ease-out), opacity var(--duration-slow) var(--ease-out);
 }
 .order-toast:empty { display: none; }
+.order-toast__short { display: none; }
+@media (max-width: 767px) {
+  .order-toast { white-space: nowrap; }
+  .order-toast__short { display: inline; }
+  /* The full text stays for screen readers only. */
+  .order-toast__text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 .order-toast.is-shown { translate: -50% 0; opacity: 1; pointer-events: auto; }
 .order-toast__link { display: inline-flex; align-items: center; min-height: var(--touch-target); padding-inline: var(--space-4); border-radius: var(--radius-pill); color: var(--ctx-ink); font-weight: var(--weight-medium); white-space: nowrap; }
 .order-toast__link:hover { background: var(--surface-inverse-warm-deep); }

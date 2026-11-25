@@ -79,8 +79,10 @@ toast?.addEventListener('focusout', () => (toastTimer = setTimeout(hideToast, 20
 function showToast(text: string) {
   if (!toast) return;
   clearTimeout(toastTimer);
+  // Phones show a short "Item added" so the toast stays on one line; the dish name is still read out.
   toast.replaceChildren(
-    h('span', {}, text),
+    h('span', { class: 'order-toast__text' }, text),
+    h('span', { class: 'order-toast__short', 'aria-hidden': 'true' }, 'Item added'),
     h('a', { class: 'order-toast__link', href: '/cart', 'data-cart-open': true }, 'View basket'),
   );
   toast.classList.add('is-shown');
