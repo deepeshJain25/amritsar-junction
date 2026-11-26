@@ -173,7 +173,9 @@
 .checkout__loading { color: var(--ink-secondary); }
 .checkout__hint { margin: 0; padding: var(--space-3) var(--space-4); background: var(--brand-gold-tint); border-radius: var(--radius-md); }
 .checkout__where { margin-top: var(--space-2); }
-.checkout__payment { min-height: 120px; }
+/* Stripe's card field is an iframe inside an input-styled box; it sits in the middle of the box. */
+.checkout__card { display: flex; flex-direction: column; justify-content: center; }
+.checkout__card > * { width: 100%; }
 /* The mock card form (local testing without Stripe keys), drawn like a card panel. */
 .mock-card { display: grid; gap: var(--space-4); margin: 0; padding: var(--space-5); border: 0; border-radius: var(--radius-lg); background: var(--surface-raised); box-shadow: inset 0 0 0 1px var(--line-primary); }
 /* A floated legend sits inside the panel instead of on its edge. */

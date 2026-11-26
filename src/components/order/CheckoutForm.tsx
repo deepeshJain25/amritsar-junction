@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react';
-import type { Stripe, StripeElements, StripeElementsOptions } from '@stripe/stripe-js';
+import type { Stripe, StripeCardElementChangeEvent, StripeElements, StripeElementsOptions } from '@stripe/stripe-js';
 import { loadStripe } from '@stripe/stripe-js/pure';
-import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { ordering, type FulfilmentType } from '../../content/ordering';
 import { fieldError, type ApiError, type ConfigResponse, type IntentRequest, type IntentResponse } from '../../lib/order/api';
 import { money } from '../../lib/order/catalog';
@@ -12,8 +12,9 @@ import MockCard, { cardErrors, cardOutcome, EMPTY_CARD, type MockCardField, type
 
 // The checkout: one page, three sections (Your details, When & where, Payment), then Pay.
 // The Worker checks the order and the POS prices it; the totals here are a preview from the basket.
-// Payment is Stripe's Payment Element (cards, Apple Pay, Google Pay) on the POS's Stripe account when card payments
-// are on in the POS, a mock panel for local testing, or a "call us" note when online payment is not set up.
+// Payment is Stripe's card field on the POS's Stripe account when card payments are on in the POS (card is the only
+// way to pay), a mock panel for local testing, or a "call us" note when online payment is not set up.
+// The card field and confirmCardPayment match the PaymentIntent the POS creates, as on the /order-test page.
 
 interface Props {
   phone: string;
@@ -87,27 +88,8 @@ export default function CheckoutForm({ phone, phoneHref }: Props) {
   const props = { c, config, phone, phoneHref, notice };
   if (config.payments !== 'stripe' || !stripePromise) return <CheckoutInner {...props} stripe={null} elements={null} />;
 
-  // The Payment Element is shown before the order exists, so Elements starts from the amount alone ("deferred intent").
   const options: StripeElementsOptions = {
-    mode: 'payment',
-    amount: Math.max(50, cart.subtotal(c)),
-    currency: 'aud',
-    // Cards only (Apple Pay and Google Pay count as cards): the order goes to the kitchen once the payment has
-    // succeeded, which bank debits and pay-later methods can take days to do.
-    allowedPaymentMethodTypes: ['card'],
     fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap' }],
-    appearance: {
-      theme: 'stripe',
-      variables: {
-        colorPrimary: token('--brand-maroon'),
-        colorBackground: token('--surface-raised'),
-        colorText: token('--ink-primary'),
-        colorTextSecondary: token('--ink-secondary'),
-        colorDanger: token('--state-error'),
-        fontFamily: 'Inter, system-ui, sans-serif',
-        borderRadius: '8px',
-      },
-    },
   };
   return (
     <Elements stripe={stripePromise} options={options}>
@@ -165,10 +147,8 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
   const total = quoted?.preview === preview ? quoted.total : preview;
   const belowMinimum = f.type === 'delivery' && subtotal < ordering.delivery.minCents;
 
-  // Keep Stripe's wallets (Apple Pay, Google Pay) showing the right amount.
-  useEffect(() => {
-    elements?.update({ amount: total });
-  }, [elements, total]);
+  // Stripe's card field: whether it is filled in, and what it says is wrong.
+  const [stripeCard, setStripeCard] = useState<{ complete: boolean; error?: string }>({ complete: false });
 
   const set = (k: keyof Fields) => (e: { target: { value: string } }) => {
     const value = e.target.value;
@@ -197,13 +177,14 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       const first = Object.keys(bad)[0];
       if (first) return void document.getElementById(`mc-${first}`)?.focus();
     }
+    if (config.payments === 'stripe' && !stripeCard.complete) {
+      setErrors({ pay: stripeCard.error ?? 'Enter your card details.' });
+      elements?.getElement(CardElement)?.focus();
+      return;
+    }
     setBusy(true);
     setErrors({});
     try {
-      if (elements) {
-        const { error } = await elements.submit();
-        if (error) throw new PayError(error.message ?? 'Check your payment details.');
-      }
       const body: IntentRequest = {
         cartId: c.cartId,
         lines: c.lines.map((l) => ({ sku: l.sku, variantLabels: l.variantLabels, qty: l.qty, note: l.note })),
@@ -227,19 +208,18 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       if (!data.mock && data.total !== total) {
         // Never charge an amount the customer has not seen: show the POS's total and wait for another press.
         setQuoted({ preview, total: data.total });
-        elements?.update({ amount: data.total });
         throw new PayError(`The restaurant's total for this order is ${money(data.total)}. Press Pay to pay ${money(data.total)}.`);
       }
 
       if (data.mock) {
         const r = await fetch(`/api/dev/mock-pay/${data.orderId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome: cardOutcome(card) }) });
         if (!r.ok) throw new PayError(((await r.json()) as ApiError).error);
-      } else if (stripe && elements && data.clientSecret) {
-        const { error } = await stripe.confirmPayment({
-          elements,
-          clientSecret: data.clientSecret,
-          confirmParams: { return_url: `${location.origin}/order/${data.orderId}` },
-          redirect: 'if_required',
+      } else {
+        const cardField = elements?.getElement(CardElement);
+        if (!stripe || !cardField || !data.clientSecret) throw new PayError('The card form is still loading. Try again in a moment.');
+        // Stripe shows its own bank check (3-D Secure) here when the card needs one.
+        const { error } = await stripe.confirmCardPayment(data.clientSecret, {
+          payment_method: { card: cardField, billing_details: { name: f.name.trim(), phone: f.phone } },
         });
         if (error) throw new PayError(error.message ?? 'Your card was not charged. Try another card, or call us.');
       }
@@ -322,7 +302,27 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
 
       <Section eyebrow="Payment" title="Pay securely" sectionRef={payRef}>
         <Summary c={c} subtotal={subtotal} deliveryFee={deliveryFee} total={total} />
-        {config.payments === 'stripe' && <div className="checkout__payment"><PaymentElement options={{ layout: 'tabs', wallets: { link: 'never' } }} /></div>}
+        {config.payments === 'stripe' && (
+          <div className="field checkout__payment">
+            <label className="field__label text-meta" htmlFor="co-card">Card</label>
+            <div className="input checkout__card" id="co-card">
+              <CardElement
+                options={{
+                  hidePostalCode: true,
+                  style: {
+                    base: { fontFamily: 'Inter, system-ui, sans-serif', fontSize: '16px', color: token('--ink-primary'), '::placeholder': { color: token('--ink-secondary') } },
+                    invalid: { color: token('--state-error') },
+                  },
+                }}
+                onChange={(e: StripeCardElementChangeEvent) => {
+                  setStripeCard({ complete: e.complete, error: e.error?.message });
+                  if (errors.pay) setErrors((prev) => ({ ...prev, pay: undefined }));
+                }}
+              />
+            </div>
+            {stripeCard.error && <p className="field__error">{stripeCard.error}</p>}
+          </div>
+        )}
         {config.payments === 'mock' && (
           <MockCard
             value={card}
