@@ -1,8 +1,7 @@
 // Order records in D1, what happens when one is paid (it goes to the POS), and the public view of an order.
 import { formatAddress, type OrderView, type PricedOrder } from '../src/lib/order/api';
-import { money } from '../src/lib/order/catalog';
-import { slotTime } from '../src/lib/order/slots';
 import type { Env } from './env';
+import { checkout } from './pos';
 
 export interface OrderRow {
   id: string;
@@ -16,6 +15,7 @@ export interface OrderRow {
   contact: string;
   kitchen_note: string | null;
   payment_intent_id: string | null;
+  payment_client_secret: string | null;
   payment_error: string | null;
   pos_order_id: string | null;
   pos_error: string | null;
@@ -59,8 +59,11 @@ export async function saveOrder(env: Env, cartId: string, existing: OrderRow | n
   return (await getOrder(env, id))!;
 }
 
-export const setIntent = (env: Env, id: string, pi: string) =>
-  env.DB.prepare('UPDATE orders SET payment_intent_id = ?, updated_at = ? WHERE id = ?').bind(pi, now(), id).run();
+/** Records the POS's PaymentIntent and its amount, which is what the card is charged. */
+export const setIntent = (env: Env, id: string, pi: { id: string; clientSecret: string; total: number }) =>
+  env.DB.prepare('UPDATE orders SET payment_intent_id = ?, payment_client_secret = ?, total = ?, delivery_fee = MAX(0, ? - subtotal), updated_at = ? WHERE id = ?')
+    .bind(pi.id, pi.clientSecret, pi.total, pi.total, now(), id)
+    .run();
 
 export const markProcessing = (env: Env, id: string) =>
   env.DB.prepare("UPDATE orders SET status = 'processing', updated_at = ? WHERE id = ? AND status IN ('pending', 'failed')").bind(now(), id).run();
@@ -76,8 +79,9 @@ export async function markPaid(env: Env, id: string): Promise<boolean> {
 }
 
 /**
- * Sends a paid order to the POS, which prints the kitchen docket. Claims the attempt in the database first,
- * so a webhook and a page refresh arriving together never send it twice. Retries wait 10 seconds.
+ * Places a paid order in the POS (payment_method STRIPE, with its PaymentIntent), which prints the kitchen docket.
+ * Claims the attempt in the database first, so a page refresh and another tab arriving together never send it twice.
+ * Retries wait 10 seconds. Mock payments never reach the POS.
  */
 export async function forwardToPos(env: Env, id: string): Promise<void> {
   const t = now();
@@ -89,69 +93,18 @@ export async function forwardToPos(env: Env, id: string): Promise<void> {
   if (!claim.meta.changes) return;
 
   const order = (await getOrder(env, id))!;
-  if (env.POS_FORWARD !== 'true') {
+  if (!order.payment_intent_id) {
     await env.DB.prepare("UPDATE orders SET pos_order_id = 'not-sent', updated_at = ? WHERE id = ?").bind(now(), id).run();
     return;
   }
   try {
-    const posId = await sendToPos(env, order);
+    const posId = await checkout(env, order);
     await env.DB.prepare('UPDATE orders SET pos_order_id = ?, pos_error = NULL, updated_at = ? WHERE id = ?').bind(String(posId), now(), id).run();
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    console.error(`POS hand-off failed for paid order ${id} (attempt ${order.pos_attempts}): ${message}`);
+    console.error(`POS checkout failed for paid order ${id} (attempt ${order.pos_attempts}): ${message}`);
     await env.DB.prepare('UPDATE orders SET pos_error = ?, updated_at = ? WHERE id = ?').bind(message.slice(0, 500), now(), id).run();
   }
-}
-
-async function sendToPos(env: Env, order: OrderRow): Promise<number> {
-  const base = `${env.STOREFRONT_API_URL.replace(/\/$/, '')}/storefront`;
-  const post = async <T>(path: string, body: unknown, token?: string): Promise<T> => {
-    const res = await fetch(`${base}/${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify(body),
-    });
-    const text = await res.text();
-    if (!res.ok) throw new Error(`POS ${path} ${res.status}: ${text.slice(0, 300)}`);
-    return JSON.parse(text) as T;
-  };
-
-  const contact = JSON.parse(order.contact) as PricedOrder['contact'];
-  const fulfilment = JSON.parse(order.fulfilment) as PricedOrder['fulfilment'];
-  const lines = JSON.parse(order.lines) as PricedOrder['lines'];
-  const [first, ...rest] = contact.name.split(/\s+/);
-
-  const { access } = await post<{ access: string }>('common-auth/', {
-    restaurant_id: env.RESTAURANT_ID,
-    phone: contact.phone,
-    first_name: first,
-    ...(rest.length ? { last_name: rest.join(' ') } : {}),
-  });
-
-  // The docket carries what the POS has no field for: that it is paid, when it is due, and the sizes chosen
-  // (the POS names a sized dish without its size).
-  const when = `${fulfilment.type === 'delivery' ? 'DELIVERY' : 'PICKUP'} ${slotTime(fulfilment.slot)}`;
-  const notes = [`PAID ONLINE ${money(order.total)}, do not charge.`, `${when}.`, `Web order ${order.id}.`, order.kitchen_note].filter(Boolean).join(' ');
-
-  const created = await post<{ id: number }>(
-    'checkout/',
-    {
-      order_type: fulfilment.type,
-      ...(fulfilment.address ? { delivery_address: formatAddress(fulfilment.address) } : {}),
-      notes,
-      payment_method: env.POS_PAYMENT_METHOD || 'MANUAL_CASH',
-      items: lines.map((l) => ({
-        menu_item_id: l.posId,
-        quantity: l.qty,
-        notes: [...l.variantLabels, l.note].filter(Boolean).join(' · '),
-        modifier_ids: [],
-        removed_ingredient_ids: [],
-        bundle_selections: [],
-      })),
-    },
-    access,
-  );
-  return created.id;
 }
 
 /** What the customer sees. A paid order is "waiting" until the kitchen has it, then "success". */

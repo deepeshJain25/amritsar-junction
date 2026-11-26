@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-// A pretend card form for local testing when there are no Stripe keys (MOCK_PAYMENTS=true).
+// A pretend card form for local testing (MOCK_PAYMENTS=true).
 // It looks and validates like a real one, but the details never leave the browser: only the outcome
 // the test number stands for is sent to the Worker. Test numbers follow Stripe's:
 //   4242 4242 4242 4242  succeeds (so does any other valid number)

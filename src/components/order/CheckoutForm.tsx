@@ -11,9 +11,9 @@ import { track } from '../../lib/order/track';
 import MockCard, { cardErrors, cardOutcome, EMPTY_CARD, type MockCardField, type MockCardValue } from './MockCard';
 
 // The checkout: one page, three sections (Your details, When & where, Payment), then Pay.
-// The Worker prices the order; the totals here are a preview from the basket.
-// Payment is Stripe's Payment Element (cards, Apple Pay, Google Pay) when keys are set, a mock panel for local
-// testing, or a "call us" note when online payment is not set up.
+// The Worker checks the order and the POS prices it; the totals here are a preview from the basket.
+// Payment is Stripe's Payment Element (cards, Apple Pay, Google Pay) on the POS's Stripe account when card payments
+// are on in the POS, a mock panel for local testing, or a "call us" note when online payment is not set up.
 
 interface Props {
   phone: string;
@@ -92,6 +92,9 @@ export default function CheckoutForm({ phone, phoneHref }: Props) {
     mode: 'payment',
     amount: Math.max(50, cart.subtotal(c)),
     currency: 'aud',
+    // Cards only (Apple Pay and Google Pay count as cards): the order goes to the kitchen once the payment has
+    // succeeded, which bank debits and pay-later methods can take days to do.
+    allowedPaymentMethodTypes: ['card'],
     fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap' }],
     appearance: {
       theme: 'stripe',
@@ -156,7 +159,10 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
 
   const subtotal = cart.subtotal(c);
   const deliveryFee = f.type === 'delivery' ? ordering.delivery.feeCents : 0;
-  const total = subtotal + deliveryFee;
+  const preview = subtotal + deliveryFee;
+  // The POS's total, once it differs from the preview: the card is charged what the POS says.
+  const [quoted, setQuoted] = useState<{ preview: number; total: number } | null>(null);
+  const total = quoted?.preview === preview ? quoted.total : preview;
   const belowMinimum = f.type === 'delivery' && subtotal < ordering.delivery.minCents;
 
   // Keep Stripe's wallets (Apple Pay, Google Pay) showing the right amount.
@@ -216,6 +222,13 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
           return;
         }
         throw new PayError(data.error);
+      }
+
+      if (!data.mock && data.total !== total) {
+        // Never charge an amount the customer has not seen: show the POS's total and wait for another press.
+        setQuoted({ preview, total: data.total });
+        elements?.update({ amount: data.total });
+        throw new PayError(`The restaurant's total for this order is ${money(data.total)}. Press Pay to pay ${money(data.total)}.`);
       }
 
       if (data.mock) {
@@ -309,7 +322,7 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
 
       <Section eyebrow="Payment" title="Pay securely" sectionRef={payRef}>
         <Summary c={c} subtotal={subtotal} deliveryFee={deliveryFee} total={total} />
-        {config.payments === 'stripe' && <div className="checkout__payment"><PaymentElement options={{ layout: 'tabs' }} /></div>}
+        {config.payments === 'stripe' && <div className="checkout__payment"><PaymentElement options={{ layout: 'tabs', wallets: { link: 'never' } }} /></div>}
         {config.payments === 'mock' && (
           <MockCard
             value={card}
@@ -388,6 +401,7 @@ function Summary({ c, subtotal, deliveryFee, total }: { c: cart.Cart; subtotal: 
       <dl className="cart__totals">
         <div><dt>Subtotal</dt><dd className="text-tabular">{money(subtotal)}</dd></div>
         {deliveryFee > 0 && <div><dt>Delivery</dt><dd className="text-tabular">{money(deliveryFee)}</dd></div>}
+        {total !== subtotal + deliveryFee && <div><dt>Restaurant pricing</dt><dd className="text-tabular">{total > subtotal + deliveryFee ? '' : '−'}{money(Math.abs(total - subtotal - deliveryFee))}</dd></div>}
         <div className="cart__grand"><dt>Total</dt><dd className="text-tabular">{money(total)}</dd></div>
       </dl>
       <a className="btn btn--tertiary summary__edit" href="/cart">Edit basket</a>

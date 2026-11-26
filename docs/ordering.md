@@ -1,6 +1,6 @@
 # Online ordering
 
-Pickup and delivery ordering with Stripe, built to the PRD *Native Cart & Checkout*. Guest checkout only: no accounts and no order history.
+Pickup and delivery ordering, paid by card through the restaurant's POS (which owns the Stripe account), built to the PRD *Native Cart & Checkout*. Guest checkout only: no accounts and no order history.
 
 ## How it fits together
 
@@ -9,21 +9,29 @@ Pickup and delivery ordering with Stripe, built to the PRD *Native Cart & Checko
 | Catalog | `src/lib/order/catalog.ts`, built to `/catalog.json` | Every dish with a price: sku, price in cents, size/style choices, POS item id. Built from the POS menu with the site. |
 | Basket | `src/lib/order/cart.ts` | Lives in the browser (`localStorage` `aj.cart.v1`), emptied after 7 days or once an order goes through. |
 | Ordering UI | `src/lib/order/ui.ts`, `components/order/OrderUI.astro` | Add buttons and steppers on menu cards, the choice sheet, the toast, the header badge, the cart drawer (768px and up). |
-| Pages | `src/pages/cart.astro`, `checkout.astro`, `order.astro` | `/cart`, `/checkout` (React + Stripe Payment Element), `/order/<id>` (waiting, success or error). |
+| Pages | `src/pages/cart.astro`, `checkout.astro`, `order.astro` | `/cart`, `/checkout` (React + Stripe Payment Element on the POS's Stripe account), `/order/<id>` (waiting, success or error). |
 | Settings | `src/content/ordering.ts` | Kitchen hours, prep time, slot length, delivery suburbs, fee and minimum. Shared by the pages and the Worker. |
-| Worker | `worker/index.ts` | `/api/*` and `/order/*`. Prices the order from the catalog, creates the Stripe PaymentIntent, takes Stripe's webhook, stores orders in D1 and sends paid ones to the POS. |
-| Database | `migrations/0001_orders.sql` | One `orders` table in Cloudflare D1. |
+| Worker | `worker/index.ts`, `worker/pos.ts` | `/api/*` and `/order/*`. Checks the order against the catalog, has the POS price it and create the PaymentIntent, stores orders in D1 and places paid ones in the POS. |
+| Database | `migrations/` | One `orders` table in Cloudflare D1. |
 
-The browser never sets a price: the Worker reprices every order from `/catalog.json`.
+The browser never sets a price: the Worker checks every order against `/catalog.json`, and the POS prices it.
 
-### Sending orders to the kitchen
+### Paying and sending orders to the kitchen
 
-Once Stripe confirms a payment, the Worker places the order in the POS (`POST /storefront/common-auth/`, then `POST /storefront/checkout/`) so the kitchen gets a docket. The docket's notes say `PAID ONLINE $x, do not charge`, along with the pickup or delivery time and the web order number. Each dish's size or style is in that dish's note, because the POS names a sized dish without its size. A size is ordered by sending the size's own id as `menu_item_id`. If the POS cannot be reached, the Worker retries up to 3 times. After that, the customer is asked to call, and the order stays in D1 with `pos_error` set.
+This is the same flow as the internal `/order-test` page, run by the Worker so the POS token never reaches the browser:
+
+1. **Pay pressed:** the Worker checks the basket, saves the order in D1, then calls the POS: `POST /storefront/common-auth/` (customer by phone), then `POST /storefront/payment/create-intent/` with the items. The POS prices the order and creates the Stripe PaymentIntent on its own Stripe account.
+2. **Card:** the browser confirms that PaymentIntent with Stripe's Payment Element, using the publishable key from `GET /storefront/payment/config/`. Card is the only way to pay: bank debits, pay-later methods and Link are switched off in the Payment Element, whatever the Stripe account allows. Apple Pay and Google Pay show on devices that have them, since they pay by card. If the POS's total differs from the basket preview, the page shows the POS's total first and the customer presses Pay again.
+3. **Order:** the order page asks the Worker for the order's status. The Worker reads the PaymentIntent from Stripe (with the publishable key and its client secret, as Stripe.js does), and once it has succeeded, calls `POST /storefront/checkout/` with `payment_method: STRIPE` and the `payment_intent_id`. The POS records the order as paid and prints the docket.
+
+Stripe's webhooks go to the POS, not to the Worker. The docket's notes carry the pickup or delivery time and the web order number. Each dish's size or style is in that dish's note, because the POS names a sized dish without its size. A size is ordered by sending the size's own id as `menu_item_id`. If the POS checkout fails, the Worker retries up to 3 times. After that, the customer is asked to call, and the order stays in D1 with `pos_error` set.
+
+Card payments are on when the POS's `payment/config` says `stripe_enabled` with a publishable key. Test or live is whichever keys are in the POS admin.
 
 ## Try it locally
 
 ```sh
-cp .dev.vars.example .dev.vars        # mock payments on, POS hand-off off
+cp .dev.vars.example .dev.vars        # mock payments on, nothing sent to the POS
 npm run build
 npx wrangler d1 migrations apply amritsar-junction-orders --local
 npx wrangler dev                      # http://localhost:8787
@@ -31,31 +39,28 @@ npx wrangler dev                      # http://localhost:8787
 
 `npm run dev` (Astro on its own) shows the basket but has no `/api`, so checkout says online payment is not set up. Use `wrangler dev` to test checkout.
 
-With no Stripe secret key and `MOCK_PAYMENTS=true`, checkout shows a test panel where you pick what happens: success, a declined card, or a slow payment.
+With `MOCK_PAYMENTS=true`, checkout shows a test panel where you pick what happens: success, a declined card, or a slow payment.
 
-To use real Stripe test payments, add the keys to `.dev.vars`, then run `stripe listen --forward-to localhost:8787/api/webhooks/stripe` and put the `whsec_…` secret it prints in `STRIPE_WEBHOOK_SECRET`. Test card: `4242 4242 4242 4242`.
+With `MOCK_PAYMENTS=false`, checkout pays through the POS with whatever Stripe keys are in the POS admin. With test keys, use card `4242 4242 4242 4242`. Every paid order is placed in the POS and can print a docket.
 
 ## Going live (one-off)
 
-1. `npx wrangler login`
-2. `npx wrangler d1 create amritsar-junction-orders`, then paste the printed id into `wrangler.jsonc`.
-3. `npx wrangler d1 migrations apply amritsar-junction-orders --remote`
-4. `npx wrangler secret put STRIPE_SECRET_KEY`, and the same for `STRIPE_PUBLISHABLE_KEY` and `STRIPE_WEBHOOK_SECRET`.
-5. In the Stripe dashboard, add a webhook endpoint for `https://<domain>/api/webhooks/stripe` with the events `payment_intent.succeeded`, `payment_intent.payment_failed` and `payment_intent.processing`.
-6. Point `STOREFRONT_API_URL` in `wrangler.jsonc` at the production POS when it exists.
+1. Create the D1 database and apply the migrations: `npx wrangler d1 migrations apply amritsar-junction-orders --remote` (or `cf d1 migrations apply <database id>`).
+2. Put the live Stripe keys in the POS admin. Card payments switch on by themselves when `payment/config` returns them.
+3. Point `STOREFRONT_API_URL` in `wrangler.jsonc` at the production POS when it exists.
 
 Deploy with Workers Builds (push to `main`) or `npx wrangler deploy`. `npm run deploy` uses `deploy/`, which publishes the static site only, without the Worker, so ordering would not work through it.
 
 ## Still to settle
 
 - **Kitchen hours:** the hours in `src/content/ordering.ts` come from the placeholder hours in `site.json`.
-- **Delivery:** the suburbs, the $6.99 fee and the $35 minimum are suggested defaults. The POS adds its own $5.00 for delivery when it prices an order. Our charge is what the customer pays; the POS total on the docket may differ.
-- **Email:** Stripe sends receipts in live mode only. Pickup-time emails (Resend or MailChannels), Wallet passes and an alert for stuck orders are not built yet.
+- **Delivery:** the suburbs and the $35 minimum are suggested defaults. The $5.00 fee matches what the POS adds for delivery; the POS's total is what the card is charged.
+- **Email:** any Stripe receipt depends on the POS's Stripe settings. Pickup-time emails (Resend or MailChannels), Wallet passes and an alert for stuck orders are not built yet.
 - **Analytics:** events go to `window.dataLayer` and an `aj:track` DOM event (`src/lib/order/track.ts`) until a provider is chosen.
 
 ### Questions for the POS developers
 
-1. **Paid elsewhere:** is there a `payment_method` that marks an order as already paid elsewhere? We send `MANUAL_CASH` (set by `POS_PAYMENT_METHOD`) and say "PAID ONLINE" in the notes, so the order shows as unpaid in the POS.
+1. **Delivery in create-intent:** does `payment/create-intent/` add the $5.00 delivery fee for `order_type: delivery`? Checkout seems to ignore `order_type` (next question).
 2. **`order_type`:** checkout ignores it. It comes back `null` for `pickup`, `PICKUP` and `delivery`.
 3. **Validation:** checkout accepts an empty `items` list and any `payment_method` string, and creates an order from it.
 4. **Purchasable flag:** all 171 items are `is_purchasable: false`, but checkout accepts them anyway. Which one is right?

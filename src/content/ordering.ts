@@ -34,7 +34,8 @@ export const ordering = {
   /** Carts left untouched this long are emptied. */
   cartExpiryDays: 7,
   delivery: {
-    feeCents: 699,
+    /** The POS adds this for delivery when it prices the order, and the POS's total is what the card is charged. */
+    feeCents: 500,
     /** Smallest food subtotal we deliver, before the delivery fee. */
     minCents: 3500,
     /** Added on top of prep time for the drive. */
