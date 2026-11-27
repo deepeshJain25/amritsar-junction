@@ -79,7 +79,7 @@ export default function CheckoutForm({ phone, phoneHref }: Props) {
       <div className="cart-empty">
         <p className="text-script cart-empty__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>
         <p className="text-heading-md">Your basket is empty. Start with a kulcha.</p>
-        <a className="btn btn--primary" href="/menu">Browse the menu</a>
+        <a className="btn btn--primary" href="/menu/">Browse the menu</a>
       </div>
     );
   }
@@ -404,7 +404,7 @@ function Summary({ c, subtotal, deliveryFee, total }: { c: cart.Cart; subtotal: 
         {total !== subtotal + deliveryFee && <div><dt>Restaurant pricing</dt><dd className="text-tabular">{total > subtotal + deliveryFee ? '' : '−'}{money(Math.abs(total - subtotal - deliveryFee))}</dd></div>}
         <div className="cart__grand"><dt>Total</dt><dd className="text-tabular">{money(total)}</dd></div>
       </dl>
-      <a className="btn btn--tertiary summary__edit" href="/cart">Edit basket</a>
+      <a className="btn btn--tertiary summary__edit" href="/cart/">Edit basket</a>
     </details>
   );
 }

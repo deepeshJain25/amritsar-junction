@@ -38,7 +38,7 @@ let lastTrigger: HTMLElement | null = null;
 
 function openBasket(trigger?: HTMLElement | null) {
   if (!drawer || !isDesktop() || location.pathname.startsWith('/cart') || location.pathname.startsWith('/checkout')) {
-    location.href = '/cart';
+    location.href = '/cart/';
     return;
   }
   lastTrigger = trigger ?? null;
@@ -83,7 +83,7 @@ function showToast(text: string) {
   toast.replaceChildren(
     h('span', { class: 'order-toast__text' }, text),
     h('span', { class: 'order-toast__short', 'aria-hidden': 'true' }, 'Item added'),
-    h('a', { class: 'order-toast__link', href: '/cart', 'data-cart-open': true }, 'View basket'),
+    h('a', { class: 'order-toast__link', href: '/cart/', 'data-cart-open': true }, 'View basket'),
   );
   toast.classList.add('is-shown');
   toastTimer = setTimeout(hideToast, 4000);

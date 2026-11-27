@@ -17,8 +17,8 @@ export function mountCartView(root: HTMLElement, opts: CartViewOptions = {}) {
   const note = h('textarea', { class: 'input cart__note', id: `${root.id || 'cart'}-note`, rows: 3, maxlength: 300, placeholder: 'Less spicy, extra chutney, no onion…' }) as HTMLTextAreaElement;
   const totals = h('dl', { class: 'cart__totals' });
   const gst = h('p', { class: 'cart__gst text-body-sm' }, 'Prices include GST.');
-  const checkout = h('a', { class: 'btn btn--primary cart__checkout', href: '/checkout' });
-  const browse = h('a', { class: 'btn btn--tertiary', href: '/menu', onClick: (e: Event) => { if (opts.onBrowse) { e.preventDefault(); opts.onBrowse(); } } }, 'Add more to the order');
+  const checkout = h('a', { class: 'btn btn--primary cart__checkout', href: '/checkout/' });
+  const browse = h('a', { class: 'btn btn--tertiary', href: '/menu/', onClick: (e: Event) => { if (opts.onBrowse) { e.preventDefault(); opts.onBrowse(); } } }, 'Add more to the order');
 
   const full = h(
     'div',
@@ -35,7 +35,7 @@ export function mountCartView(root: HTMLElement, opts: CartViewOptions = {}) {
     { class: 'cart-empty' },
     h('p', { class: 'text-script cart-empty__welcome' }, h('span', { lang: 'pa' }, 'ਜੀ ਆਇਆਂ ਨੂੰ'), ' · Welcome'),
     h('p', { class: 'text-heading-md' }, 'Your basket is empty. Start with a kulcha.'),
-    h('a', { class: 'btn btn--primary', href: '/menu', onClick: (e: Event) => { if (opts.onBrowse) { e.preventDefault(); opts.onBrowse(); } } }, 'Browse the menu'),
+    h('a', { class: 'btn btn--primary', href: '/menu/', onClick: (e: Event) => { if (opts.onBrowse) { e.preventDefault(); opts.onBrowse(); } } }, 'Browse the menu'),
   );
 
   let noteTimer: ReturnType<typeof setTimeout> | undefined;

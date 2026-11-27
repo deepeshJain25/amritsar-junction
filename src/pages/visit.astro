@@ -18,7 +18,8 @@ const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(mapSearch)}
 // "Get directions" opens the restaurant's own Google Maps pin.
 const directions = site.mapUrl;
 
-const times = ['12:00', '12:30', '13:00', '13:30', '14:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
+// Every half hour from opening (11 am) to the last booking (9 pm). The kitchen runs all day, with no afternoon break.
+const times = Array.from({ length: 21 }, (_, i) => `${String(11 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`);
 const label = (t: string) => {
   const [h, m] = t.split(':').map(Number);
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
@@ -50,7 +51,7 @@ const partners = [
           <Input label="Phone" name="phone" id="r-phone" type="tel" autocomplete="tel" />
           <Input label="Email" name="email" id="r-email" type="email" autocomplete="email" full />
           <Input label="Date" name="date" id="r-date" type="date" />
-          <Input label="Time" name="time" id="r-time" type="select">
+          <Input label="Time" name="time" id="r-time" type="select" help="Last booking 9 pm.">
             <option value="">Choose a time</option>
             {times.map((t) => <option value={t}>{label(t)}</option>)}
           </Input>
@@ -66,6 +67,7 @@ const partners = [
           </Input>
           <Input label="Requests or allergies" name="notes" id="r-notes" type="textarea" optional full placeholder="High chair, a quiet table, allergies" />
           <div class="field--full"><Button type="submit">Request booking</Button></div>
+          <p class="field--full text-body-sm form__privacy">We use your details only to confirm and look after your booking. See our <a href="/privacy/">privacy policy</a>.</p>
         </form>
         <div class="reserve__hours">
           <h3 class="eyebrow text-meta">Hours</h3>
@@ -121,10 +123,10 @@ const partners = [
   <section class="section" aria-labelledby="private-title">
     <div class="container">
       <FeatureBlock image={dal} alt="A ladle lifting creamy dal makhani from a black bowl, swirled with cream and coriander" side="right" eyebrow="Private dining" title="The whole room, for your table" id="private-title">
-        <p>Birthdays, engagements, a family that has not all been in one place for years: for groups of more than <Todo text="[12]" />, or to book the whole room, call us and we will plan the evening with you.</p>
+        <p>Birthdays, engagements, a family that has not all been in one place for years: for groups of more than 12, or to book the whole room, call us and we will plan the evening with you.</p>
         <p>We can set a shared Punjabi menu so the food keeps coming to the middle of the table, the way it does at home.</p>
         <Button slot="actions" href={site.phoneHref}>Call to plan</Button>
-        <Button slot="actions" variant="tertiary" href="/catering">Catering and events</Button>
+        <Button slot="actions" variant="tertiary" href="/catering/">Catering and events</Button>
       </FeatureBlock>
     </div>
   </section>

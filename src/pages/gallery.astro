@@ -32,7 +32,7 @@ const gallerySchema = {
   '@context': 'https://schema.org',
   '@type': 'ImageGallery',
   name: `${site.name} gallery: inside the kitchen`,
-  url: new URL('/gallery', siteUrl).href,
+  url: new URL('/gallery/', siteUrl).href,
   associatedMedia: photos.map((p) => ({ '@type': 'ImageObject', contentUrl: new URL(p.full, siteUrl).href, caption: p.caption, description: p.alt })),
 };
 ---

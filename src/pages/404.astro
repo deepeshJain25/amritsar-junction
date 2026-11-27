@@ -1,0 +1,29 @@
+---
+import Button from '../components/ui/Button.astro';
+import site from '../content/site.json';
+import Layout from '../layouts/Layout.astro';
+
+// Shown for any address that does not exist. Kept out of search results.
+---
+
+<Layout title="Page not found" description="This page could not be found." noindex>
+  <section class="section">
+    <div class="container notfound">
+      <p class="text-script notfound__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>
+      <h1 class="text-display-lg">We couldn't find that page</h1>
+      <p class="text-body-lg notfound__body">The link may be old, or the address may have a typo. The menu, your table and our door are all still here.</p>
+      <div class="btn-row">
+        <Button href="/menu/">See the menu</Button>
+        <Button variant="secondary" href={site.bookingUrl}>Reserve a table</Button>
+        <Button variant="tertiary" href="/">Back to the home page</Button>
+      </div>
+      <p class="text-body-sm notfound__muted">Looking for something else? Call us on <a href={site.phoneHref}>{site.phone}</a>.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .notfound { display: grid; gap: var(--space-5); justify-items: start; max-width: var(--measure-prose); padding-top: var(--space-8); padding-bottom: var(--space-9); }
+  .notfound__welcome { color: var(--brand-gold-deep); }
+  .notfound__body, .notfound__muted { color: var(--ink-secondary); }
+</style>

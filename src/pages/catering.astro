@@ -169,6 +169,7 @@ const faqSchema = {
           </Input>
           <Input label="Notes" name="notes" id="c-notes" type="textarea" optional full placeholder="Venue or suburb, favourite dishes, allergies, timing" />
           <div class="field--full"><Button type="submit">Send enquiry</Button></div>
+          <p class="field--full text-body-sm form__privacy">We use your details only to reply to your enquiry and plan your event. See our <a href="/privacy/">privacy policy</a>.</p>
         </form>
       </div>
     </div>
@@ -249,7 +250,7 @@ const faqSchema = {
   .faq__item { border-bottom: 1px solid var(--line-primary); }
   .faq__item summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); min-height: 64px; padding-block: var(--space-4); cursor: pointer; list-style: none; }
   .faq__item summary::-webkit-details-marker { display: none; }
-  .faq__item summary::after { content: "+"; flex: none; font-size: 1.5rem; font-weight: var(--weight-regular); color: var(--brand-gold); transition: transform var(--duration-base) var(--ease-in-out); }
+  .faq__item summary::after { content: "+"; flex: none; font-size: 1.5rem; font-weight: var(--weight-regular); color: var(--brand-gold-deep); transition: transform var(--duration-base) var(--ease-in-out); }
   .faq__item[open] summary::after { transform: rotate(45deg); }
   .faq__item p { padding-bottom: var(--space-5); max-width: var(--measure-prose); color: var(--ink-secondary); }
 </style>

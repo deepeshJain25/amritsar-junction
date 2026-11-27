@@ -32,14 +32,14 @@ export function restaurantSchema(siteUrl: URL, image?: string, logo?: string) {
     '@type': 'Restaurant',
     '@id': new URL('/#restaurant', siteUrl).href,
     name: site.name,
-    description: `${site.name} is an Indian restaurant serving ${site.description}.`,
+    description: `${site.name} is a Punjabi restaurant in Harris Park, Parramatta, serving ${site.description}.`,
     url: siteUrl.href,
     image,
     logo,
     servesCuisine: ['Indian', 'Punjabi', 'North Indian', 'Indo-Chinese'],
     telephone: confirmed(site.phone),
     email: confirmed(site.email),
-    hasMenu: new URL('/menu', siteUrl).href,
+    hasMenu: new URL('/menu/', siteUrl).href,
     acceptsReservations: true,
     address: confirmed(site.streetAddress)
       ? {

@@ -38,7 +38,7 @@ const menuSchema = {
   '@context': 'https://schema.org',
   '@type': 'Menu',
   name: `${site.name} menu`,
-  url: new URL('/menu', siteUrl).href,
+  url: new URL('/menu/', siteUrl).href,
   inLanguage: 'en-AU',
   hasMenuSection: chapters.map((c) => ({
     '@type': 'MenuSection',

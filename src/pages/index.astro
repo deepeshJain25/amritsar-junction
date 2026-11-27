@@ -37,16 +37,15 @@ const featured = [
 <Layout
   home
   nav="overlay"
-  title="Amritsar Junction | Punjabi Restaurant & Amritsari Kulcha"
-  description="Punjabi restaurant in Sydney serving Amritsari kulcha, tandoori kebabs, dal makhani, butter chicken and chaat. Book a table, order online or plan catering."
+  title="Amritsar Junction | Punjabi Restaurant in Harris Park, Parramatta"
+  description="Punjabi restaurant in Harris Park, near Parramatta, serving Amritsari kulcha, tandoori kebabs, dal makhani, butter chicken and chaat. Book a table, order online or plan catering."
   share={hero}
 >
   <Hero
     image={hero}
     alt="Paneer, chicken and seekh kebab skewers smoking over hot coals"
     size="home"
-    eyebrow="This week"
-    title="Amritsar's food, brought to your table in Sydney"
+    title="Amritsar's food, brought to your table in Harris Park"
     standfirst="Kulchas baked in the tandoor, black dal cooked slow, and the chaat of the old streets of Amritsar. Pull up a chair."
     focus="50% 60%"
   >
@@ -75,7 +74,7 @@ const featured = [
       >
         <p>Ask anyone from Amritsar what they miss and the answer comes fast: a proper kulcha. Not a soft naan, but a layered, stuffed bread pressed against the hot clay wall of the tandoor until the outside shatters and the inside steams.</p>
         <p>Ours is filled with spiced potato and onion, brushed with butter and finished with a knob of white makhan that melts into every crease. It comes the way it does at home, with tangy Amritsari chole, tamarind chutney and pickled onion. Tear, scoop, repeat.</p>
-        <Button slot="actions" variant="tertiary" href="/gallery#kulcha">Read the kulcha story</Button>
+        <Button slot="actions" variant="tertiary" href="/gallery/#kulcha">Read the kulcha story</Button>
       </FeatureBlock>
     </div>
   </section>
@@ -93,7 +92,7 @@ const featured = [
         {featured.map((f) => <MenuCard dish={f.dish!} image={f.image} alt={f.alt} />)}
       </MenuGrid>
       <div class="home-dishes__more">
-        <Button variant="tertiary" href="/menu">See the full menu</Button>
+        <Button variant="tertiary" href="/menu/">See the full menu</Button>
       </div>
     </div>
   </section>

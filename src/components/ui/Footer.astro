@@ -36,7 +36,7 @@ const year = new Date().getFullYear();
     </div>
     <div class="footer__base">
       <p class="text-script footer__welcome"><span lang="pa">ਜੀ ਆਇਆਂ ਨੂੰ</span> · Welcome</p>
-      <p class="text-body-sm footer__muted">© {year} {site.name} · Indian restaurant, <Todo text={site.suburb} />, Sydney</p>
+      <p class="text-body-sm footer__muted">© {year} {site.name} · Punjabi restaurant, <Todo text={site.suburb} />, Sydney · <a href="/privacy/">Privacy policy</a></p>
     </div>
   </div>
 </footer>
@@ -57,4 +57,5 @@ const year = new Date().getFullYear();
   .footer__links a:hover { text-decoration: underline; text-decoration-color: var(--ctx-ornament); }
   .footer__base { display: grid; justify-items: center; gap: var(--space-3); margin-top: var(--space-9); padding-top: var(--space-7); border-top: 1px solid var(--line-primary); text-align: center; }
   .footer__welcome { color: var(--brand-gold-deep); }
+  .footer__base a { color: inherit; }
 </style>

@@ -205,6 +205,7 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
 
 /* Forms: raised inputs with a hairline, meta labels in emerald, a 2px focus border, maroon for errors. */
 .form-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+.form__privacy { margin: 0; color: var(--ctx-ink-muted, var(--ink-secondary)); }
 @media (min-width: 640px) {
   .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -227,7 +228,8 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
   line-height: var(--leading-body-sm);
   transition: border-color var(--duration-fast) var(--ease-out);
 }
-.input::placeholder { color: var(--ink-muted); }
+/* Darker than --ink-muted so example text meets 4.5:1 on raised, primary and sunken surfaces. */
+.input::placeholder { color: #726153; }
 /* The border thickens to 2px; the extra pixel is a shadow so the field does not shift. */
 .input:focus-visible { outline: none; border-color: var(--state-focus); box-shadow: 0 0 0 1px var(--state-focus); }
 .input[aria-invalid="true"] { border-color: var(--state-error); }
