@@ -44,6 +44,17 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
   const phone = root.dataset.phone!;
   const phoneHref = root.dataset.phoneHref!;
 
+  /** The number the counter staff look up, large enough to show from a phone across the counter. */
+  function orderNumber(o: Receipt) {
+    return h(
+      'div',
+      { class: 'status__number', role: 'group', 'aria-label': `Your order number is ${o.posOrderId}` },
+      h('p', { class: 'eyebrow text-meta' }, 'Your order number'),
+      h('p', { class: 'status__number-value text-tabular' }, `#${o.posOrderId}`),
+      h('p', { class: 'text-body-sm' }, 'Give this number at the counter when you pick up. Screenshot this page if you like.'),
+    );
+  }
+
   function summary(o: Receipt) {
     const when = describeSlot(o.fulfilment.slot);
     return h(
@@ -52,7 +63,6 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
       h(
         'dl',
         { class: 'status__facts' },
-        h('div', {}, h('dt', { class: 'text-meta' }, 'Order'), h('dd', { class: 'text-tabular' }, `#${o.posOrderId}`)),
         h('div', {}, h('dt', { class: 'text-meta' }, 'Reference'), h('dd', { class: 'text-tabular' }, o.ref)),
         h('div', {}, h('dt', { class: 'text-meta' }, o.fulfilment.type === 'delivery' ? 'Delivery' : 'Pickup'), h('dd', {}, o.fulfilment.type === 'delivery' ? `${when}, to ${o.fulfilment.address}` : `${when}, from our door`)),
         o.kitchenNote && h('div', {}, h('dt', { class: 'text-meta' }, 'Note for the kitchen'), h('dd', {}, o.kitchenNote)),
@@ -83,7 +93,7 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
     const at = describeSlot(o.fulfilment.slot).replace(' today', '');
     $('heading').textContent = o.fulfilment.type === 'delivery' ? "We've got it. On its way." : `We've got it. See you at ${at}.`;
     $('lede').textContent = `Thank you, ${o.firstName}.`;
-    $('body').replaceChildren(summary(o));
+    $('body').replaceChildren(orderNumber(o), summary(o));
     $('actions').replaceChildren(h('a', { class: 'btn btn--secondary', href: '/menu/' }, 'Back to the menu'));
     track('order_status_viewed', { status: 'success' });
   } else {
@@ -123,6 +133,11 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
   .status__photo { display: block; width: min(100% - 2 * var(--container-margin), 640px); height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 70%; margin: var(--space-9) auto 0; border-radius: var(--radius-lg); }
   .status__photo[hidden] { display: none; }
   /* The summary is built by the script above, so its styles are global. */
+  :global(.status__number) { display: grid; justify-items: center; gap: var(--space-2); margin: 0 0 var(--space-7); padding: var(--space-6) var(--space-5); border: 2px solid var(--brand-emerald); border-radius: var(--radius-lg); background: var(--surface-raised); text-align: center; }
+  :global(.status__number p) { margin: 0; }
+  :global(.status__number .eyebrow) { color: var(--brand-emerald); }
+  :global(.status__number-value) { font-family: var(--font-display); font-size: clamp(3rem, 12vw, 4.5rem); line-height: 1; font-weight: var(--weight-medium); color: var(--ink-primary); letter-spacing: -0.01em; }
+  :global(.status__number .text-body-sm) { color: var(--ink-secondary); max-width: 32ch; }
   :global(.status__facts) { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-5); margin: 0 0 var(--space-6); }
   :global(.status__facts dt) { margin-bottom: var(--space-1); color: var(--brand-emerald); }
   :global(.status__facts dd) { margin: 0; }
