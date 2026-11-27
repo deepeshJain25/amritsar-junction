@@ -3,24 +3,29 @@ import type { Stripe, StripeCardElementChangeEvent, StripeElements, StripeElemen
 import { loadStripe } from '@stripe/stripe-js/pure';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { ordering, type FulfilmentType } from '../../content/ordering';
-import { fieldError, type ApiError, type ConfigResponse, type IntentRequest, type IntentResponse } from '../../lib/order/api';
+import { fieldError, formatAddress, priceOrder, type IntentRequest } from '../../lib/order/api';
 import { money } from '../../lib/order/catalog';
 import * as cart from '../../lib/order/cart';
+import { clearPending, getPending, savePending, saveReceipt, type Pending } from '../../lib/order/receipt';
 import { slotsFor, type Slot } from '../../lib/order/slots';
+import * as pos from '../../lib/order/storefront';
 import { track } from '../../lib/order/track';
-import MockCard, { cardErrors, cardOutcome, EMPTY_CARD, type MockCardField, type MockCardValue } from './MockCard';
 
 // The checkout: one page, three sections (Your details, When & where, Payment), then Pay.
-// The Worker checks the order and the POS prices it; the totals here are a preview from the basket.
-// Payment is Stripe's card field on the POS's Stripe account when card payments are on in the POS (card is the only
-// way to pay), a mock panel for local testing, or a "call us" note when online payment is not set up.
-// The card field and confirmCardPayment match the PaymentIntent the POS creates, as on the /order-test page.
+// The browser runs the whole payment against the POS storefront API, as the /order-test page does:
+// common-auth, then payment/create-intent (the POS prices the order and creates the Stripe PaymentIntent), then
+// Stripe's card field and confirmCardPayment on the POS's Stripe account, then checkout as a STRIPE payment.
+// The totals shown are a preview from the basket; the card is charged the POS's total. Card is the only way to pay.
 
 interface Props {
   phone: string;
   phoneHref: string;
+  /** The POS storefront API, e.g. https://dev.chaseintel.com.au/api */
+  apiUrl: string;
+  restaurantId: string;
 }
 
+type Payments = 'stripe' | 'off';
 type Fields = { name: string; phone: string; type: FulfilmentType; slot: string; line1: string; suburb: string };
 const FORM_STORE = 'aj.checkout.v1';
 const FORM_TTL = 30 * 60_000;
@@ -47,23 +52,68 @@ function loadFields(): Fields {
 }
 
 const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim() || undefined;
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export default function CheckoutForm({ phone, phoneHref }: Props) {
+/**
+ * Places a paid order in the POS (retrying twice), keeps the receipt for the order page and empties the basket.
+ * Returns false if the POS still would not take it: the payment stays saved, so the customer can try again
+ * or come back later without being charged twice.
+ */
+async function finishOrder(sf: pos.Storefront, p: Pending): Promise<boolean> {
+  for (const delay of [0, 2000, 5000]) {
+    await wait(delay);
+    try {
+      const posToken = await pos.auth(sf, p.order.contact);
+      const placed = await pos.checkout(sf, posToken, p.order, p.paymentIntentId, p.ref);
+      const subtotal = p.order.lines.reduce((n, l) => n + l.unitPrice * l.qty, 0);
+      saveReceipt({
+        ref: p.ref,
+        posOrderId: placed.id,
+        firstName: p.order.contact.name.split(/\s+/)[0],
+        lines: p.order.lines.map((l) => ({ name: l.name, variantLabels: l.variantLabels, note: l.note, qty: l.qty, lineTotal: l.unitPrice * l.qty })),
+        subtotal,
+        deliveryFee: Math.max(0, p.total - subtotal),
+        total: p.total,
+        fulfilment: { type: p.order.fulfilment.type, slot: p.order.fulfilment.slot, address: p.order.fulfilment.address ? formatAddress(p.order.fulfilment.address) : undefined },
+        kitchenNote: p.order.kitchenNote,
+        at: Date.now(),
+      });
+      clearPending();
+      cart.clear();
+      try {
+        sessionStorage.removeItem(FORM_STORE);
+      } catch {
+        /* storage blocked */
+      }
+      track('checkout_completed', { order_id: p.ref, total: p.total / 100 });
+      location.assign(`/order/?ref=${encodeURIComponent(p.ref)}`);
+      return true;
+    } catch (e) {
+      console.error('POS checkout failed for a paid order', p.ref, e);
+    }
+  }
+  track('checkout_failed', { reason: 'order' });
+  return false;
+}
+
+export default function CheckoutForm({ phone, phoneHref, apiUrl, restaurantId }: Props) {
   const c = useCart();
-  const [config, setConfig] = useState<ConfigResponse | null>(null);
+  const sf = useMemo<pos.Storefront>(() => ({ base: apiUrl, restaurantId }), [apiUrl, restaurantId]);
+  const [config, setConfig] = useState<{ payments: Payments } | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [notice, setNotice] = useState('');
 
   useEffect(() => {
-    fetch('/api/config')
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((cfg: ConfigResponse) => {
-        // Stripe without a publishable key cannot take a card, so it counts as off.
-        if (cfg.payments === 'stripe' && !cfg.stripePublishableKey) return setConfig({ payments: 'off' });
-        if (cfg.payments === 'stripe') setStripePromise(loadStripe(cfg.stripePublishableKey!));
-        setConfig(cfg);
+    pos
+      .publishableKey(sf)
+      .then((key) => {
+        if (key) setStripePromise(loadStripe(key));
+        setConfig({ payments: key ? 'stripe' : 'off' });
       })
-      .catch(() => setConfig({ payments: 'off' }));
+      .catch((e) => {
+        console.error('POS payment/config failed', e);
+        setConfig({ payments: 'off' });
+      });
     cart
       .loadCatalog()
       .then((catalog) => {
@@ -73,6 +123,10 @@ export default function CheckoutForm({ phone, phoneHref }: Props) {
       .catch(() => {});
     if (cart.count()) track('checkout_started', { value: cart.subtotal() / 100 });
   }, []);
+
+  // A card payment that went through but never reached the kitchen is finished first, before anything else.
+  const pending = getPending();
+  if (pending && pending.cartId === c.cartId) return <Unfinished sf={sf} pending={pending} phone={phone} phoneHref={phoneHref} />;
 
   if (!c.lines.length) {
     return (
@@ -85,7 +139,7 @@ export default function CheckoutForm({ phone, phoneHref }: Props) {
   }
   if (!config) return <p className="text-body checkout__loading">Loading checkout…</p>;
 
-  const props = { c, config, phone, phoneHref, notice };
+  const props = { c, config, sf, phone, phoneHref, notice };
   if (config.payments !== 'stripe' || !stripePromise) return <CheckoutInner {...props} stripe={null} elements={null} />;
 
   const options: StripeElementsOptions = {
@@ -105,7 +159,8 @@ function WithStripe({ children }: { children: (stripe: Stripe | null, elements: 
 
 interface InnerProps {
   c: cart.Cart;
-  config: ConfigResponse;
+  config: { payments: Payments };
+  sf: pos.Storefront;
   phone: string;
   phoneHref: string;
   notice: string;
@@ -113,13 +168,12 @@ interface InnerProps {
   elements: StripeElements | null;
 }
 
-function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }: InnerProps) {
+function CheckoutInner({ c, config, sf, phone, phoneHref, notice, stripe, elements }: InnerProps) {
   const [f, setF] = useState<Fields>(loadFields);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields | 'pay', string>>>({});
   const [busy, setBusy] = useState(false);
-  // Mock mode only. Card details stay in this component and are never sent anywhere.
-  const [card, setCard] = useState<MockCardValue>(EMPTY_CARD);
-  const [cardErr, setCardErr] = useState<Partial<Record<MockCardField, string>>>({});
+  // Set when the card was charged but the POS would not take the order, even after retrying.
+  const [stuck, setStuck] = useState<Pending | null>(null);
   const [now, setNow] = useState(() => new Date());
   const payRef = useRef<HTMLElement>(null);
 
@@ -171,20 +225,16 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       document.getElementById(`co-${Object.keys(found)[0] ?? 'slot'}`)?.focus();
       return;
     }
-    if (config.payments === 'mock') {
-      const bad = cardErrors(card);
-      setCardErr(bad);
-      const first = Object.keys(bad)[0];
-      if (first) return void document.getElementById(`mc-${first}`)?.focus();
-    }
-    if (config.payments === 'stripe' && !stripeCard.complete) {
+    if (!stripeCard.complete) {
       setErrors({ pay: stripeCard.error ?? 'Enter your card details.' });
       elements?.getElement(CardElement)?.focus();
       return;
     }
     setBusy(true);
     setErrors({});
+    let charged: Pending | null = null;
     try {
+      // The same checks the server used to run: every dish still on the menu, a valid time, address and phone.
       const body: IntentRequest = {
         cartId: c.cartId,
         lines: c.lines.map((l) => ({ sku: l.sku, variantLabels: l.variantLabels, qty: l.qty, note: l.note })),
@@ -192,45 +242,46 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
         fulfilment: { type: f.type, slot: slot.iso, ...(f.type === 'delivery' ? { address: { line1: f.line1, suburb: f.suburb, postcode: '' } } : {}) },
         kitchenNote: c.kitchenNote,
       };
-      const res = await fetch('/api/checkout/intent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = (await res.json()) as IntentResponse & ApiError;
-      if (res.status === 409 && data.orderId) return void location.assign(`/order/${data.orderId}`);
-      if (!res.ok) {
-        if (data.field) {
-          setErrors({ [data.field]: data.error });
-          document.getElementById(`co-${data.field}`)?.focus();
-          track('checkout_failed', { reason: data.field });
+      const priced = priceOrder(body, await cart.loadCatalog());
+      if ('error' in priced) {
+        if (priced.field) {
+          setErrors({ [priced.field]: priced.error });
+          document.getElementById(`co-${priced.field}`)?.focus();
+          track('checkout_failed', { reason: priced.field });
           return;
         }
-        throw new PayError(data.error);
+        throw new PayError(priced.error);
       }
 
-      if (!data.mock && data.total !== total) {
+      const posToken = await pos.auth(sf, priced.contact);
+      const intent = await pos.createIntent(sf, posToken, priced);
+      if (intent.total !== total) {
         // Never charge an amount the customer has not seen: show the POS's total and wait for another press.
-        setQuoted({ preview, total: data.total });
-        throw new PayError(`The restaurant's total for this order is ${money(data.total)}. Press Pay to pay ${money(data.total)}.`);
+        setQuoted({ preview, total: intent.total });
+        throw new PayError(`The restaurant's total for this order is ${money(intent.total)}. Press Pay to pay ${money(intent.total)}.`);
       }
 
-      if (data.mock) {
-        const r = await fetch(`/api/dev/mock-pay/${data.orderId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome: cardOutcome(card) }) });
-        if (!r.ok) throw new PayError(((await r.json()) as ApiError).error);
-      } else {
-        const cardField = elements?.getElement(CardElement);
-        if (!stripe || !cardField || !data.clientSecret) throw new PayError('The card form is still loading. Try again in a moment.');
-        // Stripe shows its own bank check (3-D Secure) here when the card needs one.
-        const { error } = await stripe.confirmCardPayment(data.clientSecret, {
-          payment_method: { card: cardField, billing_details: { name: f.name.trim(), phone: f.phone } },
-        });
-        if (error) throw new PayError(error.message ?? 'Your card was not charged. Try another card, or call us.');
-      }
-      try {
-        sessionStorage.removeItem(FORM_STORE);
-      } catch {
-        /* storage blocked */
-      }
-      location.assign(`/order/${data.orderId}`);
+      const cardField = elements?.getElement(CardElement);
+      if (!stripe || !cardField) throw new PayError('The card form is still loading. Try again in a moment.');
+      // Stripe shows its own bank check (3-D Secure) here when the card needs one.
+      const { error, paymentIntent } = await stripe.confirmCardPayment(intent.clientSecret, {
+        payment_method: { card: cardField, billing_details: { name: f.name.trim(), phone: f.phone } },
+      });
+      if (error) throw new PayError(error.message ?? 'Your card was not charged. Try another card, or call us.');
+      if (paymentIntent?.status !== 'succeeded') throw new PayError('Your bank has not approved the payment yet. Call us before trying again, so you are not charged twice.');
+
+      // Paid. Remember it before anything else, so the order can be finished even if this page closes.
+      charged = { ref: pos.newRef(), cartId: c.cartId, paymentIntentId: intent.id, total: intent.total, order: priced, at: Date.now() };
+      savePending(charged);
+      if (!(await finishOrder(sf, charged))) setStuck(charged);
     } catch (err) {
-      const message = err instanceof PayError ? err.message : 'We could not reach the payment service. Check your connection and try again.';
+      const message =
+        err instanceof PayError
+          ? err.message
+          : err instanceof pos.StorefrontError
+            ? 'We could not start the payment. Your card was not charged. Try again, or call us to order.'
+            : 'We could not reach the payment service. Check your connection and try again.';
+      if (!(err instanceof PayError)) console.error('Checkout failed', err);
       setErrors({ pay: message });
       track('checkout_failed', { reason: 'payment' });
       payRef.current?.scrollIntoView({ block: 'center' });
@@ -238,6 +289,8 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
       setBusy(false);
     }
   }
+
+  if (stuck) return <Unfinished sf={sf} pending={stuck} phone={phone} phoneHref={phoneHref} />;
 
   const byDay = slots.reduce<Record<string, Slot[]>>((acc, s) => ((acc[s.day] ??= []).push(s), acc), {});
   const closedNow = slots[0] && slots[0].day !== 'Today';
@@ -323,18 +376,6 @@ function CheckoutInner({ c, config, phone, phoneHref, notice, stripe, elements }
             {stripeCard.error && <p className="field__error">{stripeCard.error}</p>}
           </div>
         )}
-        {config.payments === 'mock' && (
-          <MockCard
-            value={card}
-            errors={cardErr}
-            onChange={(v) => {
-              setCard(v);
-              // Clear an error as soon as the field is fixed.
-              setCardErr((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => cardErrors(v)[k as MockCardField])));
-            }}
-            onBlur={(k) => card[k] && setCardErr((prev) => ({ ...prev, [k]: cardErrors(card)[k] }))}
-          />
-        )}
         {config.payments === 'off' && (
           <p className="checkout__hint text-body">Online payment isn't switched on yet. Call us on <a href={phoneHref}>{phone}</a> and we'll take your order over the phone.</p>
         )}
@@ -406,5 +447,34 @@ function Summary({ c, subtotal, deliveryFee, total }: { c: cart.Cart; subtotal: 
       </dl>
       <a className="btn btn--tertiary summary__edit" href="/cart/">Edit basket</a>
     </details>
+  );
+}
+
+/**
+ * The card was charged but the order has not reached the POS. Tries again on its own when shown, then offers a
+ * button. It never takes a new payment: it places the order for the payment already made.
+ */
+function Unfinished({ sf, pending, phone, phoneHref }: { sf: pos.Storefront; pending: Pending; phone: string; phoneHref: string }) {
+  const [state, setState] = useState<'trying' | 'failed'>('trying');
+  const attempt = () => {
+    setState('trying');
+    finishOrder(sf, pending).then((ok) => !ok && setState('failed'));
+  };
+  useEffect(attempt, []);
+  return (
+    <div className="checkout__unfinished" role="status" aria-live="polite">
+      <p className="eyebrow text-meta">Payment received</p>
+      <h2 className="text-heading-lg">{state === 'trying' ? 'Sending your order to the kitchen…' : "Your order hasn't reached our kitchen yet"}</h2>
+      <p className="text-body">
+        We've received your payment of {money(pending.total)}. {state === 'trying' ? 'This only takes a moment.' : "Try again, or call us and we'll sort it right away. You won't be charged again."}
+      </p>
+      <p className="text-body-sm">Reference {pending.ref}</p>
+      {state === 'failed' && (
+        <div className="btn-row">
+          <button type="button" className="btn btn--primary" onClick={attempt}>Try again</button>
+          <a className="btn btn--secondary" href={phoneHref}>Call {phone}</a>
+        </div>
+      )}
+    </div>
   );
 }

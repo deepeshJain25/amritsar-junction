@@ -4,9 +4,9 @@ import Layout from '../layouts/Layout.astro';
 import thali from '../assets/photos/kulcha-thali.jpg';
 import { getImage } from 'astro:assets';
 
-// The order status page. The ordering Worker serves this one page for every /order/<id>; the script reads
-// the id from the address and asks /api/orders/<id>. Three states share one layout (eyebrow, heading,
-// summary, actions) so moving from waiting to success reads as one moment: waiting, success and error.
+// The order confirmation page, /order/?ref=<web order reference>. Checkout places the order with the POS from the
+// browser and keeps a receipt in this browser; the page shows it. With no receipt here (another device, or cleared
+// storage) it says to call. The POS has no order lookup yet, so there is no live status.
 const photo = await getImage({ src: thali, width: 720, format: 'webp' });
 ---
 
@@ -33,23 +33,18 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
 
 <script>
   import { money } from '../lib/order/catalog';
-  import * as cart from '../lib/order/cart';
-  import type { OrderView } from '../lib/order/api';
+  import { getReceipt, type Receipt } from '../lib/order/receipt';
   import { h } from '../lib/order/dom';
   import { describeSlot } from '../lib/order/slots';
   import { track } from '../lib/order/track';
 
   const root = document.querySelector<HTMLElement>('[data-order-status]')!;
   const $ = (k: string) => root.querySelector<HTMLElement>(`[data-${k}]`)!;
-  const id = location.pathname.split('/').filter(Boolean)[1] ?? '';
+  const ref = new URLSearchParams(location.search).get('ref') ?? '';
   const phone = root.dataset.phone!;
   const phoneHref = root.dataset.phoneHref!;
 
-  let polls = 0;
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let lastState = '';
-
-  function summary(o: OrderView) {
+  function summary(o: Receipt) {
     const when = describeSlot(o.fulfilment.slot);
     return h(
       'div',
@@ -57,7 +52,8 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
       h(
         'dl',
         { class: 'status__facts' },
-        h('div', {}, h('dt', { class: 'text-meta' }, 'Order'), h('dd', { class: 'text-tabular' }, o.id)),
+        h('div', {}, h('dt', { class: 'text-meta' }, 'Order'), h('dd', { class: 'text-tabular' }, `#${o.posOrderId}`)),
+        h('div', {}, h('dt', { class: 'text-meta' }, 'Reference'), h('dd', { class: 'text-tabular' }, o.ref)),
         h('div', {}, h('dt', { class: 'text-meta' }, o.fulfilment.type === 'delivery' ? 'Delivery' : 'Pickup'), h('dd', {}, o.fulfilment.type === 'delivery' ? `${when}, to ${o.fulfilment.address}` : `${when}, from our door`)),
         o.kitchenNote && h('div', {}, h('dt', { class: 'text-meta' }, 'Note for the kitchen'), h('dd', {}, o.kitchenNote)),
       ),
@@ -73,83 +69,32 @@ const photo = await getImage({ src: thali, width: 720, format: 'webp' });
         { class: 'cart__totals' },
         h('div', {}, h('dt', {}, 'Subtotal'), h('dd', { class: 'text-tabular' }, money(o.subtotal))),
         o.deliveryFee > 0 && h('div', {}, h('dt', {}, 'Delivery'), h('dd', { class: 'text-tabular' }, money(o.deliveryFee))),
-        h('div', { class: 'cart__grand' }, h('dt', {}, 'Total'), h('dd', { class: 'text-tabular' }, money(o.total))),
+        h('div', { class: 'cart__grand' }, h('dt', {}, 'Paid'), h('dd', { class: 'text-tabular' }, money(o.total))),
       ),
       h('p', { class: 'cart__gst text-body-sm' }, 'Prices include GST.'),
     );
   }
 
-  function show(o: OrderView | null, failure?: string) {
-    const state = o ? `${o.state}:${o.reason ?? ''}` : 'missing';
-    root.dataset.state = o?.state ?? 'error';
-    const eyebrow = $('eyebrow');
-    const heading = $('heading');
-    const lede = $('lede');
-    const actions = $('actions');
-    $('photo').hidden = o?.state !== 'success';
-
-    if (!o) {
-      eyebrow.textContent = 'Something went wrong';
-      heading.textContent = 'We could not find that order';
-      lede.textContent = failure ?? 'Call us and we will look it up.';
-      $('body').replaceChildren();
-      actions.replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `Call ${phone}`), h('a', { class: 'btn btn--secondary', href: '/menu/' }, 'Back to the menu'));
-    } else if (o.state === 'waiting') {
-      eyebrow.textContent = 'Hold tight';
-      heading.textContent = "We're confirming your payment";
-      lede.textContent = polls > 10 ? 'This is taking longer than usual. Refresh in a minute, or call us.' : `Order ${o.id}. We'll refresh this page for you.`;
-      $('body').replaceChildren(summary(o));
-      actions.replaceChildren(...(polls > 10 ? [h('button', { type: 'button', class: 'btn btn--secondary', onClick: () => { polls = 0; load(); } }, 'Refresh')] : []));
-    } else if (o.state === 'success') {
-      eyebrow.replaceChildren(h('span', { lang: 'pa' }, 'ਜੀ ਆਇਆਂ ਨੂੰ'), ' · Welcome');
-      const at = describeSlot(o.fulfilment.slot).replace(' today', '');
-      heading.textContent = o.fulfilment.type === 'delivery' ? "We've got it. On its way." : `We've got it. See you at ${at}.`;
-      lede.textContent = `Thank you, ${o.firstName}.`;
-      $('body').replaceChildren(summary(o));
-      actions.replaceChildren(h('a', { class: 'btn btn--secondary', href: '/menu/' }, 'Back to the menu'));
-      cart.clear();
-    } else {
-      eyebrow.textContent = 'Something went wrong';
-      if (o.reason === 'order_failed') {
-        heading.textContent = "We've received your payment";
-        lede.textContent = "But your order didn't reach our kitchen. Call us and we'll sort it right away.";
-        actions.replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `We've already charged you. Tap to call ${phone}`));
-        cart.clear();
-      } else {
-        heading.textContent = "Your card wasn't charged";
-        lede.textContent = 'Try another card, or call us and we will take your order over the phone.';
-        actions.replaceChildren(h('a', { class: 'btn btn--primary', href: '/checkout/' }, 'Try again'), h('a', { class: 'btn btn--secondary', href: phoneHref }, `Call ${phone}`));
-      }
-      $('body').replaceChildren(summary(o));
-    }
-
-    if (state !== lastState) {
-      // Move focus to the new heading so screen readers hear the change, but not on first load.
-      if (lastState) heading.focus();
-      lastState = state;
-      if (o) track('order_status_viewed', { status: o.state, reason: o.reason });
-      if (o?.state === 'success') track('checkout_completed', { order_id: o.id, total: o.total / 100 });
-    }
+  const o = ref ? getReceipt(ref) : null;
+  if (o) {
+    root.dataset.state = 'success';
+    $('photo').hidden = false;
+    $('eyebrow').replaceChildren(h('span', { lang: 'pa' }, 'ਜੀ ਆਇਆਂ ਨੂੰ'), ' · Welcome');
+    const at = describeSlot(o.fulfilment.slot).replace(' today', '');
+    $('heading').textContent = o.fulfilment.type === 'delivery' ? "We've got it. On its way." : `We've got it. See you at ${at}.`;
+    $('lede').textContent = `Thank you, ${o.firstName}.`;
+    $('body').replaceChildren(summary(o));
+    $('actions').replaceChildren(h('a', { class: 'btn btn--secondary', href: '/menu/' }, 'Back to the menu'));
+    track('order_status_viewed', { status: 'success' });
+  } else {
+    root.dataset.state = 'error';
+    $('eyebrow').textContent = 'Your order';
+    $('heading').textContent = "We can't show that order here";
+    $('lede').textContent = ref ? `Your order details are kept on the device you ordered from. Call us with reference ${ref} and we'll check it for you.` : 'Call us and we will look it up.';
+    $('body').replaceChildren();
+    $('actions').replaceChildren(h('a', { class: 'btn btn--primary', href: phoneHref }, `Call ${phone}`), h('a', { class: 'btn btn--secondary', href: '/menu/' }, 'Back to the menu'));
+    track('order_status_viewed', { status: 'missing' });
   }
-
-  async function load() {
-    clearTimeout(timer);
-    try {
-      const res = await fetch(`/api/orders/${encodeURIComponent(id)}`, { cache: 'no-store' });
-      if (res.status === 404) return show(null);
-      if (!res.ok) throw new Error(String(res.status));
-      const o = (await res.json()) as OrderView;
-      polls += 1;
-      show(o);
-      // Every 3 seconds for 30 seconds while waiting, then a manual refresh.
-      if (o.state === 'waiting' && polls <= 10) timer = setTimeout(load, 3000);
-    } catch {
-      show(null, 'We could not check your order just now. Check your connection, or call us.');
-    }
-  }
-
-  if (/^aj-[a-z0-9]{8}$/.test(id)) load();
-  else show(null);
 </script>
 
 <style>

@@ -1,11 +1,11 @@
 ---
+import { RESTAURANT_ID, STOREFRONT_API_URL } from 'astro:env/server';
 import CheckoutForm from '../components/order/CheckoutForm.tsx';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 
-// Checkout: one page with three sections (Your details, When & where, Payment). The form is a React island
-// because Stripe's Payment Element is, rendered in the browser only because the basket lives there.
-// Orders are priced and paid through the ordering Worker (worker/index.ts).
+// Checkout: one page with three sections (Your details, When & where, Payment). The form is a React island,
+// rendered in the browser only because the basket lives there. It pays through the POS storefront API directly.
 ---
 
 <Layout title="Checkout" description="Pay for your Amritsar Junction order for pickup or delivery." crumb="Checkout" noindex>
@@ -14,7 +14,7 @@ import Layout from '../layouts/Layout.astro';
       <p class="eyebrow text-meta">Checkout</p>
       <h1 class="text-display-md">Almost there</h1>
       <div class="checkout-page__form">
-        <CheckoutForm client:only="react" phone={site.phone} phoneHref={site.phoneHref}>
+        <CheckoutForm client:only="react" phone={site.phone} phoneHref={site.phoneHref} apiUrl={STOREFRONT_API_URL} restaurantId={RESTAURANT_ID}>
           <p slot="fallback" class="text-body checkout__loading">Loading checkout…</p>
         </CheckoutForm>
       </div>

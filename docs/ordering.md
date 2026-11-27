@@ -18,30 +18,28 @@ The browser never sets a price: the Worker checks every order against `/catalog.
 
 ### Paying and sending orders to the kitchen
 
-This is the same flow as the internal `/order-test` page, run by the Worker so the POS token never reaches the browser:
+**For now the browser runs the whole payment**, the same flow as the internal `/order-test` page (`src/lib/order/storefront.ts`, called from `CheckoutForm.tsx`):
 
-1. **Pay pressed:** the Worker checks the basket, saves the order in D1, then calls the POS: `POST /storefront/common-auth/` (customer by phone), then `POST /storefront/payment/create-intent/` with the items. The POS prices the order and creates the Stripe PaymentIntent on its own Stripe account.
-2. **Card:** the browser confirms that PaymentIntent with Stripe's Payment Element, using the publishable key from `GET /storefront/payment/config/`. Card is the only way to pay: checkout uses Stripe's card field and `confirmCardPayment`, as the order-test page does, so bank debits, pay-later methods, wallets and Link never show, whatever the Stripe account allows. (Stripe will not confirm a Payment Element limited to cards against the PaymentIntent the POS creates.) If the POS's total differs from the basket preview, the page shows the POS's total first and the customer presses Pay again.
-3. **Order:** the order page asks the Worker for the order's status. The Worker reads the PaymentIntent from Stripe (with the publishable key and its client secret, as Stripe.js does), and once it has succeeded, calls `POST /storefront/checkout/` with `payment_method: STRIPE` and the `payment_intent_id`. The POS records the order as paid and prints the docket.
+1. **Pay pressed:** the page checks the basket against `/catalog.json`, then calls the POS: `POST /storefront/common-auth/` (customer by phone), then `POST /storefront/payment/create-intent/` with the items. The POS prices the order and creates the Stripe PaymentIntent on its own Stripe account. If the POS's total differs from the basket preview, the page shows the POS's total and the customer presses Pay again.
+2. **Card:** Stripe's card field and `confirmCardPayment`, with the publishable key from `GET /storefront/payment/config/`. Card is the only way to pay.
+3. **Order:** once the payment has succeeded, the page calls `POST /storefront/checkout/` with `payment_method: STRIPE` and the `payment_intent_id`. The POS checks the payment with Stripe, records the order as paid and prints the docket.
+4. **Confirmation:** the page keeps a receipt in the browser and opens `/order/?ref=<reference>`.
 
-Stripe's webhooks go to the POS, not to the Worker. The docket's notes carry the pickup or delivery time and the web order number. Each dish's size or style is in that dish's note, because the POS names a sized dish without its size. A size is ordered by sending the size's own id as `menu_item_id`. If the POS checkout fails, the Worker retries up to 3 times. After that, the customer is asked to call, and the order stays in D1 with `pos_error` set.
+If the card is charged but `checkout` fails, the payment is saved in the browser (`localStorage`, `aj.pending.v1`). The page retries, then offers "Try again"; coming back to checkout later also finishes that order rather than charging again. It works on any host (Cloudflare or Vercel), since nothing runs on our server.
+
+**Waiting on the POS team:** whether `checkout` checks the amount paid against the order, refuses a second use of the same payment, and catches payments whose `checkout` never arrives. Until that is confirmed, the server-side version is kept in `worker/` (the Worker holds each order in D1 between the two steps). It is deployed but checkout no longer calls it.
+
+The docket's notes carry the pickup or delivery time and the web order reference. Each dish's size or style is in that dish's note, because the POS names a sized dish without its size. A size is ordered by sending the size's own id as `menu_item_id`.
 
 Card payments are on when the POS's `payment/config` says `stripe_enabled` with a publishable key. Test or live is whichever keys are in the POS admin.
 
 ## Try it locally
 
 ```sh
-cp .dev.vars.example .dev.vars        # mock payments on, nothing sent to the POS
-npm run build
-npx wrangler d1 migrations apply amritsar-junction-orders --local
-npx wrangler dev                      # http://localhost:8787
+npm run dev                           # http://localhost:4321
 ```
 
-`npm run dev` (Astro on its own) shows the basket but has no `/api`, so checkout says online payment is not set up. Use `wrangler dev` to test checkout.
-
-With `MOCK_PAYMENTS=true`, checkout shows a test panel where you pick what happens: success, a declined card, or a slow payment.
-
-With `MOCK_PAYMENTS=false`, checkout pays through the POS with whatever Stripe keys are in the POS admin. With test keys, use card `4242 4242 4242 4242`. Every paid order is placed in the POS and can print a docket.
+Checkout talks to the POS directly, so `npm run dev` is enough. It pays with whatever Stripe keys are in the POS admin: with live keys every payment is a real charge, and every paid order is placed in the POS and can print a docket. With test keys, use card `4242 4242 4242 4242`.
 
 ## Going live (one-off)
 
