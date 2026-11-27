@@ -391,11 +391,6 @@ function CheckoutInner({ c, config, sf, phone, phoneHref, notice, stripe, elemen
         <p className="checkout__fine text-body-sm">Prices include GST. Questions about your order? Call <a href={phoneHref}>{phone}</a>.</p>
       </Section>
 
-      {/* Phones: the total and Pay stay in reach; the button scrolls to the payment section, where Stripe's field lives. */}
-      <div className="checkout__bar surface-raised">
-        <span className="text-tabular"><span className="text-meta">Total</span> {money(total)}</span>
-        <button type="button" className="btn btn--primary" onClick={() => payRef.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })}>Pay</button>
-      </div>
     </form>
   );
 }

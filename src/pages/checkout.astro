@@ -29,6 +29,4 @@ import Layout from '../layouts/Layout.astro';
   .checkout-page__inner { max-width: calc(560px + 2 * var(--container-margin)); }
   .checkout-page__form { margin-top: var(--space-7); }
   :global(html:not(.js)) .checkout__loading { display: none; }
-  /* Room for the sticky total bar on phones. */
-  @media (max-width: 767px) { .checkout-page { padding-bottom: calc(var(--rhythm-section) + 80px); } }
 </style>
