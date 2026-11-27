@@ -12,7 +12,6 @@
   "phoneHref": "tel:+61272735229",
   "mapUrl": "https://maps.app.goo.gl/TVaLdjz1A8jRbD497",
   "geo": { "latitude": -33.8204789, "longitude": 151.0086835 },
-  "email": "[bookings@amritsarjunction.com.au]",
   "hours": [
     { "days": "Monday to Thursday", "time": "[11am to 10pm]" },
     { "days": "Friday and Saturday", "time": "[11am to 11pm]" },

@@ -4,7 +4,6 @@ import Todo from '../components/Todo.astro';
 import Hero from '../components/sections/Hero.astro';
 import SectionOpener from '../components/sections/SectionOpener.astro';
 import Button from '../components/ui/Button.astro';
-import Input from '../components/ui/Input.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { confirmed } from '../lib/seo';
@@ -94,7 +93,7 @@ const faqSchema = {
     title="Punjabi food, by the tray or by the function"
     standfirst="From a tray of butter chicken for the office to a full wedding spread with a chaat counter, we cook for ten guests or a whole hall."
   >
-    <Button slot="actions" href="#enquire">Send an enquiry</Button>
+    <Button slot="actions" href="#enquire">Enquire about catering</Button>
     <Button slot="actions" variant="secondary" href={site.phoneHref}>Call us</Button>
   </Hero>
 
@@ -151,26 +150,13 @@ const faqSchema = {
       <div>
         <p class="eyebrow text-meta">Enquire</p>
         <h2 id="enquire-title" class="text-display-md">Tell us about your event</h2>
-        <p class="text-body enquire__lede">We reply within <Todo text="[one business day]" /> with a menu suggestion and a quote. Prefer to talk? Call <a href={site.phoneHref}><Todo text={site.phone} /></a>.</p>
-        <form class="form-grid" method="post" action="#enquire" data-form="catering">
-          <Input label="Your name" name="name" id="c-name" autocomplete="name" />
-          <Input label="Email" name="email" id="c-email" type="email" autocomplete="email" />
-          <Input label="Phone" name="phone" id="c-phone" type="tel" autocomplete="tel" />
-          <Input label="Event date" name="date" id="c-date" type="date" />
-          <Input label="Guests" name="guests" id="c-guests" type="number" min="10" inputmode="numeric" />
-          <Input label="Type of event" name="event_type" id="c-type" type="select">
-            <option value="">Choose one</option>
-            <option>Wedding or engagement</option>
-            <option>Kirtan or religious function</option>
-            <option>Birthday or family party</option>
-            <option>Office or corporate</option>
-            <option>Festival celebration</option>
-            <option>Other</option>
-          </Input>
-          <Input label="Notes" name="notes" id="c-notes" type="textarea" optional full placeholder="Venue or suburb, favourite dishes, allergies, timing" />
-          <div class="field--full"><Button type="submit">Send enquiry</Button></div>
-          <p class="field--full text-body-sm form__privacy">We use your details only to reply to your enquiry and plan your event. See our <a href="/privacy/">privacy policy</a>.</p>
-        </form>
+        <p class="text-body enquire__lede">Call us and tell us the date, how many guests and the kind of event. We will suggest a menu and give you a quote.</p>
+        <div class="call-to-book">
+          <p class="eyebrow text-meta">Call to enquire</p>
+          <a class="call-to-book__number text-tabular" href={site.phoneHref}><Todo text={site.phone} /></a>
+          <p class="text-body-sm call-to-book__note">Handy to have ready: the event date, the number of guests, the venue or suburb, and any dietary needs.</p>
+          <Button href={site.phoneHref}>Call about catering</Button>
+        </div>
       </div>
     </div>
   </section>

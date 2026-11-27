@@ -204,8 +204,14 @@ a { color: var(--ctx-accent); text-decoration-thickness: 1px; text-underline-off
 }
 
 /* Forms: raised inputs with a hairline, meta labels in emerald, a 2px focus border, maroon for errors. */
+/* Bookings and catering are by phone: a panel with the number large and a call button. */
+.call-to-book { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-6); border: 1px solid var(--line-primary); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.call-to-book p { margin: 0; }
+.call-to-book__number { font-family: var(--font-display); font-size: clamp(2rem, 7vw, 2.75rem); line-height: 1.1; color: var(--ink-primary); text-decoration: none; }
+.call-to-book__number:hover { text-decoration: underline; text-decoration-color: var(--ctx-ornament); }
+.call-to-book__note { color: var(--ink-secondary); max-width: 46ch; }
+
 .form-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
-.form__privacy { margin: 0; color: var(--ctx-ink-muted, var(--ink-secondary)); }
 @media (min-width: 640px) {
   .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

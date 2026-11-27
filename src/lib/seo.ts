@@ -38,7 +38,6 @@ export function restaurantSchema(siteUrl: URL, image?: string, logo?: string) {
     logo,
     servesCuisine: ['Indian', 'Punjabi', 'North Indian', 'Indo-Chinese'],
     telephone: confirmed(site.phone),
-    email: confirmed(site.email),
     hasMenu: new URL('/menu/', siteUrl).href,
     acceptsReservations: true,
     address: confirmed(site.streetAddress)

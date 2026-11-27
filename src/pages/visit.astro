@@ -5,7 +5,6 @@ import FeatureBlock from '../components/sections/FeatureBlock.astro';
 import Hero from '../components/sections/Hero.astro';
 import SectionOpener from '../components/sections/SectionOpener.astro';
 import Button from '../components/ui/Button.astro';
-import Input from '../components/ui/Input.astro';
 import site from '../content/site.json';
 import Layout from '../layouts/Layout.astro';
 import { confirmed } from '../lib/seo';
@@ -17,13 +16,6 @@ const mapSearch = confirmed(site.address) ? `${site.name}, ${site.address}` : si
 const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(mapSearch)}&output=embed`;
 // "Get directions" opens the restaurant's own Google Maps pin.
 const directions = site.mapUrl;
-
-// Every half hour from opening (11 am) to the last booking (9 pm). The kitchen runs all day, with no afternoon break.
-const times = Array.from({ length: 21 }, (_, i) => `${String(11 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`);
-const label = (t: string) => {
-  const [h, m] = t.split(':').map(Number);
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
-};
 
 // Ways to order. Pickup only: the restaurant doesn't deliver yet (see ordering.delivery.enabled).
 // A link still in [square brackets] shows highlighted and gets no button until it is confirmed.
@@ -40,35 +32,18 @@ const partners = [
   crumb="Visit & Reserve"
   share={saag}
 >
-  <Hero image={saag} alt="Sarson ka saag topped with white butter, with makki di roti, radish and jaggery" eyebrow="Visit & reserve" title="Find us, book a table, order in" standfirst="Walk in, call ahead or book online. Either way, there will be hot kulchas waiting." />
+  <Hero image={saag} alt="Sarson ka saag topped with white butter, with makki di roti, radish and jaggery" eyebrow="Visit & reserve" title="Find us, book a table, order in" standfirst="Walk in, or call ahead to book a table. Either way, there will be hot kulchas waiting." />
 
   <section class="section" id="reserve" aria-labelledby="reserve-title">
     <div class="container reserve">
       <div class="reserve__form">
-        <SectionOpener eyebrow="Reserve a table" title="Book your table" standfirst="Tell us when you are coming and how many of you there are. We will confirm by phone or email." size="md" id="reserve-title" />
-        <form class="form-grid" method="post" action="#reserve" data-form="reservation">
-          <Input label="Your name" name="name" id="r-name" autocomplete="name" />
-          <Input label="Phone" name="phone" id="r-phone" type="tel" autocomplete="tel" />
-          <Input label="Email" name="email" id="r-email" type="email" autocomplete="email" full />
-          <Input label="Date" name="date" id="r-date" type="date" />
-          <Input label="Time" name="time" id="r-time" type="select" help="Last booking 9 pm.">
-            <option value="">Choose a time</option>
-            {times.map((t) => <option value={t}>{label(t)}</option>)}
-          </Input>
-          <Input label="Guests" name="guests" id="r-guests" type="select">
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => <option value={n} selected={n === 2}>{n} {n === 1 ? 'guest' : 'guests'}</option>)}
-          </Input>
-          <Input label="Occasion" name="occasion" id="r-occasion" type="select" optional>
-            <option value="">None</option>
-            <option>Birthday</option>
-            <option>Anniversary</option>
-            <option>Family dinner</option>
-            <option>Business</option>
-          </Input>
-          <Input label="Requests or allergies" name="notes" id="r-notes" type="textarea" optional full placeholder="High chair, a quiet table, allergies" />
-          <div class="field--full"><Button type="submit">Request booking</Button></div>
-          <p class="field--full text-body-sm form__privacy">We use your details only to confirm and look after your booking. See our <a href="/privacy/">privacy policy</a>.</p>
-        </form>
+        <SectionOpener eyebrow="Reserve a table" title="Book your table" standfirst="Call us to book. Tell us the day, the time and how many of you are coming, and we will hold your table." size="md" id="reserve-title" />
+        <div class="call-to-book">
+          <p class="eyebrow text-meta">Call to book</p>
+          <a class="call-to-book__number text-tabular" href={site.phoneHref}><Todo text={site.phone} /></a>
+          <p class="text-body-sm call-to-book__note">Bookings are by phone only. Let us know about birthdays, high chairs or allergies when you call.</p>
+          <Button href={site.phoneHref}>Call to book a table</Button>
+        </div>
         <div class="reserve__hours">
           <h3 class="eyebrow text-meta">Hours</h3>
           <Hours />
@@ -87,8 +62,8 @@ const partners = [
             <dd><address><Todo text={site.address} /></address><Button variant="tertiary" href={directions} target="_blank" rel="noopener">Get directions</Button></dd>
           </div>
           <div>
-            <dt class="eyebrow text-meta">Phone and email</dt>
-            <dd><a href={site.phoneHref}><Todo text={site.phone} /></a><br /><a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a></dd>
+            <dt class="eyebrow text-meta">Phone</dt>
+            <dd><a href={site.phoneHref}><Todo text={site.phone} /></a></dd>
           </div>
           <div>
             <dt class="eyebrow text-meta">Parking</dt>

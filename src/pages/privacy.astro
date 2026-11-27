@@ -5,15 +5,14 @@ import Layout from '../layouts/Layout.astro';
 
 // Plain-English privacy policy covering what this website actually collects: booking and catering
 // requests, online orders and card payments. The restaurant should read it before it goes live.
-const email = site.email;
 ---
 
-<Layout title="Privacy policy" description={`How ${site.name} collects, uses and protects the details you give us through this website.`} crumb="Privacy policy">
+<Layout title="Privacy policy" description={`How ${site.name} collects, uses and protects the details you give us when you order online.`} crumb="Privacy policy">
   <article class="section">
     <div class="container prose">
       <p class="eyebrow text-meta">Privacy</p>
       <h1 class="text-display-lg">Privacy policy</h1>
-      <p class="text-body-lg prose__lede">We ask only for what we need to look after your booking or order, and we never sell your details.</p>
+      <p class="text-body-lg prose__lede">We ask only for what we need to look after your order, and we never sell your details.</p>
       <p class="text-body-sm prose__muted">Last updated 27 November 2026.</p>
 
       <h2 class="text-heading-lg">Who we are</h2>
@@ -21,16 +20,14 @@ const email = site.email;
 
       <h2 class="text-heading-lg">What we collect</h2>
       <ul>
-        <li><strong>Table bookings:</strong> your name, phone number, email, the date, time and size of your booking, the occasion, and any requests or allergies you tell us about.</li>
-        <li><strong>Catering enquiries:</strong> your name, email, phone number, event date, number of guests, type of event and any notes.</li>
         <li><strong>Online orders:</strong> your name, phone number, what you order and your pickup time.</li>
         <li><strong>Card payments:</strong> card details are entered directly into Stripe, our payment provider. They go straight to Stripe and we never see or store your full card number.</li>
       </ul>
-      <p>We don't ask for anything else, and you don't need an account to book or order.</p>
+      <p>We don't ask for anything else, and you don't need an account to order. Table bookings and catering enquiries are taken by phone, not through this website.</p>
 
       <h2 class="text-heading-lg">How we use it</h2>
       <ul>
-        <li>To confirm and manage your booking, catering event or order, and to contact you about it.</li>
+        <li>To prepare your order and contact you about it.</li>
         <li>To prepare your food safely, including any allergies or dietary needs you tell us about.</li>
         <li>To keep records we are required to keep, such as payment and tax records.</li>
       </ul>
@@ -55,7 +52,7 @@ const email = site.email;
       <p>You can ask to see the details we hold about you, ask us to correct them, or ask us to delete them where we are not required to keep them. If you have a concern about how we have handled your information, please tell us first and we will try to put it right. If you are not satisfied, you can contact the <a href="https://www.oaic.gov.au/" rel="noopener" target="_blank">Office of the Australian Information Commissioner</a>.</p>
 
       <h2 class="text-heading-lg">Contact us</h2>
-      <p>Call us on <a href={site.phoneHref}><Todo text={site.phone} /></a>, email <a href={`mailto:${email.replace(/[[\]]/g, '')}`}><Todo text={email} /></a>, or speak to us at the restaurant.</p>
+      <p>Call us on <a href={site.phoneHref}><Todo text={site.phone} /></a>, or speak to us at the restaurant.</p>
     </div>
   </article>
 </Layout>

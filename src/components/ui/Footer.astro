@@ -19,8 +19,7 @@ const year = new Date().getFullYear();
         <h2 class="eyebrow text-meta">Find us</h2>
         <address class="text-body-sm">
           <Todo text={site.address} /><br />
-          <a href={site.phoneHref}><Todo text={site.phone} /></a><br />
-          <a href={`mailto:${site.email.replace(/[[\]]/g, '')}`}><Todo text={site.email} /></a>
+          <a href={site.phoneHref}><Todo text={site.phone} /></a>
         </address>
       </div>
       <div>
