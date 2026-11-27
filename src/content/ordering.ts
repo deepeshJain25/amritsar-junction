@@ -34,6 +34,11 @@ export const ordering = {
   /** Carts left untouched this long are emptied. */
   cartExpiryDays: 7,
   delivery: {
+    /**
+     * Delivery is switched off: the restaurant doesn't deliver yet, so checkout is pickup only. Turn this on to bring
+     * back the Pickup / Delivery choice, the address fields and the fee. The rest of these settings are kept for that.
+     */
+    enabled: false,
     /** The POS adds this for delivery when it prices the order, and the POS's total is what the card is charged. */
     feeCents: 500,
     /** Smallest food subtotal we deliver, before the delivery fee. */

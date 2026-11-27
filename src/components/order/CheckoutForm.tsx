@@ -3,6 +3,7 @@ import type { Stripe, StripeCardElementChangeEvent, StripeElements, StripeElemen
 import { loadStripe } from '@stripe/stripe-js/pure';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { ordering, type FulfilmentType } from '../../content/ordering';
+import site from '../../content/site.json';
 import { fieldError, formatAddress, priceOrder, type IntentRequest } from '../../lib/order/api';
 import { money } from '../../lib/order/catalog';
 import * as cart from '../../lib/order/cart';
@@ -44,7 +45,7 @@ function useCart() {
 function loadFields(): Fields {
   try {
     const saved = JSON.parse(sessionStorage.getItem(FORM_STORE) ?? 'null') as { at: number; fields: Fields } | null;
-    if (saved && Date.now() - saved.at < FORM_TTL) return { ...EMPTY, ...saved.fields, slot: '' };
+    if (saved && Date.now() - saved.at < FORM_TTL) return { ...EMPTY, ...saved.fields, slot: '', ...(ordering.delivery.enabled ? {} : { type: 'pickup' as const }) };
   } catch {
     /* storage blocked */
   }
@@ -310,15 +311,18 @@ function CheckoutInner({ c, config, sf, phone, phoneHref, notice, stripe, elemen
         </div>
       </Section>
 
-      <Section eyebrow="When & where" title="Pickup or delivery?">
-        <div className="segmented" role="radiogroup" aria-label="Pickup or delivery" id="co-type">
-          {(['pickup', 'delivery'] as const).map((t) => (
-            <label key={t} className="segmented__option">
-              <input type="radio" name="type" value={t} checked={f.type === t} onChange={() => setF((prev) => ({ ...prev, type: t, slot: '' }))} />
-              <span>{t === 'pickup' ? 'Pickup' : `Delivery · ${money(ordering.delivery.feeCents)}`}</span>
-            </label>
-          ))}
-        </div>
+      <Section eyebrow="When" title={ordering.delivery.enabled ? 'Pickup or delivery?' : 'When will you pick it up?'}>
+        {ordering.delivery.enabled && (
+          <div className="segmented" role="radiogroup" aria-label="Pickup or delivery" id="co-type">
+            {(['pickup', 'delivery'] as const).map((t) => (
+              <label key={t} className="segmented__option">
+                <input type="radio" name="type" value={t} checked={f.type === t} onChange={() => setF((prev) => ({ ...prev, type: t, slot: '' }))} />
+                <span>{t === 'pickup' ? 'Pickup' : `Delivery · ${money(ordering.delivery.feeCents)}`}</span>
+              </label>
+            ))}
+          </div>
+        )}
+        {!ordering.delivery.enabled && <p className="checkout__hint text-body-sm" id="co-type">Pickup only, from our door at {site.address}. We don't deliver yet.</p>}
         {errors.type && <p className="field__error" role="alert">{errors.type}</p>}
         {belowMinimum && <p className="checkout__hint text-body-sm">Delivery starts at {money(ordering.delivery.minCents)} of food. Add {money(ordering.delivery.minCents - subtotal)} more, or choose pickup.</p>}
         {closedNow && <p className="checkout__hint text-body-sm">We're closed right now. Your order will be ready at {slots[0].time} {slots[0].day.toLowerCase()}.</p>}

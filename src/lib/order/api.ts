@@ -129,6 +129,7 @@ export function priceOrder(req: IntentRequest, catalog: Catalog, now = new Date(
 
   const f = req.fulfilment ?? ({} as IntentRequest['fulfilment']);
   if (f.type !== 'pickup' && f.type !== 'delivery') return { error: 'Choose pickup or delivery.', field: 'type' };
+  if (f.type === 'delivery' && !ordering.delivery.enabled) return { error: "We don't deliver yet. Choose pickup.", field: 'type' };
   if (typeof f.slot !== 'string' || !isValidSlot(f.type, f.slot, now)) return { error: 'That time is no longer available. Choose another.', field: 'slot' };
 
   const subtotal = lines.reduce((n, l) => n + l.unitPrice * l.qty, 0);

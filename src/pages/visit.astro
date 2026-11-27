@@ -25,11 +25,11 @@ const label = (t: string) => {
   return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
 };
 
-// Ordering partners. A link still in [square brackets] shows highlighted and gets no button until it is confirmed.
+// Ways to order. Pickup only: the restaurant doesn't deliver yet (see ordering.delivery.enabled).
+// A link still in [square brackets] shows highlighted and gets no button until it is confirmed.
 const partners = [
-  { name: 'Direct', note: 'Pick up from the restaurant. Call ahead and it will be hot when you arrive.', href: site.phoneHref, cta: 'Call to order' },
-  { name: 'Uber Eats', note: 'Delivered to your door.', href: '[Uber Eats link]', cta: 'Order on Uber Eats' },
-  { name: 'DoorDash', note: 'Delivered to your door.', href: '[DoorDash link]', cta: 'Order on DoorDash' },
+  { name: 'Order online', note: 'Choose your dishes, pay by card and pick a time. It will be hot when you arrive.', href: site.orderUrl, cta: 'Start your order' },
+  { name: 'Call to order', note: 'Tell us what you would like and when. Call ahead and it will be hot when you arrive.', href: site.phoneHref, cta: 'Call to order' },
 ];
 ---
 
@@ -105,7 +105,7 @@ const partners = [
 
   <section class="section surface-sunken" id="order" aria-labelledby="order-title">
     <div class="container">
-      <SectionOpener eyebrow="Takeaway & delivery" title="Order in" size="md" align="center" id="order-title" />
+      <SectionOpener eyebrow="Takeaway" title="Order for pickup" standfirst="We don't deliver yet. Order ahead and collect from our door." size="md" align="center" id="order-title" />
       <ul class="partners" role="list">
         {partners.map((p) => (
           <li class="partner">
@@ -169,7 +169,7 @@ const partners = [
   .facts a:not(.btn) { display: inline-flex; align-items: center; min-height: var(--touch-target); color: var(--ink-primary); overflow-wrap: anywhere; }
 
   .partners { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
-  @media (min-width: 1024px) { .partners { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gutter); } }
+  @media (min-width: 768px) { .partners { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--grid-gutter); max-width: 880px; margin-inline: auto; } }
   .partner { display: grid; gap: var(--space-4); justify-items: start; align-content: start; padding: var(--space-6) var(--space-5); background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--elev-inset); }
   .partner__note { color: var(--ink-secondary); }
 </style>

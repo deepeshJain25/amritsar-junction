@@ -71,7 +71,7 @@ export function mountCartView(root: HTMLElement, opts: CartViewOptions = {}) {
     const sub = cart.subtotal(c);
     totals.replaceChildren(
       h('div', {}, h('dt', {}, 'Subtotal'), h('dd', { class: 'text-tabular' }, money(sub))),
-      h('div', { class: 'cart__muted' }, h('dt', {}, 'Delivery'), h('dd', {}, `${money(ordering.delivery.feeCents)} if delivered`)),
+      ...(ordering.delivery.enabled ? [h('div', { class: 'cart__muted' }, h('dt', {}, 'Delivery'), h('dd', {}, `${money(ordering.delivery.feeCents)} if delivered`))] : []),
       h('div', { class: 'cart__grand' }, h('dt', {}, 'Total'), h('dd', { class: 'text-tabular' }, money(sub))),
     );
     checkout.textContent = `Checkout · ${money(sub)}`;
